@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar.tsx";
 import { CommandPalette } from "@/components/CommandPalette.tsx";
 import { MinisterView } from "@/components/views/MinisterView.tsx";
@@ -10,19 +10,55 @@ import { AnalyticsView } from "@/components/views/AnalyticsView.tsx";
 import { EntitiesCatalog } from "@/components/EntitiesCatalog.tsx";
 import { InternalDataView } from "@/components/views/InternalDataView.tsx";
 import { DossierModal } from "@/components/views/DossierModal.tsx";
+import { AuthScreen } from "@/components/AuthScreen.tsx";
 import {
   ALL_ENTITIES_REGISTRY,
   TOP_FIRE_ALERTS,
 } from "@/lib/mapscope-data.ts";
 import type { UserRole, EntityRecord, InternalDataEntry } from "@/lib/types.ts";
-import { Search, Flame, Bell, Shield, Radio } from "lucide-react";
+import { Search, Flame, Bell, Shield, Radio, LogOut } from "lucide-react";
 
 export default function HomePage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [activeRole, setActiveRole] = useState<UserRole>("minister");
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [internalData, setInternalData] = useState<Record<string, InternalDataEntry>>({});
+
+  useEffect(() => {
+    try {
+      const isAuth =
+        sessionStorage.getItem("mapscope_authenticated") === "true" ||
+        localStorage.getItem("mapscope_authenticated") === "true";
+      setIsAuthenticated(isAuth);
+    } catch {
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem("mapscope_authenticated");
+      localStorage.removeItem("mapscope_authenticated");
+    } catch {
+      // Ignored
+    }
+    setIsAuthenticated(false);
+  };
+
+  if (isAuthenticated === null) {
+    // Ekran ładowania przed weryfikacją sesji
+    return (
+      <div className="h-screen w-screen bg-[#070a0d] flex items-center justify-center text-xs font-mono text-[#8e9da7]">
+        Inicjalizacja środowiska MAPscope...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthScreen onSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   const p1Alerts = TOP_FIRE_ALERTS.filter((a) => a.priority === "p1");
 
@@ -86,6 +122,16 @@ export default function HomePage() {
               title="Szukaj (Cmd+K)"
             >
               <Search className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono text-[#8e9da7] hover:text-[#ff7f87] hover:bg-[#ff7f87]/10 border border-transparent hover:border-[#ff7f87]/30 transition-colors"
+              title="Zablokuj sesję i wyloguj"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Wyloguj</span>
             </button>
           </div>
         </header>

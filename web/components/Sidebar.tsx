@@ -81,23 +81,24 @@ export function Sidebar({
   ];
 
   return (
-    <aside className="w-[264px] border-r border-[rgba(159,186,199,0.14)] bg-[#070a0d] flex flex-col shrink-0 select-none z-30">
+    <aside className="w-[288px] border-r border-[rgba(159,186,199,0.14)] bg-[#070a0d] flex flex-col shrink-0 select-none z-30">
       {/* Nagłówek i tożsamość rządowa */}
-      <div className="p-4 border-b border-[rgba(159,186,199,0.14)]">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
+      <div className="p-4 border-b border-[rgba(159,186,199,0.14)] bg-[#070a0d]">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
             <img
               src="/mapscope-logo-darkmode.png"
               alt="MAPscope Logo"
-              className="h-7 w-auto object-contain"
+              className="h-12 w-auto max-w-[215px] object-contain drop-shadow-[0_2px_14px_rgba(87,224,197,0.2)]"
             />
-            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30 shrink-0">
               GOV
             </span>
           </div>
-          <p className="text-[11px] text-[#8e9da7] leading-tight">
-            Nadzór Właścicielski i Radar Ryzyk MAP
-          </p>
+          <div className="flex items-center gap-1.5 text-[11px] text-[#8e9da7] leading-tight">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#57e0c5] animate-pulse shrink-0" />
+            <span>Nadzór Właścicielski i Radar Ryzyk MAP</span>
+          </div>
         </div>
 
         {/* Globalne wyszukiwanie (Cmd+K) */}

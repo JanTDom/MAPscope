@@ -20,6 +20,7 @@ import {
   MEDIA_RADAR_ANOMALIES,
 } from "@/lib/mapscope-data.ts";
 import type { CompanyDisclosureRecord, MediaRadarAnomalies } from "@/lib/types.ts";
+import { InteractiveGeminiAuditor } from "@/components/InteractiveGeminiAuditor.tsx";
 
 interface CommunicationViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -63,6 +64,9 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
           <span className="font-mono text-white">ANOMALIE AKTYWNE: {MEDIA_RADAR_ANOMALIES.length}</span>
         </div>
       </div>
+
+      {/* Interaktywny Audytor Oświadczeń Gemini AI */}
+      <InteractiveGeminiAuditor />
 
       {/* Wykres dynamiki wzmianek 24h & Radar anomalii */}
       <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">
