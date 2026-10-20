@@ -1,0 +1,14 @@
+Lp;Nazwa spółki;NIP;KRS;REGON;Udzial Skarbu Panstwa;Organ wykonujacy prawa;Status;Sektor;Departament MAP;Ticker;Spolka gieldowa
+1;ORLEN S.A.;7740001454;0000028860;610188201;49,90%;Minister Aktywów Państwowych;aktywna;Paliwa i Energetyka;Departament Spółek Strategicznych;PKN;true
+2;KGHM Polska Miedź S.A.;6920000013;0000023302;390021607;31,79%;Minister Aktywów Państwowych;aktywna;Surowce i Górnictwo;Departament Spółek Strategicznych;KGH;true
+3;PGE Polska Grupa Energetyczna S.A.;5260250541;0000159485;010260527;60,86%;Minister Aktywów Państwowych;aktywna;Energetyka;Departament Spółek Strategicznych;PGE;true
+4;Powszechny Zakład Ubezpieczeń S.A.;5260251075;0000009831;010268049;34,19%;Minister Aktywów Państwowych;aktywna;Finanse i Ubezpieczenia;Departament Spółek Strategicznych;PZU;true
+5;PKO Bank Polski S.A.;5250007738;0000026438;016298263;29,43%;Minister Aktywów Państwowych;aktywna;Finanse i Bankowość;Departament Spółek Strategicznych;PKO;true
+6;Totalizator Sportowy Sp. z o.o.;5250010982;0000007414;012862749;100,00%;Minister Aktywów Państwowych;aktywna;Gry i Rozrywka;Departament Nadzoru I;;false
+7;Poczta Polska S.A.;5250007313;0000334972;010684960;100,00%;Minister Aktywów Państwowych;aktywna;Logistyka i Usługi Pocztowe;Departament Nadzoru II;;false
+8;PKP CARGO S.A. w restrukturyzacji;5252277017;0000166676;015488764;33,01%;Minister Infrastruktury;restrukturyzacja;Transport Kolejowy;Departament Nadzoru II;PKP;true
+9;Polskie Sieci Elektroenergetyczne S.A.;5262888343;0000197596;015669195;100,00%;Pełnomocnik Rządu ds. Strategicznej Infrastruktury Energetycznej;aktywna;Infrastruktura Przesyłowa;Departament Spółek Strategicznych;;false
+10;Krajowa Grupa Spożywcza S.A.;6842223445;0000084678;370487100;79,88%;Minister Aktywów Państwowych;aktywna;Rolnictwo i Przetwórstwo;Departament Nadzoru I;;false
+11;Kopalnia Soli "Wieliczka" S.A.;6830003427;0000030908;000041683;100,00%;Minister Aktywów Państwowych;aktywna;Turystyka i Dziedzictwo;Departament Nadzoru I;;false
+12;Huta Stalowa Wola S.A.;8650003364;0000038318;830026218;100,00%;Minister Aktywów Państwowych;aktywna;Przemysł Obronny;Departament Spółek Strategicznych;;false
+13;Przedsiębiorstwo Komunalne Ziemi Lubuskiej w likwidacji;9730001122;0000099881;970011223;100,00%;Wojewoda Lubuski;likwidacja;Gospodarka Komunalna;Departament Nadzoru II;;false

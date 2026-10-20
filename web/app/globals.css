@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --map-bg: #06090e;
+  --map-surface: #0b1118;
+  --map-surface-raised: #101923;
+  --map-border: rgba(160, 190, 210, 0.12);
+  --map-border-strong: rgba(160, 190, 210, 0.25);
+  --map-text: #f3f6f9;
+  --map-muted: #8a9ba8;
+  --map-subtle: #546675;
+  --map-gold: #c59b27;
+  --map-blue: #2563eb;
+  --map-cyan: #06b6d4;
+  --map-danger: #ef4444;
+  --map-warning: #f59e0b;
+  --map-success: #10b981;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--map-bg);
+  color-scheme: dark;
+}
+
+body {
+  min-width: 320px;
+  background: var(--map-bg);
+  color: var(--map-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline: 2px solid var(--map-gold);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(197, 155, 39, 0.3);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06090e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1c2833;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2c3e50;
+}
