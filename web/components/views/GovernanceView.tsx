@@ -20,6 +20,7 @@ import {
   XCircle,
   HelpCircle,
   Award,
+  Network,
 } from "lucide-react";
 import {
   ALL_ENTITIES_REGISTRY,
@@ -28,6 +29,7 @@ import {
   GOVERNANCE_SENTIMENT_HISTORY,
 } from "@/lib/mapscope-data.ts";
 import type { EntityRecord } from "@/lib/types.ts";
+import { GovernanceNetworkGraph } from "@/components/charts/GovernanceNetworkGraph.tsx";
 
 interface GovernanceViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -38,7 +40,7 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
   const [shareFilter, setShareFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deptFilter, setDeptFilter] = useState<string>("all");
-  const [activeGovernanceTab, setActiveGovernanceTab] = useState<"mandates" | "article19" | "sentiment_impact">("mandates");
+  const [activeGovernanceTab, setActiveGovernanceTab] = useState<"mandates" | "article19" | "sentiment_impact" | "network">("mandates");
 
   // Sumaryczne wskaźniki ładu korporacyjnego
   const totalVacancies = useMemo(() => {
@@ -211,6 +213,19 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
             >
               <TrendingDown className="w-3.5 h-3.5 text-[#75b8ff]" />
               <span>Korelacja: Zmiana Władz vs Kryzys</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveGovernanceTab("network")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                activeGovernanceTab === "network"
+                  ? "bg-[#16222b] text-white border border-[#a855f7]/50 shadow-sm text-white"
+                  : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+              }`}
+            >
+              <Network className="w-3.5 h-3.5 text-[#a855f7]" />
+              <span>Graf Powiązań & Art. 19a</span>
             </button>
           </div>
         </div>
@@ -417,6 +432,13 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Widok 4: Interaktywny Graf Powiązań Personalnych i Art. 19a */}
+        {activeGovernanceTab === "network" && (
+          <div className="pt-2 animate-in fade-in duration-150">
+            <GovernanceNetworkGraph />
           </div>
         )}
       </div>

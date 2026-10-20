@@ -30,6 +30,8 @@ import {
   PARLIAMENTARY_INQUIRIES,
   KPRM_ONE_PAGER_DATA,
 } from "@/lib/mapscope-data.ts";
+import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot.tsx";
+import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
 
 interface MinisterViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -139,6 +141,19 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Kwadrantowa macierz ryzyka właścicielskiego 2D */}
+      <RiskMatrixScatterPlot
+        onSelectPoint={(pt) => {
+          // Jeśli spółka ma odpowiednik w katalogu, otwieramy jej dossier
+          const match = TOP_FIRE_ALERTS.find((a) =>
+            a.entityName.toLowerCase().includes(pt.tickerOrAlias.toLowerCase())
+          );
+          if (match) {
+            onOpenDossier(match.entityId);
+          }
+        }}
+      />
 
       {/* Moduł: Najważniejsze pożary dnia (Top Alerts P1/P2) z Tarczą Sejmową */}
       <div className="space-y-3">
@@ -528,6 +543,9 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Kalendarzowa mapa cieplna aktywności kryzysowej i posiedzeń Sejmu */}
+      <CalendarHeatmapChart />
 
       {/* Modal KPRM One-Pager dla Premiera */}
       {isKprmModalOpen && (

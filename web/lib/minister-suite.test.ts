@@ -14,6 +14,17 @@ import {
   STRATEGIC_CAPEX_PROJECTS,
   INTER_MINISTERIAL_TRANSFERS,
   NIK_INSPECTION_RECOMMENDATIONS,
+  VOIVODESHIP_REGIONAL_DATA,
+  RISK_MATRIX_SCATTER_POINTS,
+  SANKEY_FLOW_DATA,
+  RADAR_SPIDER_PROFILES,
+  GOVERNANCE_NETWORK_DATA,
+  REPUTATION_WATERFALL_STEPS,
+  CALENDAR_HEATMAP_DATA,
+  STOCK_EXCHANGE_DATA,
+  ESPI_REPORTS_DATA,
+  ANALYST_CONSENSUS_DATA,
+  LOCAL_MUNICIPAL_ISSUES,
 } from "./mapscope-data.ts";
 
 test("1. Gabinet Ministra: Tarcza Sejmowa zawiera pancerne Q&A, czerwone linie i rozróżnienie genezy", () => {
@@ -188,3 +199,70 @@ function azotyStrategicLitigations(): boolean {
   if (!lits || lits.length === 0) return false;
   return lits.some((l) => l.valueMlnPln > 500 && l.opponent.includes("Hyundai"));
 }
+
+test("8. Pakiet Zaawansowanych Wizualizacji: 7 wykresów i kartogramów instytucjonalnych", () => {
+  // 1. Geolokalizacja: 16 województw
+  assert.strictEqual(VOIVODESHIP_REGIONAL_DATA.length, 16, "Musi obejmować dokładnie 16 województw");
+  const slask = VOIVODESHIP_REGIONAL_DATA.find((v) => v.id === "slaskie");
+  assert.strictEqual(slask?.riskStatus, "krytyczny");
+  assert.ok((slask?.strikeAlertsCount ?? 0) >= 3, "Śląskie musi mieć zarejestrowane ogniska sporów");
+
+  // 2. Kwadrantowa macierz 2D
+  assert.ok(RISK_MATRIX_SCATTER_POINTS.length >= 10, "Macierz musi pozycjonować kluczowe spółki portfela");
+  const redZone = RISK_MATRIX_SCATTER_POINTS.filter((p) => p.quadrant === "czerwona_strefa_kprm");
+  assert.ok(redZone.length >= 4, "W czerwonej strefie KPRM muszą znaleźć się m.in. Orlen, PKP Cargo, Poczta i Totalizator");
+
+  // 3. Diagram Sankeya: 18,4B PLN
+  assert.strictEqual(SANKEY_FLOW_DATA.nodes.length, 7);
+  assert.strictEqual(SANKEY_FLOW_DATA.links.length, 6);
+  const totalProfitNode = SANKEY_FLOW_DATA.nodes.find((n) => n.id === "total_profit");
+  assert.strictEqual(totalProfitNode?.value, 18.40);
+  const budgetLink = SANKEY_FLOW_DATA.links.find((l) => l.target === "state_budget");
+  assert.strictEqual(budgetLink?.value, 4.12);
+
+  // 4. Radar 360° dojrzałości
+  const orlenRadar = RADAR_SPIDER_PROFILES["e-orlen"];
+  assert.ok(orlenRadar && orlenRadar.aggregateMaturity >= 80, "Orlen musi mieć wysoką dojrzałość zarządczą");
+  const cargoRadar = RADAR_SPIDER_PROFILES["e-pkp-cargo"];
+  assert.strictEqual(cargoRadar?.status, "alarmowa");
+
+  // 5. Graf powiązań personalnych Art. 19a
+  const violationNode = GOVERNANCE_NETWORK_DATA.nodes.find((n) => n.art19ViolationRisk);
+  assert.ok(violationNode, "Musi zidentyfikować ryzyko wieloetatowości w radach SP");
+
+  // 6. Wodospad wizerunkowy MAP
+  assert.strictEqual(REPUTATION_WATERFALL_STEPS.length, 8);
+  const netStep = REPUTATION_WATERFALL_STEPS[REPUTATION_WATERFALL_STEPS.length - 1];
+  assert.strictEqual(netStep.cumulative, 68);
+
+  // 7. Kalendarzowa mapa cieplna
+  assert.ok(CALENDAR_HEATMAP_DATA.length >= 290, "Musi pokrywać kalendarz roczny 2026");
+  const criticalDay = CALENDAR_HEATMAP_DATA.find((d) => d.date === "2026-10-20");
+  assert.strictEqual(criticalDay?.intensity, 4);
+});
+
+test("9. Giełda GPW, Relacje Inwestorskie ESPI/EBI i Radar Samorządowy", () => {
+  // Notowania GPW
+  assert.ok(STOCK_EXCHANGE_DATA.length >= 8, "Musi monitorować co najmniej 8 flagowych spółek giełdowych SP");
+  const orlenStock = STOCK_EXCHANGE_DATA.find((s) => s.ticker === "PKN");
+  assert.ok(orlenStock && orlenStock.marketCapMldPln > 70);
+  assert.ok(orlenStock.stateShareValueMldPln > 30);
+
+  // Raporty ESPI z flagą MAR
+  assert.ok(ESPI_REPORTS_DATA.length >= 5, "Musi zawierać rejestr raportów bieżących");
+  const marAlerts = ESPI_REPORTS_DATA.filter((r) => r.isMarRiskFlag);
+  assert.ok(marAlerts.length >= 2, "Musi zidentyfikować raporty niosące ryzyko naruszenia MAR (np. PKP Cargo, Azoty)");
+
+  // Konsensus analityków
+  assert.ok(ANALYST_CONSENSUS_DATA.length >= 5);
+  const pkoConsensus = ANALYST_CONSENSUS_DATA.find((c) => c.entityTicker === "PKO");
+  assert.ok(pkoConsensus && pkoConsensus.buyCount >= 7);
+
+  // Spory samorządowe i podatki lokalne
+  assert.ok(LOCAL_MUNICIPAL_ISSUES.length >= 5);
+  const kleszczow = LOCAL_MUNICIPAL_ISSUES.find((i) => i.municipalityName.includes("Kleszczów"));
+  assert.ok(kleszczow && kleszczow.financialImpactMlnPln >= 70);
+  const monocultures = LOCAL_MUNICIPAL_ISSUES.filter((i) => i.countyWorkforceSharePercent > 25);
+  assert.ok(monocultures.length >= 3, "Musi wykryć monokultury zatrudnienia powyżej 25% rynku pracy powiatu");
+});
+

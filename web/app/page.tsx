@@ -11,6 +11,7 @@ import { EntitiesCatalog } from "@/components/EntitiesCatalog.tsx";
 import { InternalDataView } from "@/components/views/InternalDataView.tsx";
 import { DossierModal } from "@/components/views/DossierModal.tsx";
 import { AuthScreen } from "@/components/AuthScreen.tsx";
+import { OsintSearchModal } from "@/components/OsintSearchModal.tsx";
 import {
   ALL_ENTITIES_REGISTRY,
   TOP_FIRE_ALERTS,
@@ -24,6 +25,7 @@ export default function HomePage() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isOsintOpen, setIsOsintOpen] = useState(false);
   const [internalData, setInternalData] = useState<Record<string, InternalDataEntry>>({});
 
   useEffect(() => {
@@ -117,6 +119,16 @@ export default function HomePage() {
 
             <button
               type="button"
+              onClick={() => setIsOsintOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-600/20 text-blue-400 border border-blue-500/40 hover:bg-blue-600/30 hover:text-white transition-all shadow-sm"
+              title="Przeszukaj otwarty Internet i media w czasie rzeczywistym"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse text-blue-400" />
+              <span>Nasłuch OSINT Sieci</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setIsSearchOpen(true)}
               className="p-1.5 rounded-lg text-[#8e9da7] hover:text-white hover:bg-[#111a21] border border-transparent hover:border-[rgba(159,186,199,0.14)] transition-colors"
               title="Szukaj (Cmd+K)"
@@ -185,6 +197,12 @@ export default function HomePage() {
         onClose={() => setIsSearchOpen(false)}
         entities={ALL_ENTITIES_REGISTRY}
         onSelectEntity={handleOpenDossier}
+      />
+
+      {/* Modal Wyszukiwarki OSINT w Sieci */}
+      <OsintSearchModal
+        isOpen={isOsintOpen}
+        onClose={() => setIsOsintOpen(false)}
       />
 
       {/* Modal Dossier 360° */}

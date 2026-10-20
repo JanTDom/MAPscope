@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   FileText,
   ExternalLink,
+  TrendingUp,
 } from "lucide-react";
 import type { EntityRecord } from "@/lib/types.ts";
 import {
@@ -28,6 +29,10 @@ import {
   STRATEGIC_CAPEX_PROJECTS,
   INTER_MINISTERIAL_TRANSFERS,
 } from "@/lib/mapscope-data.ts";
+import { PolandMapChart } from "@/components/charts/PolandMapChart.tsx";
+import { SankeyFlowChart } from "@/components/charts/SankeyFlowChart.tsx";
+import { StockMarketTerminal } from "@/components/charts/StockMarketTerminal.tsx";
+import { LocalIssuesRadar } from "@/components/charts/LocalIssuesRadar.tsx";
 
 interface AnalyticsViewProps {
   entities: EntityRecord[];
@@ -44,7 +49,7 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
-  const [executiveMode, setExecutiveMode] = useState<"overview" | "dividends" | "capex" | "transfers">("overview");
+  const [executiveMode, setExecutiveMode] = useState<"overview" | "dividends" | "capex" | "transfers" | "market" | "municipal">("overview");
 
   const stats = EXECUTIVE_ANALYTICS;
 
@@ -302,12 +307,42 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
             <Layers className="w-3.5 h-3.5 text-[#75b8ff]" />
             <span>Transfery Międzyresortowe</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("market")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "market"
+                ? "bg-[#16222b] text-white border border-[#10b981]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-[#10b981]" />
+            <span>Giełda GPW & Relacje ESPI</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("municipal")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "municipal"
+                ? "bg-[#16222b] text-white border border-[#f59e0b]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <MapPin className="w-3.5 h-3.5 text-[#f59e0b]" />
+            <span>Problemy Lokalne & Samorządy</span>
+          </button>
         </div>
       </div>
 
       {/* Widok Specjalny: Projekcja Dywidend */}
       {executiveMode === "dividends" && (
-        <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4 shadow-lg">
+        <div className="space-y-6">
+          {/* Diagram Sankeya alokacji zysków i strumieni dywidendowych */}
+          <SankeyFlowChart />
+
+          <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4 shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(159,186,199,0.1)]">
             <div>
               <h2 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -391,6 +426,7 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 
@@ -547,9 +583,30 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
           </div>
         </div>
       )}
+
+      {/* Widok Specjalny: Terminal Giełdowy GPW i Relacje Inwestorskie */}
+      {executiveMode === "market" && (
+        <StockMarketTerminal onSelectEntity={onSelectEntity} />
+      )}
+
+      {/* Widok Specjalny: Radar Problemów Lokalnych i Samorządowych */}
+      {executiveMode === "municipal" && (
+        <LocalIssuesRadar onSelectEntity={onSelectEntity} />
+      )}
+
       {/* Widok Podstawowy: Przekrój Portfela (Bento + Tabela 406 SSP) */}
       {executiveMode === "overview" && (
         <>
+          {/* Interaktywna mapa Polski z geolokalizacją aktywów i ognisk kryzysowych */}
+          <PolandMapChart
+            onSelectVoivodeship={(v) => {
+              // Ustawienie wyszukiwania na nazwę województwa lub głównej spółki
+              if (v.keyFlagships.length > 0) {
+                setSearchQuery(v.keyFlagships[0].split(" ")[0]);
+              }
+            }}
+          />
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Lewa kolumna: Zestawienie wg 17 organów reprezentujących państwo */}
         <div className="lg:col-span-7 p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">

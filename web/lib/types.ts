@@ -453,3 +453,179 @@ export interface InternalDataEntry {
   inspectionFileNumbers: string[];
   updatedAt: string;
 }
+
+// ==========================================
+// PAKIET ZAAWANSOWANYCH WIZUALIZACJI I OSINT
+// ==========================================
+
+export interface VoivodeshipRegionalData {
+  id: string; // np. "mazowieckie", "slaskie"
+  name: string; // "Mazowieckie"
+  pathData: string; // SVG path
+  center: [number, number]; // [x, y] w viewbox 0 0 600 550
+  entitiesCount: number;
+  workforceCount: number;
+  strikeAlertsCount: number;
+  liquidationSitesCount: number;
+  riskStatus: "stabilny" | "podwyższone_ryzyko" | "krytyczny";
+  keyFlagships: string[];
+  primaryRegionalIssue: string;
+}
+
+export interface RiskMatrixScatterPoint {
+  id: string;
+  entityName: string;
+  tickerOrAlias: string;
+  sector: string;
+  probability: number; // 0 - 100%
+  ministerImpact: number; // 0 - 100%
+  workforceOrAssetsWeight: number; // wielkość bąbla (np. 15 - 45)
+  category: "kadry" | "finanse" | "awaria" | "spór_społeczny" | "regulacje";
+  summary: string;
+  quadrant: "czerwona_strefa_kprm" | "ryzyko_wizerunkowe" | "konflikt_operacyjny" | "stabilny_monitoring";
+}
+
+export interface SankeyFlowLink {
+  source: string;
+  target: string;
+  value: number; // w mld PLN
+  label: string;
+  color?: string;
+}
+
+export interface SankeyFlowNode {
+  id: string;
+  name: string;
+  column: number; // 0: zysk całkowity, 1: alokacja wewnętrzna, 2: beneficjent końcowy
+  value: number; // mld PLN
+  color: string;
+  subtext?: string;
+}
+
+export interface RadarSpiderMetrics {
+  entityId: string;
+  governanceScore: number; // Ład korporacyjny & Art. 19 (0-100)
+  communicationScore: number; // Dyscyplina medialna & brak wpadek (0-100)
+  financeScore: number; // Płynność finansowa & EBITDA (0-100)
+  capexScore: number; // Terminowość projektów strategicznych (0-100)
+  socialScore: number; // Dialog ze związkami zawodowymi (0-100)
+  auditScore: number; // Czystość kontrolna NIK / KNF (0-100)
+  aggregateMaturity: number; // Średnia ważona
+  status: "bezpieczna" | "wymaga_nadzoru" | "alarmowa";
+}
+
+export interface GovernanceNetworkNode {
+  id: string;
+  label: string;
+  type: "person" | "company";
+  role?: string;
+  entityCount?: number;
+  art19ViolationRisk?: boolean;
+}
+
+export interface GovernanceNetworkEdge {
+  source: string;
+  target: string;
+  role: string;
+  delegatingBody: string;
+  sinceDate: string;
+  isHoldingTie?: boolean;
+}
+
+export interface ReputationWaterfallStep {
+  id: string;
+  label: string;
+  category: "baseline" | "negative_event" | "positive_intervention" | "net_total";
+  delta: number; // zmiana punktowa np. -16 lub +24
+  cumulative: number;
+  description: string;
+  date: string;
+}
+
+export interface CalendarHeatmapDay {
+  date: string; // YYYY-MM-DD
+  dayOfWeek: number; // 0-6
+  weekIndex: number; // 0-51
+  intensity: number; // 0 - 4
+  crisisEventsCount: number;
+  parliamentSitting: boolean;
+  cabinetMeeting: boolean;
+  notableEvent?: string;
+}
+
+export interface OsintSearchResult {
+  title: string;
+  link: string;
+  sourceDomain: string;
+  sourceName: string;
+  snippet?: string;
+  pubDate?: string;
+  urgencyTier: "P1" | "P2" | "P3";
+  riskCategory: string;
+  isDuplicate?: boolean;
+}
+
+// ==========================================
+// GIEŁDA GPW, RELACJE INWESTORSKIE & SAMORZĄDY
+// ==========================================
+
+export interface StockExchangeData {
+  entityId: string;
+  ticker: string;
+  isListed: boolean;
+  currentPricePln: number;
+  change1dPercent: number;
+  change1mPercent: number;
+  marketCapMldPln: number;
+  stateShareValueMldPln: number;
+  peRatio: number; // C/Z
+  pbRatio: number; // C/WK
+  dividendYieldPercent: number;
+  politicalDiscountPercent: number; // Szacowane dyskonto ryzyka regulacyjnego
+  indexBasket: string[];
+}
+
+export interface EspiReportRecord {
+  id: string;
+  reportNumber: string;
+  entityTicker: string;
+  entityName: string;
+  publishedAt: string;
+  title: string;
+  category: "MAR_POUFNA" | "KADRY" | "WYNIKI" | "DYWIDENDA" | "SPÓR_SĄDOWY" | "INWESTYCJE";
+  isMarRiskFlag: boolean;
+  summary: string;
+  espiUrl: string;
+}
+
+export interface AnalystConsensusRecord {
+  entityTicker: string;
+  entityName: string;
+  buyCount: number;
+  holdCount: number;
+  sellCount: number;
+  averageTargetPricePln: number;
+  currentPricePln: number;
+  upsideDownsidePercent: number;
+  topBrokers: {
+    broker: string;
+    rating: "Kupuj" | "Trzymaj" | "Redukuj" | "Sprzedaj";
+    targetPrice: number;
+    date: string;
+  }[];
+}
+
+export interface LocalMunicipalIssue {
+  id: string;
+  entityId: string;
+  entityName: string;
+  municipalityName: string; // np. "Gmina Kleszczów", "Miasto Płock", "Gmina Lubin"
+  voivodeship: string;
+  issueType: "PODATEK_LOKALNY" | "ŚRODOWISKO_ODORY" | "ZATRUDNIENIE_RYNEK_PRACY" | "SPÓR_PLANISTYCZNY";
+  financialImpactMlnPln: number;
+  description: string;
+  status: "otwarty_spór" | "negocjacje" | "ugoda";
+  countyWorkforceSharePercent: number; // % udziału w lokalnym rynku pracy
+}
+
+

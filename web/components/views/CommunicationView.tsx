@@ -32,6 +32,7 @@ import {
 } from "@/lib/mapscope-data.ts";
 import type { CompanyDisclosureRecord, MediaRadarAnomalies } from "@/lib/types.ts";
 import { InteractiveGeminiAuditor } from "@/components/InteractiveGeminiAuditor.tsx";
+import { ReputationWaterfallChart } from "@/components/charts/ReputationWaterfallChart.tsx";
 
 interface CommunicationViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -224,6 +225,9 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Wodospad wizerunkowy MAP: bilans zysków i strat sentymentu */}
+      <ReputationWaterfallChart />
 
       {/* Interaktywny Audytor Oświadczeń Gemini AI */}
       <InteractiveGeminiAuditor />

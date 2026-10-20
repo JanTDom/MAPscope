@@ -20,8 +20,17 @@ import {
   Copy,
   CheckCircle2,
   Gavel,
+  TrendingUp,
+  MapPin,
 } from "lucide-react";
 import type { EntityRecord, InternalDataEntry } from "@/lib/types.ts";
+import { RadarSpiderChart } from "@/components/charts/RadarSpiderChart.tsx";
+import {
+  STOCK_EXCHANGE_DATA,
+  ESPI_REPORTS_DATA,
+  ANALYST_CONSENSUS_DATA,
+  LOCAL_MUNICIPAL_ISSUES,
+} from "@/lib/mapscope-data.ts";
 
 interface DossierModalProps {
   entity: EntityRecord | null;
@@ -31,7 +40,7 @@ interface DossierModalProps {
 
 export function DossierModal({ entity, onClose, internalData }: DossierModalProps) {
   const [activeTab, setActiveTab] = useState<
-    "briefing" | "governance" | "communication" | "finance" | "legal" | "social" | "timeline"
+    "briefing" | "governance" | "communication" | "finance" | "legal" | "social" | "timeline" | "market" | "local"
   >("briefing");
   const [copiedBriefing, setCopiedBriefing] = useState(false);
 
@@ -132,6 +141,8 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
             { id: "legal", label: "4. Prawne i Spory", icon: Scale },
             { id: "social", label: "5. Czynniki Społeczne", icon: HeartHandshake },
             { id: "timeline", label: "6. Oś Czasu", icon: Clock },
+            { id: "market", label: "7. Giełda i ESPI", icon: TrendingUp },
+            { id: "local", label: "8. Samorządy i Ekologia", icon: MapPin },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -207,6 +218,9 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                   </div>
                 ))}
               </div>
+
+              {/* Sześcioosiowy Radar Dojrzałości Zarządczej Spółki */}
+              <RadarSpiderChart entityId={entity.id} />
 
               {/* Status Sytuacji */}
               <div className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.1)] space-y-1">
@@ -563,6 +577,211 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
               </div>
             </div>
           )}
+
+          {/* Filar 7: Giełda GPW & Relacje Inwestorskie ESPI */}
+          {activeTab === "market" && (() => {
+            const stock = STOCK_EXCHANGE_DATA.find(
+              (s) => s.entityId === entity.id || entity.name.toLowerCase().includes(s.ticker.toLowerCase())
+            );
+            const espiForEntity = ESPI_REPORTS_DATA.filter((r) => stock && r.entityTicker === stock.ticker);
+            const consensusForEntity = ANALYST_CONSENSUS_DATA.find((c) => stock && c.entityTicker === stock.ticker);
+
+            return (
+              <div className="space-y-4 animate-in fade-in duration-150">
+                {stock ? (
+                  <>
+                    <div className="p-4 rounded-xl bg-[#0d1318] border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-xs bg-slate-800 text-white px-2 py-0.5 rounded border border-slate-700">
+                            GPW: {stock.ticker}
+                          </span>
+                          <span className="text-xs text-[#8e9da7]">Giełda Papierów Wartościowych w Warszawie</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white mt-1">
+                          Wycena Rynkowa i Pakiet Skarbu Państwa
+                        </h3>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-[10px] font-mono text-[#8e9da7] block uppercase">Kurs giełdowy</span>
+                        <div className="flex items-center gap-2 justify-end">
+                          <span className="text-xl font-bold font-mono text-white">
+                            {stock.currentPricePln.toFixed(2)} PLN
+                          </span>
+                          <span
+                            className={`font-mono text-xs font-bold ${
+                              stock.change1dPercent >= 0 ? "text-emerald-400" : "text-red-400"
+                            }`}
+                          >
+                            {stock.change1dPercent >= 0 ? `+${stock.change1dPercent}%` : `${stock.change1dPercent}%`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Wskaźniki Finansowo-Wycenowe */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.12)]">
+                        <span className="text-[10px] text-[#8e9da7] uppercase font-mono block">Wartość pakietu SP</span>
+                        <span className="text-base font-bold font-mono text-[#57e0c5]">
+                          {stock.stateShareValueMldPln.toFixed(2)} mld zł
+                        </span>
+                      </div>
+                      <div className="p-3 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.12)]">
+                        <span className="text-[10px] text-[#8e9da7] uppercase font-mono block">Kapitalizacja całości</span>
+                        <span className="text-base font-bold font-mono text-white">
+                          {stock.marketCapMldPln.toFixed(2)} mld zł
+                        </span>
+                      </div>
+                      <div className="p-3 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.12)]">
+                        <span className="text-[10px] text-[#8e9da7] uppercase font-mono block">Wycena C/Z & C/WK</span>
+                        <span className="text-base font-bold font-mono text-slate-200">
+                          {stock.peRatio < 0 ? "ujemny" : stock.peRatio} / {stock.pbRatio}
+                        </span>
+                      </div>
+                      <div className="p-3 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.12)]">
+                        <span className="text-[10px] text-[#8e9da7] uppercase font-mono block">Dyskonto polityczne</span>
+                        <span className="text-base font-bold font-mono text-amber-400">
+                          {stock.politicalDiscountPercent}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Konsensus Analityków (jeśli dostępny) */}
+                    {consensusForEntity && (
+                      <div className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.14)] space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-white uppercase tracking-wider text-[11px]">
+                            Konsensus Domów Maklerskich:
+                          </span>
+                          <span className="font-mono text-emerald-400 font-bold">
+                            Średnia cena docelowa: {consensusForEntity.averageTargetPricePln.toFixed(2)} PLN (potencjał {consensusForEntity.upsideDownsidePercent > 0 ? `+${consensusForEntity.upsideDownsidePercent}%` : `${consensusForEntity.upsideDownsidePercent}%`})
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold font-mono">
+                            KUPUJ: {consensusForEntity.buyCount}
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold font-mono">
+                            TRZYMAJ: {consensusForEntity.holdCount}
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold font-mono">
+                            SPRZEDAJ: {consensusForEntity.sellCount}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Raporty Bieżące ESPI/EBI */}
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Ostatnie raporty bieżące ESPI / EBI:
+                      </h4>
+                      {espiForEntity.length > 0 ? (
+                        <div className="space-y-2">
+                          {espiForEntity.map((r) => (
+                            <div
+                              key={r.id}
+                              className={`p-3 rounded-lg bg-[#070a0d] border ${
+                                r.isMarRiskFlag ? "border-red-500/40" : "border-[rgba(159,186,199,0.1)]"
+                              } space-y-1`}
+                            >
+                              <div className="flex items-center justify-between text-[11px]">
+                                <span className="font-mono font-bold text-white">{r.reportNumber}</span>
+                                <span className="font-mono text-[#8e9da7]">{r.publishedAt}</span>
+                              </div>
+                              <p className="text-xs text-slate-200 font-medium">{r.title}</p>
+                              <p className="text-[11px] text-[#8e9da7]">{r.summary}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-3 text-xs text-[#8e9da7] bg-[#070a0d] rounded-lg border border-[rgba(159,186,199,0.1)]">
+                          Brak krytycznych raportów regulacyjnych w bieżącym okresie sprawozdawczym.
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-6 text-center space-y-2 bg-[#070a0d] rounded-xl border border-[rgba(159,186,199,0.12)]">
+                    <Building2 className="w-8 h-8 text-[#5d6b74] mx-auto" />
+                    <h4 className="text-sm font-bold text-white">Podmiot nienotowany na GPW</h4>
+                    <p className="text-xs text-[#8e9da7] max-w-md mx-auto">
+                      Spółka funkcjonuje jako spółka z ograniczoną odpowiedzialnością lub niepubliczna spółka akcyjna.
+                      Nadzór właścicielski sprawowany jest bezpośrednio przez walne zgromadzenie i radę nadzorczą bez obowiązku raportowania w ESPI/EBI.
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Filar 8: Samorządy, Problemy Lokalne & Ekologia */}
+          {activeTab === "local" && (() => {
+            const localIssues = LOCAL_MUNICIPAL_ISSUES.filter(
+              (i) => i.entityId === entity.id || entity.name.toLowerCase().includes(i.entityName.toLowerCase().split(" ")[0])
+            );
+
+            return (
+              <div className="space-y-4 animate-in fade-in duration-150">
+                <div className="p-4 rounded-xl bg-[#0d1318] border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold block">
+                      RADAR RELACJI SAMORZĄDOWYCH I SPOŁECZNO-ŚRODOWISKOWYCH
+                    </span>
+                    <h3 className="text-sm font-bold text-white mt-1">
+                      Wpływ na gminę, lokalny rynek pracy i spory podatkowe
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono text-[#8e9da7]">
+                    Zarejestrowane zagadnienia: {localIssues.length}
+                  </span>
+                </div>
+
+                {localIssues.length > 0 ? (
+                  <div className="space-y-3">
+                    {localIssues.map((iss) => (
+                      <div
+                        key={iss.id}
+                        className="p-4 rounded-xl bg-[#070a0d] border border-slate-800 space-y-2.5"
+                      >
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                          <div>
+                            <span className="text-xs font-bold text-white">{iss.municipalityName}</span>
+                            <span className="text-[10px] text-slate-500 font-mono ml-2">({iss.voivodeship})</span>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-amber-400">
+                            Wartość sporu: {iss.financialImpactMlnPln} mln PLN
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-300 leading-relaxed">{iss.description}</p>
+
+                        <div className="flex items-center justify-between text-[11px] pt-1 text-slate-400">
+                          <span>
+                            Udział w rynku pracy powiatu: <strong className="text-blue-400 font-mono">{iss.countyWorkforceSharePercent}%</strong>
+                          </span>
+                          <span className="font-mono uppercase text-amber-400 font-semibold">
+                            Status: {iss.status.replace("_", " ")}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center space-y-2 bg-[#070a0d] rounded-xl border border-[rgba(159,186,199,0.12)]">
+                    <MapPin className="w-8 h-8 text-[#5d6b74] mx-auto" />
+                    <h4 className="text-sm font-bold text-white">Brak otwartych sporów samorządowych</h4>
+                    <p className="text-xs text-[#8e9da7] max-w-md mx-auto">
+                      Podmiot utrzymuje stabilne relacje z władzami gminy i powiatu.
+                      Brak zarejestrowanych protestów mieszkańców, sporów o podatek od nieruchomości lub postępowań środowiskowych.
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Sekcja Danych Wewnętrznych (jeśli zostały wstrzyknięte) */}
           {internalData && (
