@@ -101,22 +101,24 @@ export function PolandMapChart({ onSelectVoivodeship, selectedId }: PolandMapCha
                     onClick={() => handleSelect(v)}
                     className="hover:scale-[1.01] transform-origin-center transition-transform"
                   />
-                  {/* Etykieta liczbowa na środku województwa */}
-                  <circle
-                    cx={v.center[0]}
-                    cy={v.center[1]}
-                    r={isSelected ? 14 : 11}
-                    fill="#0f172a"
-                    stroke={fillColor}
-                    strokeWidth={2}
-                    className="pointer-events-none"
+                  {/* Precyzyjna plakietka liczby podmiotów z ramką statusową (zamiast nieczytelnych kółek) */}
+                  <rect
+                    x={v.center[0] - 16}
+                    y={v.center[1] - 9}
+                    width={32}
+                    height={18}
+                    rx={4}
+                    fill="#0a1017"
+                    stroke={isSelected ? "#ffffff" : isHovered ? "#93c5fd" : fillColor}
+                    strokeWidth={isSelected ? 2 : 1.2}
+                    className="pointer-events-none drop-shadow-md"
                   />
                   <text
                     x={v.center[0]}
-                    y={v.center[1] + 4}
+                    y={v.center[1] + 3.5}
                     textAnchor="middle"
                     fill="#ffffff"
-                    fontSize={isSelected ? 11 : 9}
+                    fontSize={isSelected ? 10 : 9}
                     fontWeight="bold"
                     className="pointer-events-none font-mono"
                   >

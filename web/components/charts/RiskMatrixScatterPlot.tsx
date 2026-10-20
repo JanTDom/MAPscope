@@ -635,61 +635,64 @@ export function RiskMatrixScatterPlot({ onSelectPoint }: RiskMatrixScatterPlotPr
                 Stabilny monitoring
               </text>
 
-              {/* Bąbelki spółek z wyraźnymi etykietami */}
+              {/* Plakietki spółek zamiast nieczytelnych kółek */}
               {RISK_MATRIX_SCATTER_POINTS.map((pt) => {
                 const cx = xScale(pt.probability);
                 const cy = yScale(pt.ministerImpact);
-                const r = 9 + (pt.workforceOrAssetsWeight / 50) * 10;
                 const isSelected = selectedPoint.id === pt.id;
                 const isHovered = hoveredPoint?.id === pt.id;
                 const color = getCategoryColor(pt.category);
 
                 return (
-                  <g key={pt.id} className="cursor-pointer transition-all duration-150">
-                    {/* Poświata dla wybranego punktu */}
+                  <g
+                    key={pt.id}
+                    className="cursor-pointer transition-all duration-150"
+                    onMouseEnter={() => setHoveredPoint(pt)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                    onClick={() => handlePointClick(pt)}
+                  >
+                    {/* Zewnętrzna ramka zaznaczenia */}
                     {isSelected && (
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={r + 8}
+                      <rect
+                        x={cx - 40}
+                        y={cy - 16}
+                        width={80}
+                        height={32}
+                        rx={8}
                         fill="none"
                         stroke="#38bdf8"
                         strokeWidth="2"
-                        strokeDasharray="3 3"
-                        className="animate-spin"
+                        strokeDasharray="4 4"
                       />
                     )}
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={isSelected ? r + 3 : isHovered ? r + 2 : r}
-                      fill={color}
-                      fillOpacity={isSelected ? 0.95 : 0.75}
-                      stroke={isSelected ? "#ffffff" : isHovered ? "#f8fafc" : "#0f172a"}
-                      strokeWidth={isSelected ? 3 : 1.5}
-                      onMouseEnter={() => setHoveredPoint(pt)}
-                      onMouseLeave={() => setHoveredPoint(null)}
-                      onClick={() => handlePointClick(pt)}
-                    />
-                    {/* Tło etykiety dla zapewnienia 100% czytelności */}
+                    {/* Główna plakietka korporacyjna spółki */}
                     <rect
-                      x={cx - 24}
-                      y={cy - r - 15}
-                      width={48}
-                      height={13}
-                      rx={3}
-                      fill="#020617"
-                      fillOpacity="0.85"
-                      stroke="#334155"
-                      strokeWidth="0.5"
-                      className="pointer-events-none"
+                      x={cx - 36}
+                      y={cy - 13}
+                      width={72}
+                      height={26}
+                      rx={6}
+                      fill="#070c12"
+                      stroke={isSelected ? "#ffffff" : isHovered ? "#93c5fd" : color}
+                      strokeWidth={isSelected ? 2.5 : 1.5}
+                      className="drop-shadow-lg"
                     />
+                    {/* Boczny pasek kategorii ryzyka */}
+                    <rect
+                      x={cx - 36}
+                      y={cy - 13}
+                      width={4}
+                      height={26}
+                      rx={2}
+                      fill={color}
+                    />
+                    {/* Ticker spółki */}
                     <text
-                      x={cx}
-                      y={cy - r - 5}
+                      x={cx + 1}
+                      y={cy + 3.5}
                       textAnchor="middle"
                       fill={isSelected ? "#ffffff" : "#f1f5f9"}
-                      fontSize="9"
+                      fontSize="9.5"
                       fontWeight={isSelected ? "bold" : "600"}
                       className="pointer-events-none font-mono"
                     >

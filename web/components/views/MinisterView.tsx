@@ -54,6 +54,7 @@ import {
 } from "@/lib/mapscope-data.ts";
 import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot.tsx";
 import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
+import { PortfolioStressTestSimulator } from "@/components/charts/PortfolioStressTestSimulator.tsx";
 
 interface MinisterViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -69,14 +70,97 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
   const [isKprmModalOpen, setIsKprmModalOpen] = useState(false);
   const [copiedAlertId, setCopiedAlertId] = useState<string | null>(null);
 
-  // Nowy stan: Sala Narad KPRM (Tryb Wielkoekranowy) oraz Generator Mandatów WZ/NWZ
+  // Nowy stan: Sala Narad KPRM (Tryb Wielkoekranowy), Generator Mandatów WZ/NWZ oraz Fiszka 30s
   const [isBigScreenOpen, setIsBigScreenOpen] = useState(false);
   const [isAgmModalOpen, setIsAgmModalOpen] = useState(false);
+  const [isBriefingModalOpen, setIsBriefingModalOpen] = useState(false);
+  const [selectedBriefingId, setSelectedBriefingId] = useState<string>("br-totalizator");
+  const [copiedBriefingText, setCopiedBriefingText] = useState(false);
+
   const [selectedAgmId, setSelectedAgmId] = useState<string>(AGM_VOTING_TEMPLATES[0].id);
   const [activeVoteChoice, setActiveVoteChoice] = useState<"ZA" | "PRZECIW" | "WSTRZYMUJĘ_SIĘ">(
     AGM_VOTING_TEMPLATES[0].recommendedVote
   );
   const [copiedAgm, setCopiedAgm] = useState(false);
+
+  const WAR_ROOM_BRIEFINGS = [
+    {
+      id: "br-totalizator",
+      entity: "Totalizator Sportowy Sp. z o.o.",
+      ticker: "TOTALIZATOR",
+      openingStatement: "Wszystkie postępowania rekrutacyjne w spółce zostały objęte natychmiastowym audytem, a stanowiska w oddziałach regionalnych zostaną obsadzone w otwartych, transparentnych konkursach.",
+      hardNumbers: [
+        "17 oddziałów regionalnych objętych równoległą kontrolą KAS",
+        "0 tolerancji dla nepotyzmu w spółkach Skarbu Państwa",
+        "Ponad 3,2 mld PLN rocznego wkładu do Funduszu Rozwoju Kultury Fizycznej",
+      ],
+      redLineConstraint: "Kategoryczny zakaz komentowania nazwisk b. dyrektorów przed zakończeniem czynności prokuratorskich. Nie wchodzić w wątki prywatnych relacji.",
+      attributionPush: "Przez 8 lat rządów poprzedników w Totalizatorze nie przeprowadzono ani jednego otwartego konkursu na dyrektora oddziału.",
+    },
+    {
+      id: "br-cargo",
+      entity: "PKP CARGO S.A. w restrukturyzacji",
+      ticker: "PKPCARGO",
+      openingStatement: "Ratujemy narodowego przewoźnika towarowego przed upadłością likwidacyjną, do której doprowadziły zaniechania poprzedników i polityczna decyzja węglowa z 2022 roku.",
+      hardNumbers: [
+        "5,2 mld PLN zadłużenia odziedziczonego po poprzednich zarządach",
+        "4 100 pracowników w programie osłonowym z gwarancją pracy w PKP Intercity i Polregio",
+        "100% strategicznego taboru do przewozów wojskowych NATO zabezpieczone",
+      ],
+      redLineConstraint: "Zakaz używania sformułowania 'likwidacja'; konsekwentnie używać pojęcia 'sanacja prawna i ochrona przed upadłością'.",
+      attributionPush: "Raport NIK z 2023 r. czarno na białym wykazał, że zniszczenie rentowności PKP Cargo to bezpośredni skutek decyzji premiera Morawieckiego.",
+    },
+    {
+      id: "br-poczta",
+      entity: "Poczta Polska S.A.",
+      ticker: "POCZTA",
+      openingStatement: "Przeprowadzamy plan transformacji Poczty Polskiej w nowoczesnego operatora cyfrowo-kurierskiego, gwarantując terminową wypłatę pensji dla listonoszy i ciągłość usług powszechnych.",
+      hardNumbers: [
+        "620 mln PLN straty netto za 2023 rok pozostawionej przez poprzedników",
+        "850 mln PLN rekompensaty za świadczenie usług powszechnych odblokowane w KE",
+        "0 zamkniętych placówek pocztowych na terenach wiejskich",
+      ],
+      redLineConstraint: "Nie wchodzić w spory personalne ze związkami zawodowymi przed kamerami; stale ponawiać zaproszenie do dialogu przy stole negocjacyjnym.",
+      attributionPush: "Poprzednicy przez 8 lat ignorowali unijne wytyczne o finansowaniu usług powszechnych, doprowadzając Pocztę na skraj zapaści.",
+    },
+    {
+      id: "br-orlen",
+      entity: "ORLEN S.A.",
+      ticker: "PKN",
+      openingStatement: "Orlen stabilizuje rynek paliwowy, rozwija morskie farmy wiatrowe i odzyskuje wiarygodność u partnerów zagranicznych, a straty na szwajcarskiej spółce OTS wyjaśnia prokuratura.",
+      hardNumbers: [
+        "1,6 mld PLN odpisu na straty szwajcarskiej spółki OTS z czasów Obajtka",
+        "14,2 mld PLN realnych inwestycji w morską energetykę wiatrową Baltic Power",
+        "Rekordowe 38 mld PLN łącznych podatków i opłat odprowadzonych do budżetu",
+      ],
+      redLineConstraint: "Bezwzględna ochrona klauzul poufności kontraktów długoterminowych na dostawy ropy saudyjskiej (Saudi Aramco).",
+      attributionPush: "Wszystkie zawiadomienia do prokuratury dotyczą umów i zaliczek wypłaconych bez zabezpieczeń za kadencji poprzedniego zarządu.",
+    },
+  ];
+
+  const selectedBriefing =
+    WAR_ROOM_BRIEFINGS.find((b) => b.id === selectedBriefingId) || WAR_ROOM_BRIEFINGS[0];
+
+  const handleCopyBriefing = () => {
+    const text = [
+      `KIESZONKOWA FISZKA PRASOWA DLA MINISTRA (BRIEFING 30s)`,
+      `Sprawa: ${selectedBriefing.entity} (${selectedBriefing.ticker})`,
+      `--------------------------------------------------------------------------------`,
+      `OTWARCIE DO KAMER (1 ZDANIE):\n"${selectedBriefing.openingStatement}"`,
+      "",
+      `3 TWARDE LICZBY (FAKTY):\n${selectedBriefing.hardNumbers.map((n) => `• ${n}`).join("\n")}`,
+      "",
+      `CZERWONA LINIA (CZEGO NIE MÓWIĆ):\n${selectedBriefing.redLineConstraint}`,
+      "",
+      `PRZERZUCENIE PIŁKI (POPRZEDNICY/RESORTY):\n${selectedBriefing.attributionPush}`,
+      `--------------------------------------------------------------------------------`,
+      `Gabinet Polityczny MAP • 20 października 2026 r.`,
+    ].join("\n");
+
+    navigator.clipboard.writeText(text);
+    setCopiedBriefingText(true);
+    setTimeout(() => setCopiedBriefingText(false), 3000);
+  };
 
   const selectedAgmTemplate =
     AGM_VOTING_TEMPLATES.find((t) => t.id === selectedAgmId) || AGM_VOTING_TEMPLATES[0];
@@ -181,6 +265,19 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             <div className="text-left">
               <span className="block leading-tight text-white">Raport dla Premiera</span>
               <span className="text-[10px] text-[#8e9da7] font-mono block">KPRM One-Pager</span>
+            </div>
+          </button>
+
+          {/* Przycisk Kieszonkowa Fiszka dla Mediów (30s) */}
+          <button
+            type="button"
+            onClick={() => setIsBriefingModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-rose-500/30 text-xs font-semibold shadow-sm transition-all hover:border-rose-400 group"
+          >
+            <Radio className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <span className="block leading-tight text-white font-medium">Fiszka dla Mediów</span>
+              <span className="text-[10px] text-rose-300 font-mono block">Briefing w 30 sekund</span>
             </div>
           </button>
 
@@ -310,6 +407,9 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
           }
         }}
       />
+
+      {/* Centrum Testów Szokowych i Odporności Portfela SSP (Stress-Test Simulator) */}
+      <PortfolioStressTestSimulator />
 
       {/* Moduł: Najważniejsze pożary dnia (Top Alerts P1/P2) z Tarczą Sejmową */}
       <div className="space-y-3">
@@ -1330,6 +1430,161 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Kieszonkowa Fiszka Przedkonferencyjna w 30 Sekund */}
+      {isBriefingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0b1014] border border-rose-500/30 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Nagłówek Modalu */}
+            <div className="p-6 border-b border-rose-500/20 bg-[#12080c] flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">
+                    GABINET POLITYCZNY MAP • OCHRONA PRZED MIKROFONAMI
+                  </span>
+                  <span className="text-xs text-[#8e9da7] font-mono">
+                    Briefing przedkonferencyjny w 30 sekund
+                  </span>
+                </div>
+                <h2 className="text-base font-bold text-white mt-1">
+                  Kieszonkowa Fiszka Prasowa Ministra: {selectedBriefing.entity}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyBriefing}
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-xs text-white border border-[rgba(159,186,199,0.2)] flex items-center gap-1.5 transition-colors"
+                >
+                  {copiedBriefingText ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Skopiowano</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Kopiuj SMS / Signal</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsBriefingModalOpen(false)}
+                  className="p-1.5 rounded-lg text-[#8e9da7] hover:text-white hover:bg-[#16222b]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Ciało Fiszki */}
+            <div className="p-6 overflow-y-auto space-y-5">
+              {/* Wybór tematu kryzysowego */}
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[#8e9da7] font-bold block mb-2">
+                  Wybierz sprawę pod presją dziennikarzy:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {WAR_ROOM_BRIEFINGS.map((b) => {
+                    const isSelected = selectedBriefingId === b.id;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setSelectedBriefingId(b.id)}
+                        className={`p-2.5 rounded-lg border text-left transition-all ${
+                          isSelected
+                            ? "bg-rose-950/40 border-rose-500 shadow-md ring-1 ring-rose-500/50"
+                            : "bg-[#070a0d] border-slate-800 hover:border-rose-500/30"
+                        }`}
+                      >
+                        <span className="font-mono text-xs font-bold text-white block">
+                          {b.ticker}
+                        </span>
+                        <span className="text-[10px] text-slate-400 truncate block mt-0.5">
+                          {b.entity.split(" ")[0]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 1. Otwarcie do kamer */}
+              <div className="p-4 rounded-xl bg-gradient-to-r from-rose-950/30 via-slate-900 to-slate-950 border border-rose-500/30 space-y-1.5">
+                <span className="text-[10px] font-mono uppercase text-rose-300 font-bold block">
+                  1. Otwarcie do kamer (Główne zdanie przekazu — linia twarda):
+                </span>
+                <p className="text-sm font-semibold text-white leading-relaxed">
+                  &ldquo;{selectedBriefing.openingStatement}&rdquo;
+                </p>
+              </div>
+
+              {/* 2. Trzy twarde liczby */}
+              <div className="p-4 rounded-xl bg-[#070a0d] border border-slate-800 space-y-2">
+                <span className="text-[10px] font-mono uppercase text-cyan-300 font-bold block">
+                  2. Trzy twarde liczby (Pancerny kwartet faktów — nie do podważenia):
+                </span>
+                <div className="space-y-1.5">
+                  {selectedBriefing.hardNumbers.map((num, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-slate-200">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <span>{num}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Czerwona linia */}
+              <div className="p-4 rounded-xl bg-red-950/30 border border-red-500/40 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-red-300 font-bold">
+                  <AlertOctagon className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                  <span>3. Czerwona linia (Czego kategorycznie NIE mówić przed kamerami):</span>
+                </div>
+                <p className="text-xs text-red-200 leading-relaxed font-medium">
+                  {selectedBriefing.redLineConstraint}
+                </p>
+              </div>
+
+              {/* 4. Przerzucenie piłki */}
+              <div className="p-4 rounded-xl bg-[#070a0d] border border-slate-800 space-y-1.5">
+                <span className="text-[10px] font-mono uppercase text-amber-300 font-bold block">
+                  4. Przerzucenie piłki (Geneza i zaszłości poprzedników):
+                </span>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {selectedBriefing.attributionPush}
+                </p>
+              </div>
+            </div>
+
+            {/* Stopka Modalu */}
+            <div className="p-4 border-t border-slate-800 bg-[#0e161c] flex items-center justify-between text-xs">
+              <span className="text-[11px] text-[#5d6b74] font-mono">
+                MAPscope • Błyskawiczny pulpit briefingowy
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopyBriefing}
+                  className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-colors flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Kopiuj do schowka telefonu</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsBriefingModalOpen(false)}
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
+                >
+                  Zamknij
+                </button>
+              </div>
             </div>
           </div>
         </div>
