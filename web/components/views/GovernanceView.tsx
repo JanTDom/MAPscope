@@ -12,8 +12,21 @@ import {
   Calendar,
   UserPlus,
   ArrowRight,
+  ShieldCheck,
+  AlertTriangle,
+  Clock,
+  TrendingDown,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
+  Award,
 } from "lucide-react";
-import { ALL_ENTITIES_REGISTRY } from "@/lib/mapscope-data.ts";
+import {
+  ALL_ENTITIES_REGISTRY,
+  MANDATE_EXPIRY_ALERTS,
+  ARTICLE_19_COMPLIANCE_DATA,
+  GOVERNANCE_SENTIMENT_HISTORY,
+} from "@/lib/mapscope-data.ts";
 import type { EntityRecord } from "@/lib/types.ts";
 
 interface GovernanceViewProps {
@@ -25,6 +38,7 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
   const [shareFilter, setShareFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [activeGovernanceTab, setActiveGovernanceTab] = useState<"mandates" | "article19" | "sentiment_impact">("mandates");
 
   // Sumaryczne wskaźniki ładu korporacyjnego
   const totalVacancies = useMemo(() => {
@@ -146,6 +160,265 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
             Zatwierdzone sprawozdania roczne w KRS
           </p>
         </div>
+      </div>
+
+      {/* Trzy Strategiczne Narzędzia Nadzoru Właścicielskiego */}
+      <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">
+        {/* Nawigacja podzakładek narzędziowych */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(159,186,199,0.1)]">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#57e0c5]" />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              Narzędzia Decyzyjne Ministra i Departamentów Nadzoru
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => setActiveGovernanceTab("mandates")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                activeGovernanceTab === "mandates"
+                  ? "bg-[#16222b] text-white border border-[#57e0c5]/40 shadow-sm"
+                  : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5 text-[#57e0c5]" />
+              <span>Zegar Kadencyjny i Kworum</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveGovernanceTab("article19")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                activeGovernanceTab === "article19"
+                  ? "bg-[#16222b] text-white border border-[#57e0c5]/40 shadow-sm"
+                  : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+              }`}
+            >
+              <Award className="w-3.5 h-3.5 text-[#e5b958]" />
+              <span>Weryfikator Art. 19 Ustawy</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveGovernanceTab("sentiment_impact")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                activeGovernanceTab === "sentiment_impact"
+                  ? "bg-[#16222b] text-white border border-[#57e0c5]/40 shadow-sm"
+                  : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+              }`}
+            >
+              <TrendingDown className="w-3.5 h-3.5 text-[#75b8ff]" />
+              <span>Korelacja: Zmiana Władz vs Kryzys</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Widok 1: Zegar Kadencyjny (Wygasanie Mandatów 30/60/90 dni) */}
+        {activeGovernanceTab === "mandates" && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs text-[#8e9da7]">
+              <span>Monitorowanie wygasania mandatów zarządów i rad w strategicznych spółkach MAP</span>
+              <span className="font-mono text-[#ff7f87]">
+                {MANDATE_EXPIRY_ALERTS.filter((m) => m.quorumLossRisk).length} spółek z ryzykiem utraty kworum!
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {MANDATE_EXPIRY_ALERTS.map((alert) => (
+                <div
+                  key={alert.id}
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-2.5 ${
+                    alert.quorumLossRisk
+                      ? "bg-[#140b0f] border-[#ff7f87]/40 shadow-sm"
+                      : "bg-[#070a0d] border-[rgba(159,186,199,0.12)]"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#16222b] text-white font-bold border border-[rgba(159,186,199,0.14)]">
+                        {alert.bodyType}
+                      </span>
+                      <span
+                        className={`text-xs font-mono font-bold ${
+                          alert.daysLeft <= 30 ? "text-[#ff7f87]" : "text-[#f6c56b]"
+                        }`}
+                      >
+                        {alert.daysLeft} DNI DO WYGAŚNIĘCIA
+                      </span>
+                    </div>
+
+                    <h3 className="text-xs font-bold text-white mt-2 leading-tight">
+                      {alert.entityName}
+                    </h3>
+
+                    <div className="mt-2 text-[11px] text-[#8e9da7] flex items-center justify-between">
+                      <span>Wygasające mandaty:</span>
+                      <span className="font-mono text-white font-bold">
+                        {alert.affectedSeats} z {alert.totalSeats} członków
+                      </span>
+                    </div>
+
+                    <p className="mt-1.5 text-[11px] text-[#8e9da7] leading-relaxed">
+                      {alert.notes}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[11px]">
+                    {alert.quorumLossRisk ? (
+                      <span className="text-[#ff7f87] font-bold font-mono text-[10px] flex items-center gap-1 animate-pulse">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        RYZYKO PARALIŻU / BRAK KWORUM
+                      </span>
+                    ) : (
+                      <span className="text-[#57e0c5] font-mono text-[10px]">
+                        Kworum zachowane
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenDossier(alert.entityId)}
+                      className="text-[#75b8ff] hover:text-white flex items-center gap-1 text-[11px]"
+                    >
+                      <span>Sprawdź</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Widok 2: Weryfikator Art. 19 Ustawy */}
+        {activeGovernanceTab === "article19" && (
+          <div className="space-y-3">
+            <div className="text-xs text-[#8e9da7]">
+              Wymogi formalno-prawne kandydatów do Rad Nadzorczych (egzamin państwowy, dyplom MBA/radcowski, brak wykluczeń partyjnych).
+            </div>
+
+            <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#111a21] text-[#8e9da7] font-mono text-[10px] uppercase border-b border-[rgba(159,186,199,0.1)]">
+                  <tr>
+                    <th className="p-3">Osoba / Funkcja</th>
+                    <th className="p-3">Podmiot</th>
+                    <th className="p-3 text-center">Egzamin państwowy</th>
+                    <th className="p-3 text-center">Wykształcenie</th>
+                    <th className="p-3 text-center">Brak powiązań</th>
+                    <th className="p-3 text-center">Status zgodności</th>
+                    <th className="p-3">Szczegóły weryfikacji</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[rgba(159,186,199,0.08)] bg-[#070a0d]">
+                  {ARTICLE_19_COMPLIANCE_DATA.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-[#111a21]/50">
+                      <td className="p-3">
+                        <div className="font-bold text-white">{row.personName}</div>
+                        <div className="text-[10px] text-[#8e9da7]">{row.role}</div>
+                      </td>
+                      <td className="p-3 text-[#75b8ff] font-medium">{row.entityName}</td>
+                      <td className="p-3 text-center">
+                        {row.passedExam ? (
+                          <span className="text-[#57e0c5] font-bold">TAK</span>
+                        ) : (
+                          <span className="text-[#ff7f87] font-bold">BRAK</span>
+                        )}
+                      </td>
+                      <td className="p-3 text-center">
+                        {row.legalOrFinanceDegree ? (
+                          <span className="text-[#57e0c5]">Zgodne</span>
+                        ) : (
+                          <span className="text-[#f6c56b]">Weryfikacja</span>
+                        )}
+                      </td>
+                      <td className="p-3 text-center">
+                        {row.noPoliticalBanConflict ? (
+                          <span className="text-[#57e0c5]">Czysty</span>
+                        ) : (
+                          <span className="text-[#ff7f87] font-bold">KONFLIKT</span>
+                        )}
+                      </td>
+                      <td className="p-3 text-center">
+                        {row.complianceStatus === "zgodny" && (
+                          <span className="px-2 py-0.5 rounded bg-[#57e0c5]/20 text-[#57e0c5] border border-[#57e0c5]/30 font-mono text-[9px] font-bold">
+                            ZGODNY
+                          </span>
+                        )}
+                        {row.complianceStatus === "w_trakcie_weryfikacji" && (
+                          <span className="px-2 py-0.5 rounded bg-[#f6c56b]/20 text-[#f6c56b] border border-[#f6c56b]/30 font-mono text-[9px] font-bold">
+                            WERYFIKACJA
+                          </span>
+                        )}
+                        {row.complianceStatus === "niezgodny" && (
+                          <span className="px-2 py-0.5 rounded bg-[#ff7f87]/20 text-[#ff7f87] border border-[#ff7f87]/40 font-mono text-[9px] font-bold">
+                            DO ODWOŁANIA
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 text-[11px] text-[#8e9da7] max-w-xs">
+                        {row.verificationDetails}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Widok 3: Korelacja Zmiany Władz ze Spadkiem Temperatury Kryzysu */}
+        {activeGovernanceTab === "sentiment_impact" && (
+          <div className="space-y-3">
+            <div className="text-xs text-[#8e9da7]">
+              Wpływ decyzji kadrowych ministra na wygaszanie kryzysów w mediach i na rynkach finansowych.
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {GOVERNANCE_SENTIMENT_HISTORY.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.12)] space-y-2 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-[#75b8ff]">{item.entityName}</span>
+                      <span className="font-mono text-[#8e9da7]">{item.changeDate}</span>
+                    </div>
+
+                    <p className="text-xs text-white font-medium mt-1 leading-snug">
+                      {item.eventDescription}
+                    </p>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
+                      <div className="p-2 rounded bg-[#140b0f] border border-[#ff7f87]/30">
+                        <span className="text-[10px] text-[#8e9da7] block font-mono">Przed zmianą:</span>
+                        <span className="font-mono font-bold text-[#ff7f87]">
+                          {(item.sentimentBefore * 100).toFixed(0)}% sentyment
+                        </span>
+                      </div>
+                      <div className="p-2 rounded bg-[#111a21] border border-[#57e0c5]/30">
+                        <span className="text-[10px] text-[#8e9da7] block font-mono">Po zmianie:</span>
+                        <span className="font-mono font-bold text-[#57e0c5]">
+                          {(item.sentimentAfter * 100).toFixed(0)}% sentyment
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-xs">
+                    <span className="text-[#8e9da7]">Redukcja presji kryzysowej:</span>
+                    <span className="font-mono font-bold text-[#57e0c5] text-sm">
+                      -{item.crisisDropPercent}% temperatury
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Pasek Filtrów Twardych */}

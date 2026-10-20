@@ -14,10 +14,21 @@ import {
   ArrowRight,
   SplitSquareVertical,
   Activity,
+  CheckCircle2,
+  XCircle,
+  FileCheck,
+  Send,
+  PieChart,
+  Users,
+  Target,
+  Flame,
 } from "lucide-react";
 import {
   COMPANY_DISCLOSURES_DATA,
   MEDIA_RADAR_ANOMALIES,
+  PRE_PUBLICATION_AUDITS,
+  MINISTER_IMPACT_BREAKDOWNS,
+  NARRATIVE_SOURCES_MAP,
 } from "@/lib/mapscope-data.ts";
 import type { CompanyDisclosureRecord, MediaRadarAnomalies } from "@/lib/types.ts";
 import { InteractiveGeminiAuditor } from "@/components/InteractiveGeminiAuditor.tsx";
@@ -33,12 +44,30 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
 
   const [selectedAnomalyIndex, setSelectedAnomalyIndex] = useState<number>(0);
 
+  // Stan symulatora przedpublikacyjnego (Greenlight/Redlight)
+  const [selectedPreAuditIndex, setSelectedPreAuditIndex] = useState<number>(0);
+  const [customDraftText, setCustomDraftText] = useState<string>("");
+
   const activeDisclosure =
     COMPANY_DISCLOSURES_DATA.find((d) => d.id === selectedDisclosureId) ||
     COMPANY_DISCLOSURES_DATA[0];
 
   const assessment = activeDisclosure?.risk_assessment;
   const activeAnomaly = MEDIA_RADAR_ANOMALIES[selectedAnomalyIndex] || MEDIA_RADAR_ANOMALIES[0];
+
+  const currentPreAudit = PRE_PUBLICATION_AUDITS[selectedPreAuditIndex] || PRE_PUBLICATION_AUDITS[0];
+  const activeImpact = MINISTER_IMPACT_BREAKDOWNS.find(
+    (b) => b.entityId === activeDisclosure.entity_id || b.entityId === activeAnomaly.entityId
+  ) || MINISTER_IMPACT_BREAKDOWNS[0];
+
+  const activeSources = NARRATIVE_SOURCES_MAP[activeAnomaly.entityId] || {
+    oppositionPoliticiansPercent: 35,
+    laborUnionsPercent: 25,
+    regionalMediaPercent: 20,
+    nationalMediaPercent: 15,
+    financialAnalystsPercent: 5,
+    primaryNarrativeDriver: "Dyskusja w mediach społecznościowych i regionalnych",
+  };
 
   return (
     <div className="space-y-6">
@@ -49,19 +78,150 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
             <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-[#f6c56b]/15 text-[#f6c56b] border border-[#f6c56b]/30 font-bold">
               SZEF KOMUNIKACJI • MEDIA INTELLIGENCE
             </span>
-            <span className="text-xs text-[#8e9da7]">Silnik audytu oświadczeń i analityka narracji</span>
+            <span className="text-xs text-[#8e9da7]">Silnik audytu oświadczeń i pre-publikacyjny radar</span>
           </div>
           <h1 className="text-lg font-bold text-white mt-1">
-            Communication Risk Engine & Radar Medialny na Żywo
+            Communication Risk Engine, Radar Narracji & Symulator Greenlight
           </h1>
           <p className="text-xs text-[#8e9da7]">
-            Wykrywanie luk narracyjnych, rozbieżności z linią MAP, arogancji oraz natychmiastowe porównanie narracji (Spółka vs Media vs X).
+            Wykrywanie rykoszetu w Ministra, weryfikacja oświadczeń przed wysłaniem do PAP oraz matryca inicjatorów ataku.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] text-xs">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#f6c56b] animate-pulse" />
-          <span className="font-mono text-white">ANOMALIE AKTYWNE: {MEDIA_RADAR_ANOMALIES.length}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] text-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#f6c56b] animate-pulse" />
+            <span className="font-mono text-white">ANOMALIE AKTYWNE: {MEDIA_RADAR_ANOMALIES.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Symulator Ryzyka Przedpublikacyjnego dla Oświadczeń SSP (Greenlight / Redlight) */}
+      <div className="p-5 rounded-xl bg-[#0d1318] border border-[#57e0c5]/30 space-y-4 shadow-lg shadow-[#57e0c5]/5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(159,186,199,0.1)]">
+          <div className="flex items-center gap-2">
+            <FileCheck className="w-4 h-4 text-[#57e0c5]" />
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                Symulator Przedpublikacyjny dla Rzecznika SSP („Greenlight / Redlight”)
+              </h2>
+              <span className="text-xs text-[#8e9da7]">
+                Audyt szkicu komunikatu przed przekazaniem do PAP i mediów społecznościowych.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {PRE_PUBLICATION_AUDITS.map((audit, idx) => (
+              <button
+                key={audit.id}
+                type="button"
+                onClick={() => {
+                  setSelectedPreAuditIndex(idx);
+                  setCustomDraftText("");
+                }}
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors whitespace-nowrap ${
+                  selectedPreAuditIndex === idx && !customDraftText
+                    ? "bg-[#16222b] text-white border border-[#57e0c5]/50 shadow-sm"
+                    : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+                }`}
+              >
+                {audit.entityName.split(" ")[0]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Szkic testowany */}
+          <div className="lg:col-span-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono uppercase text-[#8e9da7] font-semibold">
+                Szkic oświadczenia do audytu:
+              </span>
+              <span className="text-[10px] text-[#5d6b74]">
+                {currentPreAudit.entityName}
+              </span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.15)] text-xs text-white leading-relaxed min-h-[100px]">
+              "{customDraftText || currentPreAudit.inputText}"
+            </div>
+
+            {/* Wykryte punkty zapalne */}
+            {currentPreAudit.riskHighlights.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono uppercase text-[#ff7f87] font-bold block">
+                  Wykryte punkty zapalne (Zagrożenia reputacyjne):
+                </span>
+                {currentPreAudit.riskHighlights.map((hl, i) => (
+                  <div
+                    key={i}
+                    className="p-2.5 rounded bg-[#ff7f87]/10 border border-[#ff7f87]/30 text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[#ff7f87] font-bold">
+                        ⚠️ "{hl.phrase}"
+                      </span>
+                      <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-[#ff7f87]/20 text-[#ff7f87]">
+                        {hl.dangerType.replace("_", " ")}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#8e9da7]">{hl.comment}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Werdykt AI i Wersja Bezpieczna */}
+          <div className="lg:col-span-6 space-y-3 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase text-[#8e9da7] font-semibold">
+                  Werdykt silnika MAPscope:
+                </span>
+                <span
+                  className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded border flex items-center gap-1.5 ${
+                    currentPreAudit.verdict === "green"
+                      ? "bg-[#57e0c5]/20 text-[#57e0c5] border-[#57e0c5]/40"
+                      : "bg-[#ff7f87]/20 text-[#ff7f87] border-[#ff7f87]/40"
+                  }`}
+                >
+                  {currentPreAudit.verdict === "green" ? (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5" />
+                  )}
+                  <span>{currentPreAudit.verdictLabel}</span>
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-[#111a21] border border-[#57e0c5]/30 space-y-2">
+                <span className="text-[10px] font-mono uppercase text-[#57e0c5] font-bold flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Rekomendowana wersja bezpieczna (Clean Copy dla PAP):</span>
+                </span>
+                <p className="text-xs text-white leading-relaxed font-medium">
+                  "{currentPreAudit.improvedVersion}"
+                </p>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded bg-[#070a0d] border border-[rgba(159,186,199,0.08)] text-[11px] text-[#8e9da7] flex items-center justify-between">
+              <span>Standard audytu: Wytyczne Komunikacji Strategicznej MAP 2026</span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(currentPreAudit.improvedVersion);
+                  alert("Skopiowano bezpieczną treść komunikatu!");
+                }}
+                className="px-2 py-0.5 rounded bg-[#16222b] text-[10px] text-[#57e0c5] hover:text-white transition-colors"
+              >
+                Kopiuj wersję bezpieczną
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -97,8 +257,8 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
           </div>
         </div>
 
-        {/* Podsumowanie anomalii i wykres SVG */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        {/* Podsumowanie anomalii, wykres SVG i Matryca Inicjatorów */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-4 space-y-3">
             <div className="p-3.5 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] space-y-2">
               <span className="text-[10px] font-mono uppercase text-[#ff7f87] font-bold block flex items-center gap-1">
@@ -121,16 +281,68 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
                 </span>
               </div>
             </div>
+
+            {/* Matryca Inicjatorów Narracji */}
+            <div className="p-3.5 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.12)] space-y-2.5">
+              <span className="text-[10px] font-mono uppercase text-[#75b8ff] font-bold block flex items-center gap-1">
+                <Users className="w-3.5 h-3.5" />
+                <span>Inicjatorzy Narracji (Kto nakręca kryzys):</span>
+              </span>
+
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-[#8e9da7]">Posłowie opozycji (Polityka):</span>
+                  <span className="font-mono font-bold text-white">
+                    {activeSources.oppositionPoliticiansPercent}%
+                  </span>
+                </div>
+                <div className="h-1.5 bg-[#16222b] rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${activeSources.oppositionPoliticiansPercent}%` }}
+                    className="h-full bg-[#ff7f87]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] pt-1">
+                  <span className="text-[#8e9da7]">Centrale związkowe (Pracownicy):</span>
+                  <span className="font-mono font-bold text-white">
+                    {activeSources.laborUnionsPercent}%
+                  </span>
+                </div>
+                <div className="h-1.5 bg-[#16222b] rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${activeSources.laborUnionsPercent}%` }}
+                    className="h-full bg-[#f6c56b]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] pt-1">
+                  <span className="text-[#8e9da7]">Media regionalne / lokalne:</span>
+                  <span className="font-mono font-bold text-white">
+                    {activeSources.regionalMediaPercent}%
+                  </span>
+                </div>
+                <div className="h-1.5 bg-[#16222b] rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${activeSources.regionalMediaPercent}%` }}
+                    className="h-full bg-[#75b8ff]"
+                  />
+                </div>
+              </div>
+
+              <p className="text-[10px] text-[#5d6b74] italic border-t border-[rgba(159,186,199,0.08)] pt-1.5">
+                Główny wektor: {activeSources.primaryNarrativeDriver}
+              </p>
+            </div>
           </div>
 
           {/* Rysunek interaktywny wykresu SVG */}
-          <div className="lg:col-span-8 p-4 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.14)] flex flex-col justify-between">
+          <div className="lg:col-span-8 p-4 rounded-lg bg-[#070a0d] border border-[rgba(159,186,199,0.14)] flex flex-col justify-between h-full">
             <div className="flex items-center justify-between text-[11px] text-[#5d6b74] font-mono mb-2">
               <span>WOLUMEN PUBLIKACJI (24H)</span>
               <span className="text-[#75b8ff]">Szczyt: {activeAnomaly.spikeVolume} wzmianek/h</span>
             </div>
 
-            {/* Wykres SVG słupkowy + linia sentymentu */}
             <div className="h-36 w-full flex items-end gap-2 pt-4 px-2">
               {activeAnomaly.timeSeries.map((point, index) => {
                 const maxVol = Math.max(...activeAnomaly.timeSeries.map((p) => p.volume));
@@ -155,6 +367,24 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
                 );
               })}
             </div>
+
+            {/* Wskaźnik Rykoszetu w Ministra dla tej anomalii */}
+            {activeImpact && (
+              <div className="mt-4 pt-3 border-t border-[rgba(159,186,199,0.1)] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-[#ff7f87]" />
+                  <span className="text-xs text-white font-semibold">
+                    Kalkulacja rykoszetu w MAP:
+                  </span>
+                  <span className="text-xs font-mono font-bold text-[#ff7f87] px-2 py-0.5 rounded bg-[#ff7f87]/15 border border-[#ff7f87]/30">
+                    {activeImpact.impactScorePercent}% prawdopodobieństwa uderzenia w ministra
+                  </span>
+                </div>
+                <span className="text-[11px] text-[#8e9da7]">
+                  Wektor: {activeImpact.attackVectors[0]?.vector || "Zarzut zaniechania"}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -379,7 +609,7 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
               {assessment.recommended_action && (
                 <div className="p-3.5 rounded-lg bg-[#111a21] border border-[rgba(87,224,197,0.3)] space-y-1">
                   <span className="text-[10px] font-mono uppercase font-bold text-[#57e0c5] flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
+                    <Sparkles className="w-3.5 h-3.5" />
                     <span>Rekomendacja dla Rzecznika Prasowego MAP:</span>
                   </span>
                   <p className="text-xs text-white leading-relaxed">

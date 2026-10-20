@@ -133,6 +133,7 @@ export interface EntityDossier {
 
   // 4. Prawne i Kontrole
   legalCases: LegalCase[];
+  strategicLitigations?: StrategicLitigationCase[];
 
   // 5. Czynniki Społeczne
   laborUnionsCount: number;
@@ -141,6 +142,9 @@ export interface EntityDossier {
 
   // 6. Oś Czasu
   timeline: TimelineEvent[];
+
+  // 7. Szybka Fiszka Ministra (Briefing 10s)
+  ministerBriefing?: MinisterQuickBriefing;
 }
 
 export interface EntityRecord {
@@ -166,6 +170,13 @@ export interface EntityRecord {
   active_risk_level?: RiskSeverity;
   recent_risk_score?: number;
   dossier?: EntityDossier;
+  parent_entity_id?: string | null;
+  parent_entity_name?: string | null;
+  subsidiary_count?: number;
+  subsidiaries?: string[];
+  is_dormant_liquidation?: boolean;
+  dormant_years?: number;
+  has_real_estate?: boolean;
 }
 
 export interface RiskAssessmentRecord {
@@ -225,6 +236,16 @@ export interface CompanyDisclosureRecord {
   risk_assessment?: RiskAssessmentRecord | null;
 }
 
+export type CrisisAttribution = "nasza_odpowiedzialnosc" | "zaszlosc_historyczna" | "miedzyresortowa";
+
+export interface SejmQnAItem {
+  question: string;
+  source: string;
+  hardFacts: string;
+  recommendedAnswer: string;
+  redLines: string; // Czego kategorycznie nie mówić
+}
+
 export interface TopFireAlert {
   id: string;
   priority: AlertPriority;
@@ -236,6 +257,163 @@ export interface TopFireAlert {
   governmentRisk: string;
   recommendedAction: string;
   timestamp: string;
+  attribution?: CrisisAttribution;
+  attributionDetails?: string;
+  sejmQnA?: SejmQnAItem[];
+  ministerImpactScore?: number;
+}
+
+export interface KprmOnePagerItem {
+  category: "sukces" | "pozar_wygaszony" | "ryzyko_miedzyresortowe" | "decyzja_premiera";
+  title: string;
+  entityName: string;
+  details: string;
+  actionRequired?: string;
+}
+
+export interface KprmOnePager {
+  id: string;
+  date: string;
+  targetCabinetMeetingDate: string;
+  title: string;
+  executiveSummary: string;
+  items: KprmOnePagerItem[];
+  restructuringProgress: {
+    entityName: string;
+    targetSavings: string;
+    headcountChange: string;
+    currentStatus: string;
+  }[];
+}
+
+export interface MinisterImpactBreakdown {
+  entityId: string;
+  entityName: string;
+  impactScorePercent: number; // 0-100%
+  attackVectors: {
+    vector: string;
+    severity: "wysoka" | "srednia" | "niska";
+    allegation: string;
+  }[];
+  mitigationStrategy: string;
+}
+
+export interface PrePublicationAuditResult {
+  id: string;
+  inputText: string;
+  entityName: string;
+  verdict: "green" | "yellow" | "red";
+  verdictLabel: "Bezpieczne do publikacji" | "Wymaga korekty" | "Krytyczne ryzyko rykoszetu";
+  riskHighlights: {
+    phrase: string;
+    dangerType: "arogancja" | "obietnica_bez_pokrycia" | "ryzyko_mar" | "rozdzwiek_z_map" | "zaognienie_konfliktu";
+    comment: string;
+  }[];
+  improvedVersion: string;
+}
+
+export interface NarrativeSourceBreakdown {
+  oppositionPoliticiansPercent: number;
+  laborUnionsPercent: number;
+  regionalMediaPercent: number;
+  nationalMediaPercent: number;
+  financialAnalystsPercent: number;
+  primaryNarrativeDriver: string;
+}
+
+export interface MandateExpiryAlert {
+  id: string;
+  entityId: string;
+  entityName: string;
+  bodyType: "Zarząd" | "Rada Nadzorcza";
+  daysLeft: number;
+  expiryDate: string;
+  affectedSeats: number;
+  totalSeats: number;
+  quorumLossRisk: boolean;
+  notes: string;
+}
+
+export interface Article19ComplianceRecord {
+  personName: string;
+  entityName: string;
+  role: string;
+  passedExam: boolean;
+  legalOrFinanceDegree: boolean;
+  noPoliticalBanConflict: boolean;
+  complianceStatus: "zgodny" | "w_trakcie_weryfikacji" | "niezgodny";
+  verificationDetails: string;
+}
+
+export interface GovernanceSentimentCorrelation {
+  entityId: string;
+  entityName: string;
+  changeDate: string;
+  eventDescription: string;
+  sentimentBefore: number; // np. -0.85
+  sentimentAfter: number;  // np. -0.15
+  crisisDropPercent: number;
+}
+
+export interface DividendBudgetProjection {
+  entityId: string;
+  entityName: string;
+  declaredOrEstimatedDividendMln: number;
+  stateSharePercent: number;
+  projectedBudgetRevenueMln: number;
+  status: "rekomendacja_wyplaty" | "zatrzymanie_zysku_capex" | "brak_zysku";
+  capexFocusArea?: string;
+}
+
+export interface StrategicCapexProject {
+  id: string;
+  name: string;
+  entityName: string;
+  totalBudgetMln: number;
+  spentSoFarMln: number;
+  delayMonths: number;
+  impairmentRiskMln: number;
+  status: "w_harmonogramie" | "zagrozenie_opoznieniem" | "krytyczne_ryzyko_odpisu";
+  strategicSignificance: string;
+}
+
+export interface InterMinisterialTransferRecord {
+  id: string;
+  entityName: string;
+  currentAuthority: string;
+  targetAuthority: string;
+  transferStage: "analiza_prawna" | "projekt_rozporzadzenia" | "przekazano";
+  legislationRef: string;
+  strategicReason: string;
+}
+
+export interface NikInspectionRecommendation {
+  id: string;
+  inspectionNumber: string;
+  title: string;
+  entityName: string;
+  issuedAt: string;
+  deadline: string;
+  status: "wdrozone" | "w_trakcie" | "przeterminowane";
+  recommendationSummary: string;
+  ministerDefensePoint: string;
+}
+
+export interface StrategicLitigationCase {
+  id: string;
+  court: string;
+  opponent: string;
+  valueMlnPln: number;
+  caseSubject: string;
+  status: "w_toku" | "apelacja" | "ugoda";
+  contingencyRisk: "wysokie" | "umiarkowane" | "niskie";
+}
+
+export interface MinisterQuickBriefing {
+  threeNumbers: { label: string; value: string }[];
+  statusSummary: string;
+  defensiveTalkingPoint: string;
+  keyRiskThisWeek: string;
 }
 
 export interface SectorStability {

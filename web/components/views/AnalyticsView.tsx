@@ -22,7 +22,12 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { EntityRecord } from "@/lib/types.ts";
-import { EXECUTIVE_ANALYTICS } from "@/lib/mapscope-data.ts";
+import {
+  EXECUTIVE_ANALYTICS,
+  DIVIDEND_PROJECTIONS_DATA,
+  STRATEGIC_CAPEX_PROJECTS,
+  INTER_MINISTERIAL_TRANSFERS,
+} from "@/lib/mapscope-data.ts";
 
 interface AnalyticsViewProps {
   entities: EntityRecord[];
@@ -39,6 +44,7 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
+  const [executiveMode, setExecutiveMode] = useState<"overview" | "dividends" | "capex" | "transfers">("overview");
 
   const stats = EXECUTIVE_ANALYTICS;
 
@@ -242,10 +248,309 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
             <span className="text-[10px] text-[#8e9da7] font-mono">Resorty i agencje</span>
           </div>
         </div>
+
+        {/* Tryby analityczne Ministra i Departamentów */}
+        <div className="flex items-center gap-2 mt-5 pt-4 border-t border-[rgba(159,186,199,0.12)] overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("overview")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "overview"
+                ? "bg-[#16222b] text-white border border-[#57e0c5]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-[#57e0c5]" />
+            <span>Portfel 406 SSP i Organy</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("dividends")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "dividends"
+                ? "bg-[#16222b] text-white border border-[#57e0c5]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <Scale className="w-3.5 h-3.5 text-[#e5b958]" />
+            <span>Projekcja Dywidend do Budżetu</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("capex")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "capex"
+                ? "bg-[#16222b] text-white border border-[#57e0c5]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-[#ff7f87]" />
+            <span>Radar Megaprojektów CAPEX</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setExecutiveMode("transfers")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              executiveMode === "transfers"
+                ? "bg-[#16222b] text-white border border-[#57e0c5]/50 shadow-sm"
+                : "text-[#8e9da7] hover:text-white hover:bg-[#111a21]"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-[#75b8ff]" />
+            <span>Transfery Międzyresortowe</span>
+          </button>
+        </div>
       </div>
 
-      {/* Bento Grid: 2 kolumny zestawień analitycznych */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Widok Specjalny: Projekcja Dywidend */}
+      {executiveMode === "dividends" && (
+        <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(159,186,199,0.1)]">
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                Projekcja Wpływów z Dywidend do Budżetu Państwa (Rok 2026/2027)
+              </h2>
+              <p className="text-xs text-[#8e9da7] mt-0.5">
+                Kluczowy oręż ministra do negocjacji z Ministrem Finansów: zysk odprowadzany do kasy państwa vs zysk reinwestowany w transformację energetyczną i zbrojeniową.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg bg-[#111a21] border border-[#57e0c5]/30 text-right">
+              <span className="text-[10px] font-mono uppercase text-[#8e9da7] block">
+                Prognozowany wpływ do budżetu:
+              </span>
+              <span className="text-lg font-bold font-mono text-[#57e0c5]">
+                {DIVIDEND_PROJECTIONS_DATA.reduce((acc, p) => acc + p.projectedBudgetRevenueMln, 0).toLocaleString("pl-PL")}{" "}
+                mln zł
+              </span>
+            </div>
+          </div>
+
+          <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#111a21] text-[#8e9da7] font-mono text-[10px] uppercase border-b border-[rgba(159,186,199,0.1)]">
+                <tr>
+                  <th className="p-3">Podmiot Skarbu Państwa</th>
+                  <th className="p-3 text-right">Dywidenda całkowita</th>
+                  <th className="p-3 text-right">Udział SP</th>
+                  <th className="p-3 text-right">Wpływ do Budżetu</th>
+                  <th className="p-3 text-center">Status decyzji MAP</th>
+                  <th className="p-3">Cel zatrzymanego zysku / Inwestycje</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[rgba(159,186,199,0.08)] bg-[#070a0d]">
+                {DIVIDEND_PROJECTIONS_DATA.map((row) => (
+                  <tr key={row.entityId} className="hover:bg-[#111a21]/50">
+                    <td className="p-3 font-semibold text-white">
+                      <button
+                        type="button"
+                        onClick={() => onSelectEntity(row.entityId)}
+                        className="text-left hover:text-[#57e0c5] transition-colors"
+                      >
+                        {row.entityName}
+                      </button>
+                    </td>
+                    <td className="p-3 text-right font-mono text-white">
+                      {row.declaredOrEstimatedDividendMln > 0
+                        ? `${row.declaredOrEstimatedDividendMln.toLocaleString("pl-PL")} mln zł`
+                        : "0 zł"}
+                    </td>
+                    <td className="p-3 text-right font-mono text-[#75b8ff]">
+                      {row.stateSharePercent}%
+                    </td>
+                    <td className="p-3 text-right font-mono font-bold text-[#57e0c5]">
+                      {row.projectedBudgetRevenueMln > 0
+                        ? `${row.projectedBudgetRevenueMln.toLocaleString("pl-PL")} mln zł`
+                        : "—"}
+                    </td>
+                    <td className="p-3 text-center">
+                      {row.status === "rekomendacja_wyplaty" && (
+                        <span className="px-2 py-0.5 rounded bg-[#57e0c5]/20 text-[#57e0c5] border border-[#57e0c5]/40 font-mono text-[9px] font-bold">
+                          WYPŁATA DYWIDENDY
+                        </span>
+                      )}
+                      {row.status === "zatrzymanie_zysku_capex" && (
+                        <span className="px-2 py-0.5 rounded bg-[#75b8ff]/20 text-[#75b8ff] border border-[#75b8ff]/40 font-mono text-[9px] font-bold">
+                          REINWESTYCJA / CAPEX
+                        </span>
+                      )}
+                      {row.status === "brak_zysku" && (
+                        <span className="px-2 py-0.5 rounded bg-[#ff7f87]/20 text-[#ff7f87] border border-[#ff7f87]/40 font-mono text-[9px] font-bold">
+                          STRATA / BRAK ZYSKU
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-[11px] text-[#8e9da7] max-w-xs">
+                      {row.capexFocusArea || "Standardowa polityka płynnościowa"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Widok Specjalny: Radar Megaprojektów CAPEX */}
+      {executiveMode === "capex" && (
+        <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(159,186,199,0.1)]">
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                Radar Megaprojektów Inwestycyjnych i Ryzyka Odpisów (&gt; 500 mln zł)
+              </h2>
+              <p className="text-xs text-[#8e9da7] mt-0.5">
+                Nadzór nad wielomiliardowymi nakładami w strategicznych spółkach: ryzyko utraty rentowności, opóźnienia i potencjalne odpisy bilansowe.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] text-right">
+                <span className="text-[10px] font-mono uppercase text-[#8e9da7] block">Łączny budżet:</span>
+                <span className="text-sm font-bold font-mono text-white">
+                  {(STRATEGIC_CAPEX_PROJECTS.reduce((a, b) => a + b.totalBudgetMln, 0) / 1000).toFixed(1)} mld zł
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-[#140b0f] border border-[#ff7f87]/40 text-right">
+                <span className="text-[10px] font-mono uppercase text-[#ff7f87] block">Zagrożone odpisem:</span>
+                <span className="text-sm font-bold font-mono text-[#ff7f87]">
+                  {(STRATEGIC_CAPEX_PROJECTS.reduce((a, b) => a + b.impairmentRiskMln, 0) / 1000).toFixed(1)} mld zł
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {STRATEGIC_CAPEX_PROJECTS.map((proj) => {
+              const isDanger = proj.status === "krytyczne_ryzyko_odpisu";
+              const isDelayed = proj.delayMonths > 0;
+
+              return (
+                <div
+                  key={proj.id}
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${
+                    isDanger
+                      ? "bg-[#140b0f] border-[#ff7f87]/40 shadow-sm"
+                      : isDelayed
+                      ? "bg-[#12110c] border-[#f6c56b]/35"
+                      : "bg-[#070a0d] border-[rgba(159,186,199,0.12)]"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-[#75b8ff] font-bold">
+                        {proj.entityName}
+                      </span>
+                      <span
+                        className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
+                          isDanger
+                            ? "bg-[#ff7f87]/20 text-[#ff7f87] border-[#ff7f87]/40"
+                            : isDelayed
+                            ? "bg-[#f6c56b]/20 text-[#f6c56b] border-[#f6c56b]/40"
+                            : "bg-[#57e0c5]/20 text-[#57e0c5] border-[#57e0c5]/40"
+                        }`}
+                      >
+                        {proj.status.replace(/_/g, " ")}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xs font-bold text-white mt-1.5 leading-snug">
+                      {proj.name}
+                    </h3>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-mono">
+                      <div className="p-2 rounded bg-[#111a21]/50 border border-[rgba(159,186,199,0.06)]">
+                        <span className="text-[#8e9da7] block text-[9px]">Budżet projektu:</span>
+                        <span className="text-white font-bold">{proj.totalBudgetMln.toLocaleString("pl-PL")} mln zł</span>
+                      </div>
+                      <div className="p-2 rounded bg-[#111a21]/50 border border-[rgba(159,186,199,0.06)]">
+                        <span className="text-[#8e9da7] block text-[9px]">Wydano dotychczas:</span>
+                        <span className="text-[#57e0c5] font-bold">{proj.spentSoFarMln.toLocaleString("pl-PL")} mln zł</span>
+                      </div>
+                    </div>
+
+                    {proj.impairmentRiskMln > 0 && (
+                      <div className="mt-2 p-2 rounded bg-[#ff7f87]/10 border border-[#ff7f87]/25 text-[11px] text-[#ff7f87] flex items-center justify-between">
+                        <span>Ryzyko odpisu wartości:</span>
+                        <strong className="font-mono">{proj.impairmentRiskMln.toLocaleString("pl-PL")} mln zł</strong>
+                      </div>
+                    )}
+
+                    <p className="mt-2 text-[11px] text-[#8e9da7] leading-relaxed">
+                      {proj.strategicSignificance}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-[#5d6b74]">Opóźnienie:</span>
+                    <span className={proj.delayMonths > 0 ? "text-[#f6c56b] font-bold" : "text-[#57e0c5]"}>
+                      {proj.delayMonths > 0 ? `+${proj.delayMonths} miesięcy` : "Brak opóźnień"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Widok Specjalny: Transfery Międzyresortowe */}
+      {executiveMode === "transfers" && (
+        <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4 shadow-lg">
+          <div className="pb-3 border-b border-[rgba(159,186,199,0.1)]">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              Bilans Przekazywania Nadzoru Międzyresortowego
+            </h2>
+            <p className="text-xs text-[#8e9da7] mt-0.5">
+              Rejestr spółek przekazywanych z MAP do Ministerstwa Przemysłu, MON i Ministerstwa Infrastruktury na mocy ustawy o działach administracji rządowej.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {INTER_MINISTERIAL_TRANSFERS.map((tr) => (
+              <div
+                key={tr.id}
+                className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.12)] space-y-2 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white">{tr.entityName}</span>
+                    <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-[#75b8ff]/20 text-[#75b8ff] border border-[#75b8ff]/40 font-bold">
+                      {tr.transferStage.replace("_", " ")}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2 rounded bg-[#111a21] border border-[rgba(159,186,199,0.08)]">
+                      <span className="text-[10px] text-[#8e9da7] block">Z organu:</span>
+                      <span className="text-[#ff7f87] font-semibold">{tr.currentAuthority}</span>
+                    </div>
+                    <div className="p-2 rounded bg-[#111a21] border border-[rgba(159,186,199,0.08)]">
+                      <span className="text-[10px] text-[#8e9da7] block">Do organu:</span>
+                      <span className="text-[#57e0c5] font-semibold">{tr.targetAuthority}</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-[#8e9da7] mt-2 leading-relaxed">
+                    {tr.strategicReason}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] text-[10px] text-[#5d6b74] font-mono">
+                  Podstawa prawna: {tr.legislationRef}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* Widok Podstawowy: Przekrój Portfela (Bento + Tabela 406 SSP) */}
+      {executiveMode === "overview" && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Lewa kolumna: Zestawienie wg 17 organów reprezentujących państwo */}
         <div className="lg:col-span-7 p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[rgba(159,186,199,0.12)]">
@@ -741,6 +1046,8 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

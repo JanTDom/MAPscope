@@ -11,8 +11,16 @@ import {
   Building2,
   CheckCircle2,
   AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  ShieldAlert,
+  Sparkles,
+  Scale,
+  Clock,
 } from "lucide-react";
 import type { EntityRecord, InternalDataEntry } from "@/lib/types.ts";
+import { NIK_INSPECTION_RECOMMENDATIONS } from "@/lib/mapscope-data.ts";
 
 interface InternalDataViewProps {
   entities: EntityRecord[];
@@ -32,11 +40,16 @@ export function InternalDataView({
   const [fileNumberInput, setFileNumberInput] = useState<string>("");
   const [bulkTextInput, setBulkTextInput] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isCabinetPrivileged, setIsCabinetPrivileged] = useState<boolean>(false);
+  const [expandedNikId, setExpandedNikId] = useState<string | null>(NIK_INSPECTION_RECOMMENDATIONS[0]?.id || null);
 
   // Dodanie ręcznej notatki
   const handleAddManualEntry = (e: React.FormEvent) => {
     e.preventDefault();
     if (!noteInput.trim()) return;
+
+    const prefix = isCabinetPrivileged ? "[KLAUZULA GABINETOWA • DO OSOBISTEJ DECYZJI MINISTRA] " : "";
+    const fullNote = prefix + noteInput.trim();
 
     const existing = internalData[selectedEntityId] || {
       entityId: selectedEntityId,
@@ -46,7 +59,7 @@ export function InternalDataView({
       updatedAt: new Date().toISOString(),
     };
 
-    const updatedNotes = [...existing.notes, noteInput.trim()];
+    const updatedNotes = [...existing.notes, fullNote];
     const updatedFiles = fileNumberInput.trim()
       ? [...existing.inspectionFileNumbers, fileNumberInput.trim()]
       : existing.inspectionFileNumbers;
@@ -64,6 +77,7 @@ export function InternalDataView({
     onUpdateInternalData(updated);
     setNoteInput("");
     setFileNumberInput("");
+    setIsCabinetPrivileged(false);
     setSuccessMessage("Poufna notatka została dodana do pamięci podręcznej sesji.");
     setTimeout(() => setSuccessMessage(null), 3500);
   };
@@ -155,6 +169,112 @@ export function InternalDataView({
         )}
       </div>
 
+      {/* Rejestr Wystąpień Pokontrolnych NIK i Zaleceń Audytowych */}
+      <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[rgba(159,186,199,0.1)]">
+          <div className="flex items-center gap-2">
+            <Scale className="w-4 h-4 text-[#e5b958]" />
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                Rejestr Wystąpień Pokontrolnych NIK i Gotowość na Komisję Sejmową
+              </h2>
+              <p className="text-xs text-[#8e9da7] mt-0.5">
+                Monitoring zaleceń Najwyższej Izby Kontroli w spółkach z udziałem Skarbu Państwa wraz z przygotowaną linią obrony dla kierownictwa resortu.
+              </p>
+            </div>
+          </div>
+
+          <span className="text-xs text-[#e5b958] font-mono font-bold">
+            {NIK_INSPECTION_RECOMMENDATIONS.length} kluczowe kontrole
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {NIK_INSPECTION_RECOMMENDATIONS.map((nik) => {
+            const isExpanded = expandedNikId === nik.id;
+            let statusBadge = {
+              text: "W TRAKCIE REALIZACJI",
+              style: "bg-[#75b8ff]/20 text-[#75b8ff] border-[#75b8ff]/40",
+            };
+            if (nik.status === "wdrozone") {
+              statusBadge = {
+                text: "WDROŻONE (ZAMKNIĘTE)",
+                style: "bg-[#57e0c5]/20 text-[#57e0c5] border-[#57e0c5]/40",
+              };
+            } else if (nik.status === "przeterminowane") {
+              statusBadge = {
+                text: "OPÓŹNIONE PRZEZ SPÓŁKĘ",
+                style: "bg-[#ff7f87]/20 text-[#ff7f87] border-[#ff7f87]/40",
+              };
+            }
+
+            return (
+              <div
+                key={nik.id}
+                className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.12)] space-y-2.5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#111a21] text-[#e5b958] font-bold border border-[#e5b958]/30">
+                        {nik.inspectionNumber}
+                      </span>
+                      <span
+                        className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded border font-bold ${statusBadge.style}`}
+                      >
+                        {statusBadge.text}
+                      </span>
+                      <span className="text-xs text-[#75b8ff] font-medium">
+                        {nik.entityName}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xs font-bold text-white mt-1.5 leading-snug">
+                      {nik.title}
+                    </h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setExpandedNikId(isExpanded ? null : nik.id)}
+                    className="p-1 rounded text-[#8e9da7] hover:text-white hover:bg-[#16222b] transition-colors shrink-0"
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="text-[11px] text-[#8e9da7] leading-relaxed">
+                  <strong className="text-white">Zalecenie NIK:</strong> {nik.recommendationSummary}
+                </div>
+
+                {isExpanded && (
+                  <div className="pt-2.5 border-t border-[rgba(159,186,199,0.08)] space-y-2 animate-in fade-in duration-150">
+                    <div className="p-3 rounded-lg bg-[#111a21] border border-[#57e0c5]/30 space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-[#57e0c5] font-bold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        <span>Linia Obrony Ministra na Komisję ds. Kontroli Państwowej:</span>
+                      </span>
+                      <p className="text-xs text-white leading-relaxed font-medium">
+                        "{nik.ministerDefensePoint}"
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] font-mono text-[#5d6b74]">
+                      <span>Wydano: {nik.issuedAt}</span>
+                      <span>Termin wdrożenia: {nik.deadline}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {successMessage && (
         <div className="p-3.5 rounded-xl bg-[#57e0c5]/10 border border-[#57e0c5]/30 text-xs text-[#57e0c5] flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4" />
@@ -215,6 +335,19 @@ export function InternalDataView({
                   placeholder="np. MAP-DN-II.054.12.2026"
                   className="w-full px-3 py-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] text-xs text-white placeholder-[#5d6b74] focus:outline-none"
                 />
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="cabinetPrivilege"
+                  checked={isCabinetPrivileged}
+                  onChange={(e) => setIsCabinetPrivileged(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-600 text-[#e5b958] focus:ring-0"
+                />
+                <label htmlFor="cabinetPrivilege" className="text-xs text-white cursor-pointer select-none">
+                  <span className="font-semibold text-[#e5b958]">Klauzula Gabinetowa:</span> Do wyłącznej i osobistej decyzji Ministra
+                </label>
               </div>
 
               <button

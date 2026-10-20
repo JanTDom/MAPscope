@@ -16,6 +16,10 @@ import {
   AlertTriangle,
   FileCheck2,
   Lock,
+  Sparkles,
+  Copy,
+  CheckCircle2,
+  Gavel,
 } from "lucide-react";
 import type { EntityRecord, InternalDataEntry } from "@/lib/types.ts";
 
@@ -27,13 +31,35 @@ interface DossierModalProps {
 
 export function DossierModal({ entity, onClose, internalData }: DossierModalProps) {
   const [activeTab, setActiveTab] = useState<
-    "governance" | "communication" | "finance" | "legal" | "social" | "timeline"
-  >("governance");
+    "briefing" | "governance" | "communication" | "finance" | "legal" | "social" | "timeline"
+  >("briefing");
+  const [copiedBriefing, setCopiedBriefing] = useState(false);
 
   if (!entity) return null;
 
   const d = entity.dossier;
   const score = entity.recent_risk_score ?? 0;
+  const mb = d?.ministerBriefing;
+
+  const handleCopyBriefing = () => {
+    if (!mb) return;
+    const text = [
+      `FISZKA MINISTRA MAP — ${entity.name.toUpperCase()}`,
+      `Udział SP: ${entity.state_share_percent}% | Sektor: ${entity.sector}`,
+      `Nadzór: ${entity.ownership_body} | Status: ${entity.status.toUpperCase()}`,
+      "",
+      "KLUCZOWE WSKAŹNIKI:",
+      ...mb.threeNumbers.map((n) => `• ${n.label}: ${n.value}`),
+      "",
+      `STAN SPRAWY: ${mb.statusSummary}`,
+      `REKOMENDOWANA LINIA OBRONY: ${mb.defensiveTalkingPoint}`,
+      `RYZYKO KRYZYSOWE NA TEN TYDZIEŃ: ${mb.keyRiskThisWeek}`,
+    ].join("\n");
+
+    navigator.clipboard.writeText(text);
+    setCopiedBriefing(true);
+    setTimeout(() => setCopiedBriefing(false), 2500);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
@@ -96,13 +122,14 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
           </div>
         </div>
 
-        {/* Zakładki 6 Filarów */}
+        {/* Zakładki Filarów + Fiszka Ministra */}
         <div className="flex items-center border-b border-[rgba(159,186,199,0.14)] bg-[#090d12] px-3 overflow-x-auto">
           {[
+            { id: "briefing", label: "★ Fiszka Ministra (10s)", icon: Sparkles, highlight: true },
             { id: "governance", label: "1. Ład i Własność", icon: Users },
             { id: "communication", label: "2. Ryzyko Komunikacji", icon: MessageSquareWarning },
             { id: "finance", label: "3. Finanse i Inwestycje", icon: DollarSign },
-            { id: "legal", label: "4. Prawne i Kontrole", icon: Scale },
+            { id: "legal", label: "4. Prawne i Spory", icon: Scale },
             { id: "social", label: "5. Czynniki Społeczne", icon: HeartHandshake },
             { id: "timeline", label: "6. Oś Czasu", icon: Clock },
           ].map((tab) => {
@@ -115,19 +142,102 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-3.5 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
                   isActive
-                    ? "border-[#57e0c5] text-white bg-[#0d1318]"
+                    ? tab.highlight
+                      ? "border-[#57e0c5] text-[#57e0c5] bg-[#0d1318]"
+                      : "border-[#75b8ff] text-white bg-[#0d1318]"
+                    : tab.highlight
+                    ? "border-transparent text-[#57e0c5]/80 hover:text-[#57e0c5] hover:bg-[#0d1318]/50"
                     : "border-transparent text-[#8e9da7] hover:text-white hover:bg-[#0d1318]/50"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#57e0c5]" : "text-[#5d6b74]"}`} />
+                <Icon className={`w-3.5 h-3.5 ${tab.highlight ? "text-[#57e0c5]" : ""}`} />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Zawartość zakładek */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        {/* Treść Zakładek */}
+        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+          {/* Filar 0: Fiszka Ministra (Briefing 10s na smartfon) */}
+          {activeTab === "briefing" && mb && (
+            <div className="space-y-4 animate-in fade-in duration-150">
+              <div className="p-4 rounded-xl bg-[#111a21] border border-[#57e0c5]/35 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#57e0c5] font-bold block">
+                    PAKIET GABINETOWY DO BRIEFINGU PRASOWEGO
+                  </span>
+                  <h3 className="text-sm font-bold text-white mt-1">
+                    Trzy liczby, linia obrony i kluczowe ryzyko na ten tydzień
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyBriefing}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-xs font-bold text-[#57e0c5] border border-[#57e0c5]/30 transition-colors shrink-0"
+                >
+                  {copiedBriefing ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#57e0c5]" />
+                      <span>Skopiowano do schowka!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Kopiuj fiszkę na smartfon</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* 3 Kluczowe Liczby */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {mb.threeNumbers.map((num, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.12)] text-center space-y-1"
+                  >
+                    <span className="text-[10px] font-mono uppercase text-[#8e9da7] block truncate">
+                      {num.label}
+                    </span>
+                    <span className="text-xl font-bold font-mono text-white block">
+                      {num.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Status Sytuacji */}
+              <div className="p-4 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.1)] space-y-1">
+                <span className="text-[10px] font-mono uppercase text-[#8e9da7] font-semibold block">
+                  1. Faktyczny stan sprawy:
+                </span>
+                <p className="text-xs text-white leading-relaxed">{mb.statusSummary}</p>
+              </div>
+
+              {/* Zalecana Linia Obrony */}
+              <div className="p-4 rounded-xl bg-[#111a21] border border-[#57e0c5]/30 space-y-1">
+                <span className="text-[10px] font-mono uppercase text-[#57e0c5] font-bold block flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>2. Rekomendowana linia obrony dla Ministra (Talking Point):</span>
+                </span>
+                <p className="text-xs text-white font-medium leading-relaxed">
+                  "{mb.defensiveTalkingPoint}"
+                </p>
+              </div>
+
+              {/* Kluczowe Ryzyko */}
+              <div className="p-4 rounded-xl bg-[#140b0f] border border-[#ff7f87]/40 space-y-1">
+                <span className="text-[10px] font-mono uppercase text-[#ff7f87] font-bold block flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>3. Kluczowe ryzyko i wektory uderzenia w tym tygodniu:</span>
+                </span>
+                <p className="text-xs text-white leading-relaxed">{mb.keyRiskThisWeek}</p>
+              </div>
+            </div>
+          )}
+
           {/* Filar 1: Ład i Własność */}
           {activeTab === "governance" && (
             <div className="space-y-5 animate-in fade-in duration-150">
@@ -336,6 +446,51 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
               ) : (
                 <div className="p-6 text-center text-xs text-[#8e9da7] rounded-lg bg-[#111a21]">
                   Brak zarejestrowanych postępowań organów państwowych.
+                </div>
+              )}
+
+              {/* Strategiczne Spory Gospodarcze i Arbitraże (> 20 mln PLN) */}
+              {d?.strategicLitigations && d.strategicLitigations.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-[rgba(159,186,199,0.12)] space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                    <Gavel className="w-3.5 h-3.5 text-[#e5b958]" />
+                    <span>Strategiczne Spory Sądowe i Arbitraże (&gt; 20 mln PLN)</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {d.strategicLitigations.map((lit) => (
+                      <div
+                        key={lit.id}
+                        className="p-3.5 rounded-xl bg-[#070a0d] border border-[#e5b958]/30 space-y-1.5 text-xs"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white">
+                            Przeciwnik: {lit.opponent}
+                          </span>
+                          <span className="font-mono font-bold text-[#e5b958] text-sm">
+                            WPS: {lit.valueMlnPln.toLocaleString("pl-PL")} mln zł
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-[#8e9da7]">
+                          <strong className="text-white">Przedmiot sporu:</strong> {lit.caseSubject}
+                        </p>
+
+                        <div className="flex items-center justify-between text-[10px] font-mono text-[#5d6b74] pt-1 border-t border-[rgba(159,186,199,0.06)]">
+                          <span>Sąd / Trybunał: {lit.court}</span>
+                          <span
+                            className={
+                              lit.contingencyRisk === "wysokie"
+                                ? "text-[#ff7f87] font-bold uppercase"
+                                : "text-[#57e0c5] uppercase"
+                            }
+                          >
+                            Ryzyko obciążenia: {lit.contingencyRisk}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
