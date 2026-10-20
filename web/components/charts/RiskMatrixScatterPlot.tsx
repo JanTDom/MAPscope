@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Flame,
   AlertTriangle,
@@ -98,15 +98,79 @@ export function RiskMatrixScatterPlot({ onSelectPoint }: RiskMatrixScatterPlotPr
   const conflictPoints = RISK_MATRIX_SCATTER_POINTS.filter((p) => p.quadrant === "konflikt_operacyjny");
   const stablePoints = RISK_MATRIX_SCATTER_POINTS.filter((p) => p.quadrant === "stabilny_monitoring");
 
-  // Wymiary wykresu SVG dla widoku osiowego
-  const width = 640;
-  const height = 440;
-  const padding = { top: 40, right: 40, bottom: 50, left: 60 };
+  // Wymiary wykresu SVG dla widoku osiowego (rozszerzone i dopasowane do braku kolizji)
+  const width = 720;
+  const height = 460;
+  const padding = { top: 48, right: 48, bottom: 50, left: 65 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
 
   const xScale = (prob: number) => padding.left + (prob / 100) * innerWidth;
   const yScale = (impact: number) => padding.top + innerHeight - (impact / 100) * innerHeight;
+
+  // Układ antykolizyjny dla etykiet/plakietek - zero nakładania się
+  const layoutNodes = useMemo(() => {
+    const badgeW = 68;
+    const badgeH = 24;
+
+    const nodes = RISK_MATRIX_SCATTER_POINTS.map((pt) => {
+      const cx = Math.round(xScale(pt.probability));
+      const cy = Math.round(yScale(pt.ministerImpact));
+      return {
+        ...pt,
+        cx,
+        cy,
+        x: cx,
+        y: cy,
+        w: badgeW,
+        h: badgeH,
+      };
+    });
+
+    // Relaksacja antykolizyjna (50 iteracji rozpychania nakładających się boksów)
+    for (let iter = 0; iter < 50; iter++) {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const minX = (a.w + b.w) / 2 + 8;
+          const minY = (a.h + b.h) / 2 + 6;
+
+          if (Math.abs(dx) < minX && Math.abs(dy) < minY) {
+            const overlapX = minX - Math.abs(dx);
+            const overlapY = minY - Math.abs(dy);
+
+            if (overlapX < overlapY * 1.4) {
+              const shift = overlapX / 2;
+              if (dx >= 0) {
+                b.x += shift;
+                a.x -= shift;
+              } else {
+                b.x -= shift;
+                a.x += shift;
+              }
+            } else {
+              const shift = overlapY / 2;
+              if (dy >= 0) {
+                b.y += shift;
+                a.y -= shift;
+              } else {
+                b.y -= shift;
+                a.y += shift;
+              }
+            }
+          }
+        }
+        // Utrzymanie w granicach bezpiecznych marginesów
+        nodes[i].x = Math.max(padding.left + 35, Math.min(width - padding.right - 35, nodes[i].x));
+        nodes[i].y = Math.max(padding.top + 20, Math.min(height - padding.bottom - 20, nodes[i].y));
+      }
+    }
+
+    return nodes;
+  }, [innerWidth, innerHeight]);
 
   return (
     <div className="bg-[#0b1117] border border-slate-800 rounded-xl p-6 shadow-2xl">
@@ -589,114 +653,199 @@ export function RiskMatrixScatterPlot({ onSelectPoint }: RiskMatrixScatterPlotPr
                 Wpływ polityczny na MAP i Rząd (0% → 100%)
               </text>
 
-              {/* Nagłówki kwadrantów */}
-              <text
-                x={padding.left + innerWidth - 12}
-                y={padding.top + 22}
-                textAnchor="end"
-                fill="#f87171"
-                fontSize="11"
-                fontWeight="bold"
-                className="tracking-wider uppercase"
-              >
-                Czerwona strefa KPRM
-              </text>
-              <text
-                x={padding.left + 12}
-                y={padding.top + 22}
-                textAnchor="start"
-                fill="#fbbf24"
-                fontSize="11"
-                fontWeight="bold"
-                className="tracking-wider uppercase"
-              >
-                Ryzyko wizerunkowe
-              </text>
-              <text
-                x={padding.left + innerWidth - 12}
-                y={padding.top + innerHeight - 12}
-                textAnchor="end"
-                fill="#93c5fd"
-                fontSize="11"
-                fontWeight="bold"
-                className="tracking-wider uppercase"
-              >
-                Konflikty operacyjne
-              </text>
-              <text
-                x={padding.left + 12}
-                y={padding.top + innerHeight - 12}
-                textAnchor="start"
-                fill="#6ee7b7"
-                fontSize="11"
-                fontWeight="bold"
-                className="tracking-wider uppercase"
-              >
-                Stabilny monitoring
-              </text>
+              {/* Nagłówki kwadrantów w chronionych boksach narożnych (zero kolizji z plakietkami) */}
+              {/* Prawy Górny - Czerwona Strefa KPRM */}
+              <g>
+                <rect
+                  x={padding.left + innerWidth - 148}
+                  y={padding.top + 6}
+                  width={142}
+                  height={22}
+                  rx={4}
+                  fill="#15080b"
+                  stroke="#ef4444"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                />
+                <text
+                  x={padding.left + innerWidth - 77}
+                  y={padding.top + 21}
+                  textAnchor="middle"
+                  fill="#f87171"
+                  fontSize="9.5"
+                  fontWeight="bold"
+                  className="font-mono tracking-wider"
+                >
+                  CZERWONA STREFA KPRM
+                </text>
+              </g>
 
-              {/* Plakietki spółek zamiast nieczytelnych kółek */}
-              {RISK_MATRIX_SCATTER_POINTS.map((pt) => {
-                const cx = xScale(pt.probability);
-                const cy = yScale(pt.ministerImpact);
-                const isSelected = selectedPoint.id === pt.id;
-                const isHovered = hoveredPoint?.id === pt.id;
-                const color = getCategoryColor(pt.category);
+              {/* Lewy Górny - Ryzyko wizerunkowe */}
+              <g>
+                <rect
+                  x={padding.left + 6}
+                  y={padding.top + 6}
+                  width={140}
+                  height={22}
+                  rx={4}
+                  fill="#171108"
+                  stroke="#f59e0b"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                />
+                <text
+                  x={padding.left + 76}
+                  y={padding.top + 21}
+                  textAnchor="middle"
+                  fill="#fbbf24"
+                  fontSize="9.5"
+                  fontWeight="bold"
+                  className="font-mono tracking-wider"
+                >
+                  RYZYKO WIZERUNKOWE
+                </text>
+              </g>
+
+              {/* Prawy Dolny - Konflikty operacyjne */}
+              <g>
+                <rect
+                  x={padding.left + innerWidth - 148}
+                  y={padding.top + innerHeight - 28}
+                  width={142}
+                  height={22}
+                  rx={4}
+                  fill="#080f18"
+                  stroke="#3b82f6"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                />
+                <text
+                  x={padding.left + innerWidth - 77}
+                  y={padding.top + innerHeight - 13}
+                  textAnchor="middle"
+                  fill="#93c5fd"
+                  fontSize="9.5"
+                  fontWeight="bold"
+                  className="font-mono tracking-wider"
+                >
+                  KONFLIKTY OPERACYJNE
+                </text>
+              </g>
+
+              {/* Lewy Dolny - Stabilny monitoring */}
+              <g>
+                <rect
+                  x={padding.left + 6}
+                  y={padding.top + innerHeight - 28}
+                  width={140}
+                  height={22}
+                  rx={4}
+                  fill="#081510"
+                  stroke="#10b981"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                />
+                <text
+                  x={padding.left + 76}
+                  y={padding.top + innerHeight - 13}
+                  textAnchor="middle"
+                  fill="#6ee7b7"
+                  fontSize="9.5"
+                  fontWeight="bold"
+                  className="font-mono tracking-wider"
+                >
+                  STABILNY MONITORING
+                </text>
+              </g>
+
+              {/* Plakietki spółek z układem antykolizyjnym (zero nakładania się na siebie) */}
+              {layoutNodes.map((node) => {
+                const isSelected = selectedPoint.id === node.id;
+                const isHovered = hoveredPoint?.id === node.id;
+                const color = getCategoryColor(node.category);
+                const isDisplaced = Math.hypot(node.x - node.cx, node.y - node.cy) > 3;
 
                 return (
                   <g
-                    key={pt.id}
+                    key={node.id}
                     className="cursor-pointer transition-all duration-150"
-                    onMouseEnter={() => setHoveredPoint(pt)}
+                    onMouseEnter={() => setHoveredPoint(node)}
                     onMouseLeave={() => setHoveredPoint(null)}
-                    onClick={() => handlePointClick(pt)}
+                    onClick={() => handlePointClick(node)}
                   >
+                    {/* Dyskretna linia łącznikowa, jeśli plakietka została odsunięta dla braku kolizji */}
+                    {isDisplaced && (
+                      <line
+                        x1={node.cx}
+                        y1={node.cy}
+                        x2={node.x}
+                        y2={node.y}
+                        stroke={color}
+                        strokeWidth="1"
+                        strokeDasharray="2 2"
+                        strokeOpacity="0.6"
+                      />
+                    )}
+
+                    {/* Precyzyjny punkt współrzędnej matematycznej */}
+                    <circle
+                      cx={node.cx}
+                      cy={node.cy}
+                      r={2.5}
+                      fill={color}
+                      stroke="#070c12"
+                      strokeWidth="1.5"
+                    />
+
                     {/* Zewnętrzna ramka zaznaczenia */}
                     {isSelected && (
                       <rect
-                        x={cx - 40}
-                        y={cy - 16}
-                        width={80}
-                        height={32}
-                        rx={8}
+                        x={node.x - 37}
+                        y={node.y - 14}
+                        width={74}
+                        height={28}
+                        rx={7}
                         fill="none"
                         stroke="#38bdf8"
                         strokeWidth="2"
-                        strokeDasharray="4 4"
+                        strokeDasharray="3 3"
                       />
                     )}
+
                     {/* Główna plakietka korporacyjna spółki */}
                     <rect
-                      x={cx - 36}
-                      y={cy - 13}
-                      width={72}
-                      height={26}
-                      rx={6}
+                      x={node.x - 34}
+                      y={node.y - 12}
+                      width={68}
+                      height={24}
+                      rx={5}
                       fill="#070c12"
                       stroke={isSelected ? "#ffffff" : isHovered ? "#93c5fd" : color}
-                      strokeWidth={isSelected ? 2.5 : 1.5}
+                      strokeWidth={isSelected ? 2 : 1.2}
                       className="drop-shadow-lg"
                     />
+
                     {/* Boczny pasek kategorii ryzyka */}
                     <rect
-                      x={cx - 36}
-                      y={cy - 13}
-                      width={4}
-                      height={26}
-                      rx={2}
+                      x={node.x - 34}
+                      y={node.y - 12}
+                      width={3.5}
+                      height={24}
+                      rx={1.5}
                       fill={color}
                     />
+
                     {/* Ticker spółki */}
                     <text
-                      x={cx + 1}
-                      y={cy + 3.5}
+                      x={node.x + 1}
+                      y={node.y + 3.5}
                       textAnchor="middle"
                       fill={isSelected ? "#ffffff" : "#f1f5f9"}
-                      fontSize="9.5"
+                      fontSize="9"
                       fontWeight={isSelected ? "bold" : "600"}
                       className="pointer-events-none font-mono"
                     >
-                      {pt.tickerOrAlias}
+                      {node.tickerOrAlias}
                     </text>
                   </g>
                 );

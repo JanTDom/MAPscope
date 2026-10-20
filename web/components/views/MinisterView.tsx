@@ -213,95 +213,28 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Pasek Tytułowy Gabinetu Ministra */}
-      <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-[#ff7f87]/15 text-[#ff7f87] border border-[#ff7f87]/30 font-bold">
-              GABINET MINISTRA • KOKPIT ZARZĄDCZY
-            </span>
-            <span className="text-xs text-[#8e9da7]">Aktualizacja: 20 października 2026</span>
+      {/* Pasek Tytułowy Gabinetu Ministra (Układ odporny na szerokość ekranu) */}
+      <div className="p-5 rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.14)] space-y-4">
+        {/* Rząd 1: Tytuł i Barometr Kryzysowy */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-[#ff7f87]/15 text-[#ff7f87] border border-[#ff7f87]/30 font-bold">
+                GABINET MINISTRA • KOKPIT ZARZĄDCZY
+              </span>
+              <span className="text-xs text-[#8e9da7]">Aktualizacja: 20 października 2026, 23:55</span>
+            </div>
+            <h1 className="text-lg font-bold text-white mt-1">
+              Radar strategiczny, Tarcza Sejmowa i temperatura kryzysowa SSP
+            </h1>
+            <p className="text-xs text-[#8e9da7] mt-0.5 max-w-2xl">
+              Ciągły nadzór nad portfelem 406 spółek, ochrona przed zaskoczeniem w Sejmie i odprawy gabinetowe dla Premiera.
+            </p>
           </div>
-          <h1 className="text-lg font-bold text-white mt-1">
-            Radar strategiczny, Tarcza Sejmowa i temperatura kryzysowa SSP
-          </h1>
-          <p className="text-xs text-[#8e9da7]">
-            Ochrona przed zaskoczeniem w Sejmie, pożary dnia, rozróżnienie zaszłości od bieżącej odpowiedzialności i briefingi dla Premiera.
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          {/* Przycisk Tryb Sali Narad KPRM */}
-          <button
-            type="button"
-            onClick={() => setIsBigScreenOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-cyan-500/30 text-xs font-semibold shadow-sm transition-all hover:border-cyan-400 group"
-          >
-            <Maximize2 className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <span className="block leading-tight text-white font-medium">Sala Narad KPRM</span>
-              <span className="text-[10px] text-cyan-300 font-mono block">Tryb wielkoekranowy</span>
-            </div>
-          </button>
-
-          {/* Przycisk Generator Mandatów WZ/NWZ */}
-          <button
-            type="button"
-            onClick={() => setIsAgmModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-amber-500/30 text-xs font-semibold shadow-sm transition-all hover:border-amber-400 group"
-          >
-            <Vote className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <span className="block leading-tight text-white font-medium">Mandat na WZ/NWZ</span>
-              <span className="text-[10px] text-amber-300 font-mono block">Instrukcja głosowania</span>
-            </div>
-          </button>
-
-          {/* Przycisk KPRM One-Pager */}
-          <button
-            type="button"
-            onClick={() => setIsKprmModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white border border-[rgba(159,186,199,0.25)] text-xs font-semibold shadow-sm transition-all hover:border-[#57e0c5]/50 group"
-          >
-            <FileText className="w-4 h-4 text-[#57e0c5] group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <span className="block leading-tight text-white">Raport dla Premiera</span>
-              <span className="text-[10px] text-[#8e9da7] font-mono block">KPRM One-Pager</span>
-            </div>
-          </button>
-
-          {/* Przycisk Kieszonkowa Fiszka dla Mediów (30s) */}
-          <button
-            type="button"
-            onClick={() => setIsBriefingModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-rose-500/30 text-xs font-semibold shadow-sm transition-all hover:border-rose-400 group"
-          >
-            <Radio className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <span className="block leading-tight text-white font-medium">Fiszka dla Mediów</span>
-              <span className="text-[10px] text-rose-300 font-mono block">Briefing w 30 sekund</span>
-            </div>
-          </button>
-
-          {/* Przycisk Odprawa Poranna Audio (90s) */}
-          <button
-            type="button"
-            onClick={() => {
-              const el = document.getElementById("high-level-suite-section");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-emerald-500/30 text-xs font-semibold shadow-sm transition-all hover:border-emerald-400 group"
-          >
-            <Volume2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-            <div className="text-left">
-              <span className="block leading-tight text-white font-medium">Odprawa Audio</span>
-              <span className="text-[10px] text-emerald-300 font-mono block">90s dla Ministra</span>
-            </div>
-          </button>
-
-          {/* Wskaźnik temperatury kryzysowej */}
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] shrink-0">
-            <div className="relative w-11 h-11 flex items-center justify-center">
+          {/* Barometr temperatury kryzysowej */}
+          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#111a21] border border-[rgba(159,186,199,0.14)] shrink-0 self-start lg:self-auto">
+            <div className="relative w-11 h-11 flex items-center justify-center shrink-0">
               <svg className="w-11 h-11 transform -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-[#16222b]"
@@ -337,6 +270,77 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Rząd 2: Pasek narzędziowy Gabinetu Ministra (Responsywna siatka 5 przycisków, zero overflow) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5 pt-3 border-t border-[rgba(159,186,199,0.12)]">
+          {/* Przycisk Tryb Sali Narad KPRM */}
+          <button
+            type="button"
+            onClick={() => setIsBigScreenOpen(true)}
+            className="flex items-center gap-2 p-2.5 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-cyan-500/30 text-xs font-semibold shadow-sm transition-all hover:border-cyan-400 group"
+          >
+            <Maximize2 className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
+            <div className="text-left min-w-0">
+              <span className="block leading-tight text-white font-medium truncate">Sala Narad KPRM</span>
+              <span className="text-[10px] text-cyan-300 font-mono block truncate">Tryb wielkoekranowy</span>
+            </div>
+          </button>
+
+          {/* Przycisk Generator Mandatów WZ/NWZ */}
+          <button
+            type="button"
+            onClick={() => setIsAgmModalOpen(true)}
+            className="flex items-center gap-2 p-2.5 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-amber-500/30 text-xs font-semibold shadow-sm transition-all hover:border-amber-400 group"
+          >
+            <Vote className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+            <div className="text-left min-w-0">
+              <span className="block leading-tight text-white font-medium truncate">Mandat na WZ/NWZ</span>
+              <span className="text-[10px] text-amber-300 font-mono block truncate">Instrukcja głosu</span>
+            </div>
+          </button>
+
+          {/* Przycisk KPRM One-Pager */}
+          <button
+            type="button"
+            onClick={() => setIsKprmModalOpen(true)}
+            className="flex items-center gap-2 p-2.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white border border-[rgba(159,186,199,0.25)] text-xs font-semibold shadow-sm transition-all hover:border-[#57e0c5]/50 group"
+          >
+            <FileText className="w-4 h-4 text-[#57e0c5] group-hover:scale-110 transition-transform shrink-0" />
+            <div className="text-left min-w-0">
+              <span className="block leading-tight text-white truncate">Raport Premiera</span>
+              <span className="text-[10px] text-[#8e9da7] font-mono block truncate">KPRM One-Pager</span>
+            </div>
+          </button>
+
+          {/* Przycisk Kieszonkowa Fiszka dla Mediów (30s) */}
+          <button
+            type="button"
+            onClick={() => setIsBriefingModalOpen(true)}
+            className="flex items-center gap-2 p-2.5 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-rose-500/30 text-xs font-semibold shadow-sm transition-all hover:border-rose-400 group"
+          >
+            <Radio className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform shrink-0" />
+            <div className="text-left min-w-0">
+              <span className="block leading-tight text-white font-medium truncate">Fiszka dla Mediów</span>
+              <span className="text-[10px] text-rose-300 font-mono block truncate">Briefing 30s</span>
+            </div>
+          </button>
+
+          {/* Przycisk Odprawa Poranna Audio (90s) */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("high-level-suite-section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="flex items-center gap-2 p-2.5 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-emerald-500/30 text-xs font-semibold shadow-sm transition-all hover:border-emerald-400 group col-span-2 sm:col-span-1"
+          >
+            <Volume2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" />
+            <div className="text-left min-w-0">
+              <span className="block leading-tight text-white font-medium truncate">Odprawa Audio</span>
+              <span className="text-[10px] text-emerald-300 font-mono block truncate">90s dla Ministra</span>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -413,6 +417,11 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
         </div>
       </div>
 
+      {/* Pakiet Strategiczny High-Level: Rezerwy Surowcowe, Tarcza Wrogiego Przejęcia, Kowenanty i Odprawa 90s */}
+      <div id="high-level-suite-section">
+        <HighLevelStateSuite onOpenDossier={onOpenDossier} />
+      </div>
+
       {/* Kwadrantowa macierz ryzyka właścicielskiego 2D */}
       <RiskMatrixScatterPlot
         onSelectPoint={(pt) => {
@@ -428,11 +437,6 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Centrum Testów Szokowych i Odporności Portfela SSP (Stress-Test Simulator) */}
       <PortfolioStressTestSimulator />
-
-      {/* Pakiet Strategiczny High-Level: Rezerwy, Tarcza Wrogiego Przejęcia, Kowenanty i Odprawa 90s */}
-      <div id="high-level-suite-section">
-        <HighLevelStateSuite onOpenDossier={onOpenDossier} />
-      </div>
 
       {/* Moduł: Najważniejsze pożary dnia (Top Alerts P1/P2) z Tarczą Sejmową */}
       <div className="space-y-3">
