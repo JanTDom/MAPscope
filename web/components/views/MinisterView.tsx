@@ -39,6 +39,7 @@ import {
   PieChart,
   AlertCircle,
   ExternalLink,
+  Volume2,
 } from "lucide-react";
 import {
   OVERALL_CRISIS_TEMPERATURE,
@@ -55,6 +56,7 @@ import {
 import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot.tsx";
 import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
 import { PortfolioStressTestSimulator } from "@/components/charts/PortfolioStressTestSimulator.tsx";
+import { HighLevelStateSuite } from "@/components/views/HighLevelStateSuite.tsx";
 
 interface MinisterViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -281,6 +283,22 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
           </button>
 
+          {/* Przycisk Odprawa Poranna Audio (90s) */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("high-level-suite-section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-emerald-500/30 text-xs font-semibold shadow-sm transition-all hover:border-emerald-400 group"
+          >
+            <Volume2 className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <span className="block leading-tight text-white font-medium">Odprawa Audio</span>
+              <span className="text-[10px] text-emerald-300 font-mono block">90s dla Ministra</span>
+            </div>
+          </button>
+
           {/* Wskaźnik temperatury kryzysowej */}
           <div className="flex items-center gap-3 p-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] shrink-0">
             <div className="relative w-11 h-11 flex items-center justify-center">
@@ -410,6 +428,11 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Centrum Testów Szokowych i Odporności Portfela SSP (Stress-Test Simulator) */}
       <PortfolioStressTestSimulator />
+
+      {/* Pakiet Strategiczny High-Level: Rezerwy, Tarcza Wrogiego Przejęcia, Kowenanty i Odprawa 90s */}
+      <div id="high-level-suite-section">
+        <HighLevelStateSuite onOpenDossier={onOpenDossier} />
+      </div>
 
       {/* Moduł: Najważniejsze pożary dnia (Top Alerts P1/P2) z Tarczą Sejmową */}
       <div className="space-y-3">

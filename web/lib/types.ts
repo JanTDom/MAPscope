@@ -663,5 +663,57 @@ export interface AgmVotingInstructionTemplate {
   redLineConstraint: string;
 }
 
+export interface StrategicReserveIndicator {
+  id: string;
+  resourceName: string;
+  category: "PALIWA_ROPA" | "GAZ_ZIEMNY" | "WEGIEL_ENERGETYCZNY" | "AMONIAK_NAWOZY" | "REZERWY_MEDYCZNE_RARS";
+  currentLevelValue: number;
+  unit: string;
+  mandatoryMinimumValue: number;
+  status: "BEZPIECZNY" | "OSTRZEGAWCZY" | "KRYTYCZNY";
+  supervisingEntity: string;
+  diagnosis: string;
+}
+
+export interface ForeignTakeoverShieldEntity {
+  id: string;
+  entityName: string;
+  ticker: string;
+  stateSharePercent: number;
+  freeFloatPercent: number;
+  foreignCapitalSharePercent: number;
+  isProtectedByAct: boolean;
+  suspiciousAccumulationAlert: boolean;
+  lastTransactionNotice: string;
+  ministerialVetoAvailable: boolean;
+}
+
+export interface DebtStabilityRecord {
+  id: string;
+  entityName: string;
+  ticker: string;
+  netDebtMldPln: number;
+  ebitdaMldPln: number;
+  netDebtToEbitda: number;
+  covenantLimit: number;
+  isCovenantBreached: boolean;
+  nearestMaturityDate: string;
+  nearestMaturityAmountMlnPln: number;
+  creditorConsortium: string;
+  stabilizationRecommendation: string;
+}
+
+export interface MorningCabinetBriefing {
+  id: string;
+  briefingDate: string;
+  keyNumberValue: string;
+  keyNumberLabel: string;
+  urgentDecisionToSign: string;
+  audioDurationSeconds: number;
+  top3StrategicEvents: { title: string; entity: string; consequenceForMap: string }[];
+  transcriptText: string;
+}
+
+
 
 

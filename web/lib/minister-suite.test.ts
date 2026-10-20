@@ -28,6 +28,10 @@ import {
   NATIONAL_ASSETS_PORTFOLIO_STATS,
   CRITICAL_INFRASTRUCTURE_SECTORS,
   AGM_VOTING_TEMPLATES,
+  STRATEGIC_RESERVE_INDICATORS,
+  FOREIGN_TAKEOVER_SHIELD_ENTITIES,
+  DEBT_STABILITY_RECORDS,
+  MORNING_CABINET_BRIEFING,
 } from "./mapscope-data.ts";
 
 test("1. Gabinet Ministra: Tarcza Sejmowa zawiera pancerne Q&A, czerwone linie i rozróżnienie genezy", () => {
@@ -291,5 +295,42 @@ test("10. Ranga Państwowa: Wycena Majątku Narodowego, Infrastruktura Krytyczna
   const pkoMandate = AGM_VOTING_TEMPLATES.find((m) => m.ticker === "PKOBP");
   assert.strictEqual(pkoMandate?.recommendedVote, "ZA", "Poparcie uchwały dywidendowej PKO BP");
 });
+
+test("11. Pakiet High-Level: Suwerenność Rezerw, Tarcza Wrogiego Przejęcia, Kowenanty Dłużne i Audio-Brief 90s", () => {
+  // 1. Radar Suwerenności i Rezerw Strategicznych
+  assert.ok(STRATEGIC_RESERVE_INDICATORS.length >= 5, "Musi monitorować co najmniej 5 strategicznych wskaźników rezerw");
+  const fuelRes = STRATEGIC_RESERVE_INDICATORS.find((r) => r.category === "PALIWA_ROPA");
+  assert.ok(fuelRes && fuelRes.currentLevelValue >= 90, "Rezerwy paliw muszą spełniać standard min. 90 dni");
+  const gasRes = STRATEGIC_RESERVE_INDICATORS.find((r) => r.category === "GAZ_ZIEMNY");
+  assert.ok(gasRes && gasRes.currentLevelValue === 100, "Magazyny gazu muszą być zapełnione w 100%");
+  const fertRes = STRATEGIC_RESERVE_INDICATORS.find((r) => r.category === "AMONIAK_NAWOZY");
+  assert.strictEqual(fertRes?.status, "OSTRZEGAWCZY", "Sektor nawozowy musi mieć status ostrzegawczy z uwagi na dumping");
+
+  // 2. Tarcza Przed Wrogim Przejęciem (Ustawa o Kontroli Niektórych Inwestycji)
+  assert.ok(FOREIGN_TAKEOVER_SHIELD_ENTITIES.length >= 6, "Musi obejmować kluczowe spółki z rejestru 21 podmiotów");
+  const orlenShield = FOREIGN_TAKEOVER_SHIELD_ENTITIES.find((e) => e.ticker === "PKN");
+  assert.ok(orlenShield?.suspiciousAccumulationAlert, "Musi sygnalizować alert wrogiej akumulacji pakietu akcji Orlenu");
+  assert.ok(orlenShield?.ministerialVetoAvailable, "Sprzeciw Ministra musi być aktywny");
+  const azotyShield = FOREIGN_TAKEOVER_SHIELD_ENTITIES.find((e) => e.ticker === "ATT");
+  assert.ok(azotyShield?.lastTransactionNotice.includes("Acron"), "Musi wskazywać zamrożony pakiet rosyjskiego Acronu");
+
+  // 3. Komitet Stabilności Finansowej i Kowenanty
+  assert.ok(DEBT_STABILITY_RECORDS.length >= 6, "Musi monitorować profil zadłużenia co najmniej 6 grup");
+  const totalDebt = DEBT_STABILITY_RECORDS.reduce((s, r) => s + r.netDebtMldPln, 0);
+  assert.ok(totalDebt > 65, "Zagregowany dług netto kluczowych grup musi przekraczać 65 mld PLN");
+  const azotyDebt = DEBT_STABILITY_RECORDS.find((r) => r.ticker === "ATT");
+  assert.strictEqual(azotyDebt?.isCovenantBreached, true, "Grupa Azoty musi mieć flagę naruszonego kowenantu");
+  assert.ok((azotyDebt?.netDebtToEbitda ?? 0) > 3.5, "Dług/EBITDA w Azotach musi przekraczać limit 3.5x");
+  const cargoDebt = DEBT_STABILITY_RECORDS.find((r) => r.ticker === "PKPCARGO");
+  assert.strictEqual(cargoDebt?.isCovenantBreached, true, "PKP Cargo musi mieć flagę naruszonego kowenantu");
+
+  // 4. Gabinetowy Audio-Brief (Odprawa Poranna w 90 sekund)
+  assert.strictEqual(MORNING_CABINET_BRIEFING.audioDurationSeconds, 92, "Czas odprawy audio musi wynosić ok. 90 sekund");
+  assert.ok(MORNING_CABINET_BRIEFING.keyNumberValue.includes("384,5"), "Musi zawierać kluczową liczbę majątku narodowego");
+  assert.ok(MORNING_CABINET_BRIEFING.urgentDecisionToSign.includes("standstill"), "Pilna decyzja musi dotyczyć standstill dla Azotów");
+  assert.strictEqual(MORNING_CABINET_BRIEFING.top3StrategicEvents.length, 3, "Musi zawierać dokładnie 3 fakty strategiczne");
+  assert.ok(MORNING_CABINET_BRIEFING.transcriptText.length > 200, "Transkrypcja musi być kompletna");
+});
+
 
 
