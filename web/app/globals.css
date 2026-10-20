@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@source "../components";
+@source "../app";
+@source "../lib";
 
 :root {
   --map-bg: #070a0d;
