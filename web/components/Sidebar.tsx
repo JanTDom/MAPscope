@@ -12,6 +12,7 @@ import {
   Landmark,
   Radio,
   FileSpreadsheet,
+  BarChart3,
 } from "lucide-react";
 import type { UserRole } from "@/lib/types.ts";
 
@@ -55,6 +56,13 @@ export function Sidebar({
       color: "text-[#57e0c5]",
     },
     {
+      role: "analytics" as UserRole,
+      label: "Centrum Zestawień",
+      subtitle: "Portfel 406 SSP, organy i pakiety",
+      icon: BarChart3,
+      color: "text-[#75b8ff]",
+    },
+    {
       role: "catalog" as UserRole,
       label: "Katalog Wszystkich SSP",
       subtitle: "100% podmiotów bez wykluczeń",
@@ -76,21 +84,20 @@ export function Sidebar({
     <aside className="w-[264px] border-r border-[rgba(159,186,199,0.14)] bg-[#070a0d] flex flex-col shrink-0 select-none z-30">
       {/* Nagłówek i tożsamość rządowa */}
       <div className="p-4 border-b border-[rgba(159,186,199,0.14)]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#0d1318] border border-[rgba(87,224,197,0.3)] flex items-center justify-center text-[#57e0c5] shadow-inner">
-            <Shield className="w-5 h-5" />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <img
+              src="/mapscope-logo-darkmode.png"
+              alt="MAPscope Logo"
+              className="h-7 w-auto object-contain"
+            />
+            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30">
+              GOV
+            </span>
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-white tracking-tight text-base">MAPscope</span>
-              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30">
-                GOV
-              </span>
-            </div>
-            <p className="text-[11px] text-[#8e9da7] leading-tight mt-0.5">
-              Nadzór Właścicielski i Radar Ryzyk MAP
-            </p>
-          </div>
+          <p className="text-[11px] text-[#8e9da7] leading-tight">
+            Nadzór Właścicielski i Radar Ryzyk MAP
+          </p>
         </div>
 
         {/* Globalne wyszukiwanie (Cmd+K) */}

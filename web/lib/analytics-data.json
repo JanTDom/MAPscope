@@ -1,0 +1,224 @@
+{
+  "total_count": 406,
+  "active_count": 311,
+  "liquidation_count": 41,
+  "bankruptcy_count": 28,
+  "suspended_count": 26,
+  "shares_distribution": {
+    "wholly": 143,
+    "majority": 61,
+    "minority": 60,
+    "fractional": 142
+  },
+  "organs": [
+    {
+      "name": "Minister Aktywów Państwowych",
+      "count": 108,
+      "percentage": 26.6
+    },
+    {
+      "name": "Agencja Rozwoju Przemysłu Spółka Akcyjna",
+      "count": 96,
+      "percentage": 23.6
+    },
+    {
+      "name": "Krajowy Zasób Nieruchomości",
+      "count": 50,
+      "percentage": 12.3
+    },
+    {
+      "name": "Krajowy Ośrodek Wsparcia Rolnictwa",
+      "count": 47,
+      "percentage": 11.6
+    },
+    {
+      "name": "Minister Infrastruktury",
+      "count": 28,
+      "percentage": 6.9
+    },
+    {
+      "name": "Minister Kultury i Dziedzictwa Narodowego",
+      "count": 23,
+      "percentage": 5.7
+    },
+    {
+      "name": "Minister Rozwoju i Technologii",
+      "count": 14,
+      "percentage": 3.4
+    },
+    {
+      "name": "Dyrektor Generalny Lasów Państwowych",
+      "count": 10,
+      "percentage": 2.5
+    },
+    {
+      "name": "Polskie Koleje Państwowe Spółka akcyjna",
+      "count": 7,
+      "percentage": 1.7
+    },
+    {
+      "name": "Towarzystwo Finansowe \"Silesia\" Spółka z ograniczoną odpowiedzialnością",
+      "count": 7,
+      "percentage": 1.7
+    },
+    {
+      "name": "Agencja Mienia Wojskowego",
+      "count": 5,
+      "percentage": 1.2
+    },
+    {
+      "name": "Pełnomocnik Rządu do spraw Strategicznej Infrastruktury Energetycznej",
+      "count": 5,
+      "percentage": 1.2
+    },
+    {
+      "name": "Minister Finansów",
+      "count": 2,
+      "percentage": 0.5
+    },
+    {
+      "name": "Minister Przemysłu",
+      "count": 1,
+      "percentage": 0.2
+    },
+    {
+      "name": "Minister Spraw Wewnętrznych i Administracji",
+      "count": 1,
+      "percentage": 0.2
+    },
+    {
+      "name": "Minister Zdrowia",
+      "count": 1,
+      "percentage": 0.2
+    },
+    {
+      "name": "Pełnomocnik Rządu do spraw Centralnego Portu Komunikacyjnego dla Rzeczypospolitej Polskiej",
+      "count": 1,
+      "percentage": 0.2
+    }
+  ],
+  "sectors": [
+    {
+      "name": "Przemysł i Usługi Regionalne",
+      "count": 190,
+      "percentage": 46.8
+    },
+    {
+      "name": "Rolnictwo i Biogospodarka",
+      "count": 56,
+      "percentage": 13.8
+    },
+    {
+      "name": "Mieszkalnictwo i Nieruchomości (SIM)",
+      "count": 50,
+      "percentage": 12.3
+    },
+    {
+      "name": "Kultura i Media",
+      "count": 24,
+      "percentage": 5.9
+    },
+    {
+      "name": "Transport i Logistyka",
+      "count": 23,
+      "percentage": 5.7
+    },
+    {
+      "name": "Górnictwo i Hutnictwo",
+      "count": 15,
+      "percentage": 3.7
+    },
+    {
+      "name": "Finanse i Rynek Kapitałowy",
+      "count": 12,
+      "percentage": 3.0
+    },
+    {
+      "name": "Chemia Przemysłowa",
+      "count": 8,
+      "percentage": 2.0
+    },
+    {
+      "name": "Leśnictwo i Przemysł Drzewny",
+      "count": 8,
+      "percentage": 2.0
+    },
+    {
+      "name": "Paliwa i Energetyka",
+      "count": 8,
+      "percentage": 2.0
+    },
+    {
+      "name": "Przemysł Obronny",
+      "count": 7,
+      "percentage": 1.7
+    },
+    {
+      "name": "Zdrowie i Farmacja",
+      "count": 5,
+      "percentage": 1.2
+    }
+  ],
+  "top_cities": [
+    {
+      "city": "Warszawa",
+      "count": 74
+    },
+    {
+      "city": "Katowice",
+      "count": 21
+    },
+    {
+      "city": "Kraków",
+      "count": 12
+    },
+    {
+      "city": "Gdańsk",
+      "count": 12
+    },
+    {
+      "city": "Szczecin",
+      "count": 11
+    },
+    {
+      "city": "Wrocław",
+      "count": 9
+    },
+    {
+      "city": "Częstochowa",
+      "count": 9
+    },
+    {
+      "city": "Poznań",
+      "count": 8
+    },
+    {
+      "city": "Łódź",
+      "count": 8
+    },
+    {
+      "city": "Bydgoszcz",
+      "count": 7
+    },
+    {
+      "city": "Gdynia",
+      "count": 6
+    },
+    {
+      "city": "Rzeszów",
+      "count": 5
+    },
+    {
+      "city": "Lublin",
+      "count": 5
+    },
+    {
+      "city": "Kielce",
+      "count": 5
+    },
+    {
+      "city": "Bielsko-Biała",
+      "count": 5
+    }
+  ]
+}

@@ -9,11 +9,12 @@ import {
   PARLIAMENTARY_INQUIRIES,
 } from "./mapscope-data.ts";
 
-test("Katalog podmiotów zawiera 100% przekrój spółek Skarbu Państwa bez wykluczeń", () => {
-  assert.ok(ALL_ENTITIES_REGISTRY.length >= 13);
+test("Katalog podmiotów zawiera 100% przekrój 406 spółek Skarbu Państwa bez wykluczeń", () => {
+  // Bezwzględne pokrycie ze 100% oficjalnego wykazu dane.gov.pl
+  assert.equal(ALL_ENTITIES_REGISTRY.length, 406);
 
   // Weryfikacja obecności spółki strategicznej (Orlen)
-  const orlen = ALL_ENTITIES_REGISTRY.find((e) => e.name === "ORLEN S.A.");
+  const orlen = ALL_ENTITIES_REGISTRY.find((e) => e.nip === "7740001454");
   assert.ok(orlen);
   assert.equal(orlen?.nip, "7740001454");
   assert.equal(orlen?.krs, "0000028860");
@@ -21,19 +22,18 @@ test("Katalog podmiotów zawiera 100% przekrój spółek Skarbu Państwa bez wyk
   assert.equal(orlen?.strategic_importance, "strategic");
   assert.equal(orlen?.is_public_listed, true);
 
-  // Weryfikacja spółki w restrukturyzacji (PKP Cargo)
-  const pkp = ALL_ENTITIES_REGISTRY.find((e) => e.name.includes("PKP CARGO"));
-  assert.ok(pkp);
-  assert.equal(pkp?.status, "restructuring");
+  // Weryfikacja spółek w upadłości (28 podmiotów w wykazie)
+  const upadlosci = ALL_ENTITIES_REGISTRY.filter((e) => e.status === "bankruptcy");
+  assert.equal(upadlosci.length, 28);
+  assert.ok(upadlosci.some((e) => e.name.includes("w upadłości")));
 
-  // Weryfikacja spółki w upadłości (Fabryka Porcelany Krzysztof)
-  const upadlosc = ALL_ENTITIES_REGISTRY.find((e) => e.status === "bankruptcy");
-  assert.ok(upadlosc);
-  assert.equal(upadlosc?.name, "Fabryka Porcelany 'Krzysztof' w upadłości");
+  // Weryfikacja spółek w likwidacji (41 podmiotów w wykazie)
+  const likwidacje = ALL_ENTITIES_REGISTRY.filter((e) => e.status === "liquidation");
+  assert.equal(likwidacje.length, 41);
 
-  // Weryfikacja spółki w likwidacji
-  const likw = ALL_ENTITIES_REGISTRY.find((e) => e.status === "liquidation");
-  assert.ok(likw);
+  // Weryfikacja spółek jednoosobowych Skarbu Państwa (100% udziału)
+  const wholly = ALL_ENTITIES_REGISTRY.filter((e) => e.state_share_percent === 100);
+  assert.ok(wholly.length >= 140);
 });
 
 test("Każdy podmiot posiada kompletne Dossier 360° z 6 filarami analitycznymi", () => {

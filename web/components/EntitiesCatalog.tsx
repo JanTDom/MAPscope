@@ -62,7 +62,7 @@ export function EntitiesCatalog({
     });
   }, [entities, searchQuery, selectedSector, selectedStatus, selectedOwnership]);
 
-  const activeEntity = entities.find((e) => e.id === selectedEntityId);
+  const activeEntity = entities.find((e) => e.id === selectedEntityId) || filteredEntities[0];
 
   return (
     <div className="space-y-6">
@@ -133,7 +133,7 @@ export function EntitiesCatalog({
 
       {/* Siatka: Lista podmiotów + Karta szczegółów */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-2">
+        <div className="lg:col-span-7 space-y-2 max-h-[780px] overflow-y-auto pr-2">
           {filteredEntities.length === 0 ? (
             <div className="p-8 text-center rounded-lg bg-[#0b1118] border border-[rgba(160,190,210,0.12)]">
               <AlertCircle className="w-8 h-8 text-[#8a9ba8] mx-auto mb-2" />

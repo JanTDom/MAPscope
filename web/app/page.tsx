@@ -6,6 +6,7 @@ import { CommandPalette } from "@/components/CommandPalette.tsx";
 import { MinisterView } from "@/components/views/MinisterView.tsx";
 import { CommunicationView } from "@/components/views/CommunicationView.tsx";
 import { GovernanceView } from "@/components/views/GovernanceView.tsx";
+import { AnalyticsView } from "@/components/views/AnalyticsView.tsx";
 import { EntitiesCatalog } from "@/components/EntitiesCatalog.tsx";
 import { InternalDataView } from "@/components/views/InternalDataView.tsx";
 import { DossierModal } from "@/components/views/DossierModal.tsx";
@@ -60,6 +61,7 @@ export default function HomePage() {
               {activeRole === "minister" && "Gabinet Ministra (Kokpit Zarządczy)"}
               {activeRole === "communication" && "Szef Komunikacji (Audytor i Media Radar)"}
               {activeRole === "governance" && "Ład Korporacyjny (Władze i Nadzór)"}
+              {activeRole === "analytics" && "Centrum Zestawień i Własności (Portfel 406 SSP)"}
               {activeRole === "catalog" && "Katalog Wszystkich Spółek Skarbu Państwa"}
               {activeRole === "internal_data" && "Skarbiec Danych Wewnętrznych MAP"}
             </span>
@@ -101,6 +103,13 @@ export default function HomePage() {
 
             {activeRole === "governance" && (
               <GovernanceView onOpenDossier={handleOpenDossier} />
+            )}
+
+            {activeRole === "analytics" && (
+              <AnalyticsView
+                entities={ALL_ENTITIES_REGISTRY}
+                onSelectEntity={handleOpenDossier}
+              />
             )}
 
             {activeRole === "catalog" && (

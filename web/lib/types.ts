@@ -2,6 +2,7 @@ export type UserRole =
   | "minister"
   | "communication"
   | "governance"
+  | "analytics"
   | "catalog"
   | "internal_data";
 
@@ -149,6 +150,8 @@ export interface EntityRecord {
   nip?: string | null;
   krs?: string | null;
   regon?: string | null;
+  city?: string | null;
+  status_label?: string | null;
   state_share_percent: number;
   ownership_type: OwnershipType;
   ownership_body: string;
