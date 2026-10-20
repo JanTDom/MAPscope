@@ -9,19 +9,22 @@ import {
   ChevronRight,
   ShieldCheck,
   AlertCircle,
+  ArrowRight,
 } from "lucide-react";
-import { EntityRecord } from "@/lib/types";
+import type { EntityRecord } from "@/lib/types.ts";
 
 interface EntitiesCatalogProps {
   entities: EntityRecord[];
   selectedEntityId?: string | null;
   onSelectEntity: (entityId: string) => void;
+  onOpenDossier?: (entityId: string) => void;
 }
 
 export function EntitiesCatalog({
   entities,
   selectedEntityId,
   onSelectEntity,
+  onOpenDossier,
 }: EntitiesCatalogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState<string>("all");
@@ -267,6 +270,18 @@ export function EntitiesCatalog({
                       <span>Oficjalny serwis spółki</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
+                  </div>
+                )}
+                {onOpenDossier && (
+                  <div className="pt-3 border-t border-[rgba(159,186,199,0.1)]">
+                    <button
+                      type="button"
+                      onClick={() => onOpenDossier(activeEntity.id)}
+                      className="w-full py-2 rounded-lg bg-[#57e0c5] hover:bg-[#48c9b0] text-[#070a0d] font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <span>Otwórz pełne Dossier 360°</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 )}
               </div>
