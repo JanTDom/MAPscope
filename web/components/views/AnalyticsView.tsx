@@ -178,7 +178,7 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] border border-[#57e0c5]/30">
-                Oficjalny rejestr państwowy (stan: 31.03.2025 r.)
+                Oficjalny rejestr państwowy (aktualizacja BIP MAP / stan bieżący 2026 r.)
               </span>
               <span className="text-xs text-[#8e9da7] font-mono">100% pokrycia BIP MAP / dane.gov.pl</span>
             </div>
