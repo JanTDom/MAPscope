@@ -22,6 +22,23 @@ import {
   Target,
   AlertOctagon,
   Scale,
+  Maximize2,
+  Minimize2,
+  Vote,
+  Building2,
+  Users,
+  Coins,
+  Lock,
+  Server,
+  Wifi,
+  Radio,
+  Check,
+  FileCheck,
+  ShieldCheck,
+  Activity,
+  PieChart,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import {
   OVERALL_CRISIS_TEMPERATURE,
@@ -29,6 +46,11 @@ import {
   TOP_FIRE_ALERTS,
   PARLIAMENTARY_INQUIRIES,
   KPRM_ONE_PAGER_DATA,
+  NATIONAL_ASSETS_PORTFOLIO_STATS,
+  CRITICAL_INFRASTRUCTURE_SECTORS,
+  AGM_VOTING_TEMPLATES,
+  STOCK_EXCHANGE_DATA,
+  VOIVODESHIP_REGIONAL_DATA,
 } from "@/lib/mapscope-data.ts";
 import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot.tsx";
 import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
@@ -46,6 +68,41 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
   );
   const [isKprmModalOpen, setIsKprmModalOpen] = useState(false);
   const [copiedAlertId, setCopiedAlertId] = useState<string | null>(null);
+
+  // Nowy stan: Sala Narad KPRM (Tryb Wielkoekranowy) oraz Generator Mandatów WZ/NWZ
+  const [isBigScreenOpen, setIsBigScreenOpen] = useState(false);
+  const [isAgmModalOpen, setIsAgmModalOpen] = useState(false);
+  const [selectedAgmId, setSelectedAgmId] = useState<string>(AGM_VOTING_TEMPLATES[0].id);
+  const [activeVoteChoice, setActiveVoteChoice] = useState<"ZA" | "PRZECIW" | "WSTRZYMUJĘ_SIĘ">(
+    AGM_VOTING_TEMPLATES[0].recommendedVote
+  );
+  const [copiedAgm, setCopiedAgm] = useState(false);
+
+  const selectedAgmTemplate =
+    AGM_VOTING_TEMPLATES.find((t) => t.id === selectedAgmId) || AGM_VOTING_TEMPLATES[0];
+
+  const handleCopyAgmMandate = () => {
+    const text = [
+      `RZECZPOSPOLITA POLSKA • MINISTERSTWO AKTYWÓW PAŃSTWOWYCH`,
+      `DEPARTAMENT NADZORU I • WYDZIAŁ KONTROLI WŁAŚCICIELSKIEJ`,
+      `MANDAT WIĄŻĄCY DLA PEŁNOMOCNIKA SKARBU PAŃSTWA NA WALNE ZGROMADZENIE`,
+      `--------------------------------------------------------------------------------`,
+      `Spółka: ${selectedAgmTemplate.entityName} (Ticker GPW: ${selectedAgmTemplate.ticker})`,
+      `Rodzaj Zgromadzenia: ${selectedAgmTemplate.meetingType === "ZWZ" ? "Zwyczajne Walne Zgromadzenie (ZWZ)" : "Nadzwyczajne Walne Zgromadzenie (NWZ)"}`,
+      `Punkt Porządku Obrad: ${selectedAgmTemplate.agendaItem}`,
+      `Dyspozycja Głosowania: ${activeVoteChoice}`,
+      `Podstawa Prawna: ${selectedAgmTemplate.statutoryBasis}`,
+      `Uzasadnienie Instrukcji Ministra:\n${selectedAgmTemplate.ministerJustification}`,
+      `Czerwone Linie i Granice Pełnomocnictwa:\n${selectedAgmTemplate.redLineConstraint}`,
+      `--------------------------------------------------------------------------------`,
+      `Z upoważnienia Ministra Aktywów Państwowych: Podsekretarz Stanu`,
+      `Sporządzono w MAP • Data: 20 października 2026 r.`,
+    ].join("\n\n");
+
+    navigator.clipboard.writeText(text);
+    setCopiedAgm(true);
+    setTimeout(() => setCopiedAgm(false), 3000);
+  };
 
   const handleCopyQnA = (alertId: string) => {
     const alert = TOP_FIRE_ALERTS.find((a) => a.id === alertId);
@@ -87,12 +144,38 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {/* Przycisk Tryb Sali Narad KPRM */}
+          <button
+            type="button"
+            onClick={() => setIsBigScreenOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-cyan-500/30 text-xs font-semibold shadow-sm transition-all hover:border-cyan-400 group"
+          >
+            <Maximize2 className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <span className="block leading-tight text-white font-medium">Sala Narad KPRM</span>
+              <span className="text-[10px] text-cyan-300 font-mono block">Tryb wielkoekranowy</span>
+            </div>
+          </button>
+
+          {/* Przycisk Generator Mandatów WZ/NWZ */}
+          <button
+            type="button"
+            onClick={() => setIsAgmModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#111a21] hover:bg-[#1a2630] text-white border border-amber-500/30 text-xs font-semibold shadow-sm transition-all hover:border-amber-400 group"
+          >
+            <Vote className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+            <div className="text-left">
+              <span className="block leading-tight text-white font-medium">Mandat na WZ/NWZ</span>
+              <span className="text-[10px] text-amber-300 font-mono block">Instrukcja głosowania</span>
+            </div>
+          </button>
+
           {/* Przycisk KPRM One-Pager */}
           <button
             type="button"
             onClick={() => setIsKprmModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white border border-[rgba(159,186,199,0.25)] text-xs font-semibold shadow-sm transition-all hover:border-[#57e0c5]/50 group"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white border border-[rgba(159,186,199,0.25)] text-xs font-semibold shadow-sm transition-all hover:border-[#57e0c5]/50 group"
           >
             <FileText className="w-4 h-4 text-[#57e0c5] group-hover:scale-110 transition-transform" />
             <div className="text-left">
@@ -102,9 +185,9 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
           </button>
 
           {/* Wskaźnik temperatury kryzysowej */}
-          <div className="flex items-center gap-3 p-2.5 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] shrink-0">
-            <div className="relative w-12 h-12 flex items-center justify-center">
-              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.14)] shrink-0">
+            <div className="relative w-11 h-11 flex items-center justify-center">
+              <svg className="w-11 h-11 transform -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-[#16222b]"
                   strokeWidth="3.5"
@@ -130,14 +213,87 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
 
             <div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-[#ff7f87]">
+              <div className="flex items-center gap-1 text-[10px] font-bold text-[#ff7f87]">
                 <Flame className="w-3 h-3" />
                 <span>STAN PODWYŻSZONY</span>
               </div>
               <p className="text-[10px] text-[#8e9da7]">
-                Totalizator, PKP CARGO, Poczta
+                Totalizator, Cargo, Poczta
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Licznik Wartości Majątku Narodowego i Portfela SSP */}
+      <div className="bg-[#090e13] border border-[rgba(159,186,199,0.18)] rounded-xl p-5 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-3.5 border-b border-slate-800/80 gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h2 className="text-xs font-bold font-mono tracking-widest uppercase text-white">
+              Portfel Aktywów Skarbu Państwa • Wycena i Zasoby Strategiczne
+            </h2>
+          </div>
+          <span className="text-[11px] text-[#8e9da7] font-mono">
+            Wycena GPW & KRS: 20 października 2026, 23:55 • 406 podmiotów bez wykluczeń
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          {/* 1. Wartość Portfela */}
+          <div className="bg-[#0e161c] p-4 rounded-xl border border-[rgba(159,186,199,0.12)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[#8e9da7] uppercase font-semibold">Wartość portfela SSP</span>
+              <span className="text-[10px] font-mono text-emerald-400 font-bold">+{NATIONAL_ASSETS_PORTFOLIO_STATS.portfolioValueGrowthYoYMldPln} mld r/r</span>
+            </div>
+            <div className="text-2xl font-bold font-mono text-white mt-1">
+              {NATIONAL_ASSETS_PORTFOLIO_STATS.totalPortfolioValueMldPln.toLocaleString("pl-PL", { minimumFractionDigits: 1 })} <span className="text-xs font-normal text-slate-400">mld PLN</span>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Kapitalizacja giełdowa + aktywa nienotowane
+            </p>
+          </div>
+
+          {/* 2. Zatrudnienie */}
+          <div className="bg-[#0e161c] p-4 rounded-xl border border-[rgba(159,186,199,0.12)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[#8e9da7] uppercase font-semibold">Łączne zatrudnienie</span>
+              <span className="text-[10px] font-mono text-blue-400 font-bold">16 województw</span>
+            </div>
+            <div className="text-2xl font-bold font-mono text-white mt-1">
+              {NATIONAL_ASSETS_PORTFOLIO_STATS.totalWorkforceCount.toLocaleString("pl-PL")} <span className="text-xs font-normal text-slate-400">etatów</span>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              W tym 142k na Śląsku i 185k na Mazowszu
+            </p>
+          </div>
+
+          {/* 3. Przychody */}
+          <div className="bg-[#0e161c] p-4 rounded-xl border border-[rgba(159,186,199,0.12)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[#8e9da7] uppercase font-semibold">Roczne przychody SSP</span>
+              <span className="text-[10px] font-mono text-amber-400 font-bold">Wkład w PKB</span>
+            </div>
+            <div className="text-2xl font-bold font-mono text-white mt-1">
+              {NATIONAL_ASSETS_PORTFOLIO_STATS.annualAggregateRevenueMldPln.toLocaleString("pl-PL", { minimumFractionDigits: 1 })} <span className="text-xs font-normal text-slate-400">mld PLN</span>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Zagregowane obroty roczne 406 spółek
+            </p>
+          </div>
+
+          {/* 4. Dywidendy do Budżetu */}
+          <div className="bg-[#0e161c] p-4 rounded-xl border border-[rgba(159,186,199,0.12)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[#8e9da7] uppercase font-semibold">Dywidendy dla Budżetu</span>
+              <span className="text-[10px] font-mono text-emerald-400 font-bold">Wykonanie: 47%</span>
+            </div>
+            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+              {NATIONAL_ASSETS_PORTFOLIO_STATS.projectedDividends2026MldPln.toLocaleString("pl-PL", { minimumFractionDigits: 1 })} <span className="text-xs font-normal text-slate-400">mld PLN</span>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Zaksięgowano: {NATIONAL_ASSETS_PORTFOLIO_STATS.realizedDividends2026MldPln} mld PLN na dochodach MF
+            </p>
           </div>
         </div>
       </div>
@@ -544,6 +700,70 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
         </div>
       </div>
 
+      {/* Moduł: Infrastruktura Krytyczna i Bezpieczeństwo Państwa (RCB / ABW / CSIRT GOV) */}
+      <div className="bg-[#090e13] border border-[rgba(159,186,199,0.18)] rounded-xl p-5 shadow-xl space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-3.5 border-b border-slate-800/80 gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-red-400" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Infrastruktura Krytyczna i Bezpieczeństwo Państwa (Art. 5b Ustawy o ZK)
+              </h3>
+            </div>
+            <p className="text-xs text-[#8e9da7] mt-0.5">
+              Ciągłość operacyjna instalacji strategicznych Skarbu Państwa oraz odporność cybernetyczna w reżimie CHARLIE-CRP
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/40 font-bold animate-pulse">
+              STOPIEŃ ALARMOWY: CHARLIE-CRP
+            </span>
+            <span className="text-[10px] font-mono text-[#8e9da7] px-2 py-1 rounded bg-[#111a21] border border-slate-800">
+              Zarządzenie Premiera nr 142/2026
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {CRITICAL_INFRASTRUCTURE_SECTORS.map((sector) => (
+            <div
+              key={sector.id}
+              className="bg-[#0e161c] p-4 rounded-xl border border-[rgba(159,186,199,0.12)] flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800/60">
+                  <span className="text-xs font-bold text-white">{sector.sectorName}</span>
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/30 font-bold">
+                    {sector.alertLevel}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 my-3">
+                  <div className="bg-[#070a0d] p-2 rounded border border-slate-800/60">
+                    <span className="text-[9px] text-[#8e9da7] block uppercase">Ciągłość operacyjna</span>
+                    <span className="text-sm font-mono font-bold text-emerald-400">{sector.operationalContinuityPercent}%</span>
+                  </div>
+                  <div className="bg-[#070a0d] p-2 rounded border border-slate-800/60">
+                    <span className="text-[9px] text-[#8e9da7] block uppercase">Zablokowane ataki 24h</span>
+                    <span className="text-sm font-mono font-bold text-blue-400">{sector.cyberAttacksBlocked24h.toLocaleString("pl-PL")}</span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-300 leading-relaxed bg-[#070a0d] p-2.5 rounded border border-slate-800/60">
+                  {sector.threatSummary}
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-slate-800/60 text-[10px] text-[#8e9da7]">
+                <span className="text-slate-400 block font-semibold">Jednostka wiodąca:</span>
+                <span className="font-mono text-slate-300">{sector.leadAgency}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Kalendarzowa mapa cieplna aktywności kryzysowej i posiedzeń Sejmu */}
       <CalendarHeatmapChart />
 
@@ -701,6 +921,415 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               >
                 Zamknij podgląd
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Generatora Mandatów na Walne Zgromadzenie (WZ / NWZ) */}
+      {isAgmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0b1014] border border-[rgba(159,186,199,0.2)] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Nagłówek Modalu */}
+            <div className="p-6 border-b border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                    NADZÓR WŁAŚCICIELSKI • KODEKS SPÓŁEK HANDLOWYCH
+                  </span>
+                  <span className="text-xs text-[#8e9da7] font-mono">
+                    Art. 7 Ustawy o zasadach zarządzania mieniem państwowym
+                  </span>
+                </div>
+                <h2 className="text-base font-bold text-white mt-1">
+                  Generator Wiążących Mandatów dla Pełnomocnika Skarbu Państwa na WZ/NWZ
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyAgmMandate}
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-xs text-white border border-[rgba(159,186,199,0.2)] flex items-center gap-1.5 transition-colors"
+                >
+                  {copiedAgm ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Skopiowano</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-[#75b8ff]" />
+                      <span>Kopiuj mandat</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAgmModalOpen(false)}
+                  className="p-1.5 rounded-lg text-[#8e9da7] hover:text-white hover:bg-[#16222b]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Ciało Modalu */}
+            <div className="p-6 overflow-y-auto space-y-6">
+              {/* Wybór spółki z listy spraw strategicznych */}
+              <div>
+                <span className="text-xs font-mono uppercase text-[#8e9da7] font-bold block mb-2">
+                  1. Wybierz spółkę i punkt porządku obrad:
+                </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {AGM_VOTING_TEMPLATES.map((tmpl) => {
+                    const isSelected = selectedAgmId === tmpl.id;
+                    return (
+                      <div
+                        key={tmpl.id}
+                        onClick={() => {
+                          setSelectedAgmId(tmpl.id);
+                          setActiveVoteChoice(tmpl.recommendedVote);
+                        }}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                          isSelected
+                            ? "bg-amber-950/30 border-amber-500 shadow-md ring-1 ring-amber-500/50"
+                            : "bg-[#070a0d] border-[rgba(159,186,199,0.12)] hover:border-amber-500/40"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white">{tmpl.entityName}</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#111a21] text-amber-300 border border-slate-700 font-bold">
+                            {tmpl.meetingType} • {tmpl.ticker}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 mt-1 line-clamp-2">
+                          {tmpl.agendaItem}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dyspozycja głosowania */}
+              <div className="p-5 rounded-xl bg-[#070a0d] border border-[rgba(159,186,199,0.14)] space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase text-[#8e9da7] font-bold">
+                    2. Wiążąca dyspozycja głosowania Ministra:
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    Spółka: <strong className="text-white">{selectedAgmTemplate.entityName}</strong>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveVoteChoice("ZA")}
+                    className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all border ${
+                      activeVoteChoice === "ZA"
+                        ? "bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-600/30"
+                        : "bg-[#111a21] text-slate-300 border-slate-800 hover:border-emerald-500/50"
+                    }`}
+                  >
+                    GŁOSOWAĆ ZA UCHWAŁĄ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveVoteChoice("PRZECIW")}
+                    className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all border ${
+                      activeVoteChoice === "PRZECIW"
+                        ? "bg-red-600 text-white border-red-500 shadow-lg shadow-red-600/30"
+                        : "bg-[#111a21] text-slate-300 border-slate-800 hover:border-red-500/50"
+                    }`}
+                  >
+                    GŁOSOWAĆ PRZECIW UCHWALE
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveVoteChoice("WSTRZYMUJĘ_SIĘ")}
+                    className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all border ${
+                      activeVoteChoice === "WSTRZYMUJĘ_SIĘ"
+                        ? "bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-600/30"
+                        : "bg-[#111a21] text-slate-300 border-slate-800 hover:border-amber-500/50"
+                    }`}
+                  >
+                    WSTRZYMAĆ SIĘ OD GŁOSU
+                  </button>
+                </div>
+
+                {/* Uzasadnienie i Podstawa prawna */}
+                <div className="space-y-3 pt-3 border-t border-slate-800/80">
+                  <div>
+                    <span className="text-[10px] text-[#8e9da7] uppercase font-semibold block mb-1">
+                      Podstawa prawna polecenia:
+                    </span>
+                    <p className="text-xs font-mono text-cyan-300 bg-[#0e161c] p-2.5 rounded border border-slate-800">
+                      {selectedAgmTemplate.statutoryBasis}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[#8e9da7] uppercase font-semibold block mb-1">
+                      Merytoryczne uzasadnienie decyzji właścicielskiej:
+                    </span>
+                    <p className="text-xs text-slate-200 leading-relaxed bg-[#0e161c] p-3 rounded border border-slate-800">
+                      {selectedAgmTemplate.ministerJustification}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-red-400 uppercase font-semibold block mb-1">
+                      Czerwona linia pełnomocnika (Granice swobody decyzji):
+                    </span>
+                    <p className="text-xs text-red-200 leading-relaxed bg-red-950/30 p-3 rounded border border-red-500/30">
+                      {selectedAgmTemplate.redLineConstraint}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stopka Modalu */}
+            <div className="p-4 border-t border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between text-xs">
+              <span className="text-[11px] text-[#5d6b74] font-mono">
+                Mandat prawny MAP • Sygnatura: MAP-DW-WZ/2026/088
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopyAgmMandate}
+                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center gap-1.5"
+                >
+                  <FileCheck className="w-3.5 h-3.5" />
+                  <span>Zatwierdź i kopiuj do wysłania</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAgmModalOpen(false)}
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
+                >
+                  Zamknij
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sala Narad KPRM — Pełnoekranowy Tryb Wielkoekranowy */}
+      {isBigScreenOpen && (
+        <div className="fixed inset-0 z-[100] bg-[#04070a] p-6 text-white flex flex-col justify-between overflow-y-auto animate-in fade-in duration-300">
+          {/* Wielkoekranowy Pasek Tytułowy */}
+          <div className="flex items-center justify-between pb-4 border-b border-slate-800/80">
+            <div className="flex items-center gap-4">
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+              <div>
+                <span className="text-xs font-mono tracking-widest uppercase text-cyan-400 font-bold block">
+                  RZECZPOSPOLITA POLSKA • GABINET MINISTRA AKTYWÓW PAŃSTWOWYCH
+                </span>
+                <h1 className="text-2xl font-black text-white tracking-tight mt-0.5">
+                  Centrum Dowodzenia KPRM • Kokpit Operacyjny Sali Narad
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <span className="text-[10px] text-slate-400 uppercase font-mono block">Czas systemowy</span>
+                <span className="text-sm font-mono font-bold text-white">20 października 2026 r. • 23:59 CEST</span>
+              </div>
+              <div className="px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-xs font-mono flex items-center gap-2">
+                <Flame className="w-4 h-4 animate-bounce" />
+                <span>TEMPERATURA: {OVERALL_CRISIS_TEMPERATURE}/100</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsBigScreenOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-all border border-slate-700"
+              >
+                <Minimize2 className="w-4 h-4" />
+                <span>Wyjdź z trybu sali narad</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Centralny Układ Trójkolumnowy dla Sali Narad */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 flex-1">
+            {/* Kolumna Lewa: Wycena Majątku i Czerwona Strefa KPRM */}
+            <div className="lg:col-span-4 space-y-5">
+              <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block tracking-wider">
+                  Zagregowana wartość portfela Skarbu Państwa
+                </span>
+                <div className="text-4xl font-black font-mono text-emerald-400 mt-1">
+                  384,5 <span className="text-lg font-normal text-slate-300">mld PLN</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Zatrudnienie SSP</span>
+                    <span className="font-mono font-bold text-white text-base">412 850 os.</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Dywidendy dla MF</span>
+                    <span className="font-mono font-bold text-emerald-400 text-base">18,40 mld PLN</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pożary Czerwonej Strefy KPRM */}
+              <div className="bg-slate-900/90 p-5 rounded-2xl border border-red-500/30 shadow-xl space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-red-500/20">
+                  <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5" />
+                    <span>Czerwona strefa KPRM (Pilna uwaga)</span>
+                  </h3>
+                  <span className="text-[10px] font-mono text-red-300 font-bold">4 podmioty</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {TOP_FIRE_ALERTS.slice(0, 4).map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-white truncate block">
+                          {alert.entityName}
+                        </span>
+                        <p className="text-[11px] text-slate-400 truncate">
+                          {alert.title}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-[10px] text-slate-500 block uppercase">Rykoszet</span>
+                        <span className="text-xs font-mono font-bold text-red-400">
+                          {alert.ministerImpactScore || 85}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Kolumna Środkowa: Rozkład Regionalny (16 Województw) */}
+            <div className="lg:col-span-5 bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-blue-400 tracking-wider">
+                      Geolokalizacja aktywów i napięć
+                    </span>
+                    <h3 className="text-base font-bold text-white mt-0.5">
+                      16 Województw — Ogniska sporów zbiorowych
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono text-slate-400">406 podmiotów</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  {VOIVODESHIP_REGIONAL_DATA.slice(0, 8).map((v) => (
+                    <div
+                      key={v.id}
+                      className={`p-3 rounded-xl border flex items-center justify-between ${
+                        v.riskStatus === "krytyczny"
+                          ? "bg-red-950/20 border-red-500/40 text-red-200"
+                          : v.riskStatus === "podwyższone_ryzyko"
+                          ? "bg-amber-950/20 border-amber-500/30 text-amber-200"
+                          : "bg-slate-950 border-slate-800 text-slate-300"
+                      }`}
+                    >
+                      <div>
+                        <span className="text-xs font-bold block">{v.name}</span>
+                        <span className="text-[10px] opacity-75 font-mono">
+                          {v.workforceCount.toLocaleString("pl-PL")} pracowników
+                        </span>
+                      </div>
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-700">
+                        {v.entitiesCount} SSP
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+                <span>Stan gotowości strajkowej na Śląsku: JSW i PGG</span>
+                <span className="font-mono text-emerald-400">Tryb operacyjny aktywny</span>
+              </div>
+            </div>
+
+            {/* Kolumna Prawa: Infrastruktura Krytyczna i Tarcza Sejmowa */}
+            <div className="lg:col-span-3 space-y-5">
+              <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Infrastruktura Krytyczna</span>
+                  </span>
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 font-bold border border-red-500/30">
+                    CHARLIE-CRP
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-slate-200">PSE / PERN / Gaz-System</span>
+                      <span className="font-mono text-emerald-400">99.98%</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Ochrona terminali morskich</span>
+                  </div>
+                  <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-slate-200">PKP PLK / Port Gdańsk</span>
+                      <span className="font-mono text-emerald-400">99.40%</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Korytarze wojskowe i tranzyt</span>
+                  </div>
+                  <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-slate-200">Exatel / PWPW / COI</span>
+                      <span className="font-mono text-blue-400">3 640 DDoS</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Zablokowane ataki 24h</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tarcza Sejmowa */}
+              <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl space-y-2">
+                <span className="text-[10px] font-mono uppercase text-amber-400 block tracking-wider font-bold">
+                  Najbliższe posiedzenie Sejmu
+                </span>
+                <h4 className="text-xs font-bold text-white">
+                  Interpelacje priorytetowe z gotową linią resortu
+                </h4>
+                <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                  <div className="font-semibold text-amber-300">Interpelacja 4118 (Totalizator Sportowy)</div>
+                  <div className="text-[10px] text-slate-400">Linia: Niezależny audyt postępowań rekrutacyjnych i kontrola KAS.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dolny Pasek Notowań Giełdowych WIG-SSP w Czasie Rzeczywistym */}
+          <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-4 text-xs font-mono">
+            <span className="text-slate-400 font-semibold uppercase text-[10px] shrink-0">
+              Notowania GPW na żywo:
+            </span>
+            <div className="flex items-center gap-6 overflow-x-auto text-[11px]">
+              {STOCK_EXCHANGE_DATA.slice(0, 8).map((st) => (
+                <div key={st.ticker} className="flex items-center gap-2 shrink-0">
+                  <span className="font-bold text-white">{st.ticker}:</span>
+                  <span className="text-slate-200">{st.currentPricePln.toFixed(2)} PLN</span>
+                  <span className={st.change1dPercent >= 0 ? "text-emerald-400" : "text-red-400"}>
+                    {st.change1dPercent >= 0 ? `+${st.change1dPercent}%` : `${st.change1dPercent}%`}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

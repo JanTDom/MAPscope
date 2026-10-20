@@ -72,9 +72,9 @@ export function PolandMapChart({ onSelectVoivodeship, selectedId }: PolandMapCha
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-start">
-        {/* Wektorowy kartogram SVG */}
-        <div className="lg:col-span-7 relative flex justify-center items-center bg-slate-950/60 p-4 rounded-xl border border-slate-800/70">
-          <svg viewBox="0 0 540 540" className="w-full max-w-[480px] h-auto drop-shadow-2xl">
+        {/* Wektorowy kartogram SVG z autentycznymi granicami administracyjnymi */}
+        <div className="lg:col-span-7 relative flex justify-center items-center bg-slate-950/60 p-4 rounded-xl border border-slate-800/70 overflow-hidden">
+          <svg viewBox="0 0 615 580" className="w-full max-w-[540px] h-auto drop-shadow-2xl">
             <defs>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="3" result="blur" />

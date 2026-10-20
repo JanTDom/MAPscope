@@ -628,4 +628,40 @@ export interface LocalMunicipalIssue {
   countyWorkforceSharePercent: number; // % udziału w lokalnym rynku pracy
 }
 
+export interface NationalAssetsPortfolioStats {
+  totalPortfolioValueMldPln: number;
+  portfolioValueGrowthYoYMldPln: number;
+  totalWorkforceCount: number;
+  annualAggregateRevenueMldPln: number;
+  projectedDividends2026MldPln: number;
+  realizedDividends2026MldPln: number;
+  totalEntitiesCount: number;
+  listedStrategicEntitiesCount: number;
+  lastSyncTimestamp: string;
+}
+
+export interface CriticalInfrastructureSector {
+  id: string;
+  sectorName: string;
+  alertLevel: "NORMALNY" | "BRAVO_CRP" | "CHARLIE_CRP" | "DELTA";
+  strategicEntities: string[];
+  operationalContinuityPercent: number;
+  cyberAttacksBlocked24h: number;
+  leadAgency: string;
+  threatSummary: string;
+}
+
+export interface AgmVotingInstructionTemplate {
+  id: string;
+  entityName: string;
+  ticker: string;
+  meetingType: "ZWZ" | "NWZ";
+  agendaItem: string;
+  recommendedVote: "ZA" | "PRZECIW" | "WSTRZYMUJĘ_SIĘ";
+  statutoryBasis: string;
+  ministerJustification: string;
+  redLineConstraint: string;
+}
+
+
 

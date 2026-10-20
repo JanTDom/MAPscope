@@ -25,6 +25,9 @@ import {
   ESPI_REPORTS_DATA,
   ANALYST_CONSENSUS_DATA,
   LOCAL_MUNICIPAL_ISSUES,
+  NATIONAL_ASSETS_PORTFOLIO_STATS,
+  CRITICAL_INFRASTRUCTURE_SECTORS,
+  AGM_VOTING_TEMPLATES,
 } from "./mapscope-data.ts";
 
 test("1. Gabinet Ministra: Tarcza Sejmowa zawiera pancerne Q&A, czerwone linie i rozróżnienie genezy", () => {
@@ -265,4 +268,28 @@ test("9. Giełda GPW, Relacje Inwestorskie ESPI/EBI i Radar Samorządowy", () =>
   const monocultures = LOCAL_MUNICIPAL_ISSUES.filter((i) => i.countyWorkforceSharePercent > 25);
   assert.ok(monocultures.length >= 3, "Musi wykryć monokultury zatrudnienia powyżej 25% rynku pracy powiatu");
 });
+
+test("10. Ranga Państwowa: Wycena Majątku Narodowego, Infrastruktura Krytyczna CHARLIE-CRP i Mandaty WZ/NWZ", () => {
+  // Wycena portfela majątku państwowego
+  assert.strictEqual(NATIONAL_ASSETS_PORTFOLIO_STATS.totalEntitiesCount, 406, "Musi pokrywać 100% 406 spółek Skarbu Państwa");
+  assert.ok(NATIONAL_ASSETS_PORTFOLIO_STATS.totalPortfolioValueMldPln > 350, "Wartość majątku musi przekraczać 350 mld PLN");
+  assert.ok(NATIONAL_ASSETS_PORTFOLIO_STATS.totalWorkforceCount > 400000, "Zatrudnienie w portfelu SSP musi przekraczać 400 tys. pracowników");
+  assert.ok(NATIONAL_ASSETS_PORTFOLIO_STATS.annualAggregateRevenueMldPln > 450, "Zagregowane przychody muszą przekraczać 450 mld PLN");
+
+  // Infrastruktura krytyczna i reżim CHARLIE-CRP
+  assert.strictEqual(CRITICAL_INFRASTRUCTURE_SECTORS.length, 4, "Musi obejmować 4 kluczowe sektory infrastruktury krytycznej");
+  const energyCrit = CRITICAL_INFRASTRUCTURE_SECTORS.find((c) => c.id === "crit-energy");
+  assert.strictEqual(energyCrit?.alertLevel, "CHARLIE_CRP");
+  assert.ok((energyCrit?.cyberAttacksBlocked24h ?? 0) > 1000, "Musi rejestrować zablokowane ataki cybernetyczne");
+
+  // Generator instrukcji głosowania na Walne Zgromadzenia (WZ/NWZ)
+  assert.ok(AGM_VOTING_TEMPLATES.length >= 4, "Musi zawierać szablony mandatów dla kluczowych spółek");
+  const orlenMandate = AGM_VOTING_TEMPLATES.find((m) => m.ticker === "PKN");
+  assert.strictEqual(orlenMandate?.recommendedVote, "PRZECIW", "Brak absolutorium dla byłego zarządu Orlenu");
+  assert.ok(orlenMandate.redLineConstraint.includes("Bezwzględny zakaz"), "Musi zawierać czerwoną linię dla pełnomocnika");
+
+  const pkoMandate = AGM_VOTING_TEMPLATES.find((m) => m.ticker === "PKOBP");
+  assert.strictEqual(pkoMandate?.recommendedVote, "ZA", "Poparcie uchwały dywidendowej PKO BP");
+});
+
 
