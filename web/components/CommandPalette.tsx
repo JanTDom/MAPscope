@@ -48,8 +48,8 @@ export function CommandPalette({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="w-full max-w-2xl rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.24)] shadow-2xl overflow-hidden flex flex-col max-h-[75vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 px-2 sm:px-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="w-full max-w-2xl rounded-xl bg-[#0d1318] border border-[rgba(159,186,199,0.24)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[75vh]">
         {/* Pasek wyszukiwania */}
         <div className="p-4 border-b border-[rgba(159,186,199,0.14)] flex items-center gap-3 bg-[#111a21]">
           <Search className="w-5 h-5 text-[#57e0c5] shrink-0" />

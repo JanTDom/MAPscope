@@ -34,9 +34,9 @@ export function AuthScreen({ onSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#070a0d] map-glow-bg select-none p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#070a0d] map-glow-bg select-none p-3 sm:p-4 overflow-y-auto">
       {/* Karta autoryzacji */}
-      <div className="w-full max-w-md p-8 rounded-2xl bg-[#0d1318] border border-[rgba(159,186,199,0.18)] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-full max-w-md p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-[#0d1318] border border-[rgba(159,186,199,0.18)] shadow-2xl space-y-5 sm:space-y-6 animate-in fade-in zoom-in-95 duration-200 my-auto">
         {/* Duże Logo MAPscope */}
         <div className="flex flex-col items-center text-center space-y-3">
           <div className="relative">

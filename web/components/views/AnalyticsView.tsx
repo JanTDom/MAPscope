@@ -364,7 +364,7 @@ export function AnalyticsView({ entities, onSelectEntity }: AnalyticsViewProps) 
             </div>
           </div>
 
-          <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-hidden">
+          <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-[#111a21] text-[#8e9da7] font-mono text-[10px] uppercase border-b border-[rgba(159,186,199,0.1)]">
                 <tr>

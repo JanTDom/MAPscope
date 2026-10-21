@@ -896,10 +896,10 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Modal KPRM One-Pager dla Premiera */}
       {isKprmModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0b1014] border border-[rgba(159,186,199,0.2)] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0b1014] border border-[rgba(159,186,199,0.2)] rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[96vh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Nagłówek Modalu */}
-            <div className="p-6 border-b border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between">
+            <div className="p-3.5 sm:p-6 border-b border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-[#57e0c5]/20 text-[#57e0c5] border border-[#57e0c5]/40 font-bold">
@@ -909,7 +909,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                     {KPRM_ONE_PAGER_DATA.targetCabinetMeetingDate}
                   </span>
                 </div>
-                <h2 className="text-base font-bold text-white mt-1">
+                <h2 className="text-sm sm:text-base font-bold text-white mt-1">
                   {KPRM_ONE_PAGER_DATA.title}
                 </h2>
               </div>
@@ -1011,7 +1011,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                 <h3 className="text-xs font-mono uppercase text-[#8e9da7] font-bold tracking-wider">
                   Postępy restrukturyzacji flagowych grup kapitałowych:
                 </h3>
-                <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-hidden">
+                <div className="border border-[rgba(159,186,199,0.14)] rounded-xl overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-[#111a21] text-[#8e9da7] font-mono text-[10px] uppercase border-b border-[rgba(159,186,199,0.1)]">
                       <tr>
@@ -1055,10 +1055,10 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Modal Generatora Mandatów na Walne Zgromadzenie (WZ / NWZ) */}
       {isAgmModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0b1014] border border-[rgba(159,186,199,0.2)] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0b1014] border border-[rgba(159,186,199,0.2)] rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[96vh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Nagłówek Modalu */}
-            <div className="p-6 border-b border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between">
+            <div className="p-3.5 sm:p-6 border-b border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
@@ -1102,7 +1102,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
 
             {/* Ciało Modalu */}
-            <div className="p-6 overflow-y-auto space-y-6">
+            <div className="p-3.5 sm:p-6 overflow-y-auto space-y-6">
               {/* Wybór spółki z listy spraw strategicznych */}
               <div>
                 <span className="text-xs font-mono uppercase text-[#8e9da7] font-bold block mb-2">
@@ -1219,23 +1219,23 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
 
             {/* Stopka Modalu */}
-            <div className="p-4 border-t border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between text-xs">
-              <span className="text-[11px] text-[#5d6b74] font-mono">
+            <div className="p-3.5 sm:p-4 border-t border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-0 text-xs">
+              <span className="text-[11px] text-[#5d6b74] font-mono text-center sm:text-left">
                 Mandat prawny MAP • Sygnatura: MAP-DW-WZ/2026/088
               </span>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleCopyAgmMandate}
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center justify-center gap-1.5 text-xs"
                 >
                   <FileCheck className="w-3.5 h-3.5" />
-                  <span>Zatwierdź i kopiuj do wysłania</span>
+                  <span>Zatwierdź i kopiuj</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsAgmModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors text-xs"
                 >
                   Zamknij
                 </button>
@@ -1247,7 +1247,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Sala Narad KPRM — Pełnoekranowy Tryb Wielkoekranowy */}
       {isBigScreenOpen && (
-        <div className="fixed inset-0 z-[100] bg-[#04070a] p-6 text-white flex flex-col justify-between overflow-y-auto animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] bg-[#04070a] p-3.5 sm:p-6 text-white flex flex-col justify-between overflow-y-auto animate-in fade-in duration-300">
           {/* Wielkoekranowy Pasek Tytułowy */}
           <div className="flex items-center justify-between pb-4 border-b border-slate-800/80">
             <div className="flex items-center gap-4">
@@ -1464,10 +1464,10 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
       {/* Modal: Kieszonkowa Fiszka Przedkonferencyjna w 30 Sekund */}
       {isBriefingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0b1014] border border-rose-500/30 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0b1014] border border-rose-500/30 rounded-xl sm:rounded-2xl w-full max-w-3xl max-h-[96vh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Nagłówek Modalu */}
-            <div className="p-6 border-b border-rose-500/20 bg-[#12080c] flex items-center justify-between">
+            <div className="p-3.5 sm:p-6 border-b border-rose-500/20 bg-[#12080c] flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">
@@ -1496,7 +1496,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-rose-400" />
-                      <span>Kopiuj SMS / Signal</span>
+                      <span>Kopiuj</span>
                     </>
                   )}
                 </button>
@@ -1511,7 +1511,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
 
             {/* Ciało Fiszki */}
-            <div className="p-6 overflow-y-auto space-y-5">
+            <div className="p-3.5 sm:p-6 overflow-y-auto space-y-5">
               {/* Wybór tematu kryzysowego */}
               <div>
                 <span className="text-[10px] font-mono uppercase text-[#8e9da7] font-bold block mb-2">
@@ -1591,23 +1591,23 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </div>
 
             {/* Stopka Modalu */}
-            <div className="p-4 border-t border-slate-800 bg-[#0e161c] flex items-center justify-between text-xs">
-              <span className="text-[11px] text-[#5d6b74] font-mono">
+            <div className="p-3.5 sm:p-4 border-t border-slate-800 bg-[#0e161c] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-0 text-xs">
+              <span className="text-[11px] text-[#5d6b74] font-mono text-center sm:text-left">
                 MAPscope • Błyskawiczny pulpit briefingowy
               </span>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleCopyBriefing}
-                  className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-colors flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-colors flex items-center justify-center gap-1.5 text-xs"
                 >
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Kopiuj do schowka telefonu</span>
+                  <span>Kopiuj briefing</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsBriefingModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors text-xs"
                 >
                   Zamknij
                 </button>

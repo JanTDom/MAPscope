@@ -72,12 +72,12 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="w-full max-w-4xl rounded-2xl bg-[#0d1318] border border-[rgba(159,186,199,0.24)] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="w-full max-w-4xl rounded-xl sm:rounded-2xl bg-[#0d1318] border border-[rgba(159,186,199,0.24)] shadow-2xl overflow-hidden flex flex-col max-h-[96vh] sm:max-h-[90vh]">
         {/* Belka Tytułowa */}
-        <div className="p-5 border-b border-[rgba(159,186,199,0.14)] bg-[#111a21] flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
+        <div className="p-3.5 sm:p-5 border-b border-[rgba(159,186,199,0.14)] bg-[#111a21] flex items-start justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] border border-[#57e0c5]/30 font-bold">
                 PRZEŚWIETLENIE 360° SPÓŁKI
               </span>
@@ -94,7 +94,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
               )}
             </div>
 
-            <h2 className="text-xl font-bold text-white mt-1.5">{entity.name}</h2>
+            <h2 className="text-base sm:text-xl font-bold text-white mt-1.5 truncate">{entity.name}</h2>
             <div className="text-xs text-[#8e9da7] flex flex-wrap items-center gap-2 mt-1">
               <span>{entity.sector}</span>
               <span>•</span>
@@ -121,11 +121,11 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="text-right">
               <span className="text-[10px] text-[#5d6b74] font-mono block">OCENA RYZYKA</span>
               <span
-                className={`text-base font-bold font-mono px-2.5 py-0.5 rounded border inline-block ${
+                className={`text-sm sm:text-base font-bold font-mono px-2 py-0.5 rounded border inline-block ${
                   score >= 7
                     ? "bg-[#ff7f87]/20 text-[#ff7f87] border-[#ff7f87]/40"
                     : score >= 4
@@ -148,7 +148,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
         </div>
 
         {/* Zakładki Filarów + Fiszka Ministra */}
-        <div className="flex items-center border-b border-[rgba(159,186,199,0.14)] bg-[#090d12] px-3 overflow-x-auto">
+        <div className="flex items-center border-b border-[rgba(159,186,199,0.14)] bg-[#090d12] px-2 sm:px-3 overflow-x-auto scrollbar-none whitespace-nowrap">
           {[
             { id: "briefing", label: "★ Fiszka Ministra (10s)", icon: Sparkles, highlight: true },
             { id: "governance", label: "1. Ład i Własność", icon: Users },
@@ -185,7 +185,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
         </div>
 
         {/* Treść Zakładek */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+        <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {/* Filar 0: Fiszka Ministra (Briefing 10s na smartfon) */}
           {activeTab === "briefing" && mb && (
             <div className="space-y-4 animate-in fade-in duration-150">

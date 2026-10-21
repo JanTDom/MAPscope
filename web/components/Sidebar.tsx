@@ -14,6 +14,7 @@ import {
   FileSpreadsheet,
   BarChart3,
   Users,
+  X,
 } from "lucide-react";
 import type { UserRole } from "@/lib/types.ts";
 
@@ -23,6 +24,8 @@ interface SidebarProps {
   p1Count: number;
   onOpenSearch: () => void;
   internalDataCount: number;
+  isOpenOnMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export function Sidebar({
@@ -31,6 +34,8 @@ export function Sidebar({
   p1Count,
   onOpenSearch,
   internalDataCount,
+  isOpenOnMobile = false,
+  onCloseMobile,
 }: SidebarProps) {
   const navItems = [
     {
@@ -99,8 +104,8 @@ export function Sidebar({
     },
   ];
 
-  return (
-    <aside className="w-[288px] border-r border-[rgba(159,186,199,0.14)] bg-[#070a0d] flex flex-col shrink-0 select-none z-30">
+  const renderContent = (isMobileView = false) => (
+    <>
       {/* Nagłówek i tożsamość rządowa */}
       <div className="p-4 border-b border-[rgba(159,186,199,0.14)] bg-[#070a0d]">
         <div className="flex flex-col gap-3">
@@ -108,11 +113,23 @@ export function Sidebar({
             <img
               src="/mapscope-logo-darkmode.png"
               alt="MAPscope Logo"
-              className="h-12 w-auto max-w-[215px] object-contain drop-shadow-[0_2px_14px_rgba(87,224,197,0.2)]"
+              className="h-10 sm:h-12 w-auto max-w-[200px] object-contain drop-shadow-[0_2px_14px_rgba(87,224,197,0.2)]"
             />
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30 shrink-0">
-              GOV
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#57e0c5]/15 text-[#57e0c5] font-mono border border-[#57e0c5]/30">
+                GOV
+              </span>
+              {isMobileView && onCloseMobile && (
+                <button
+                  type="button"
+                  onClick={onCloseMobile}
+                  className="p-1.5 rounded-lg text-[#8e9da7] hover:text-white hover:bg-[#111a21] border border-[rgba(159,186,199,0.14)] md:hidden"
+                  aria-label="Zamknij menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-[#8e9da7] leading-tight">
             <span className="w-1.5 h-1.5 rounded-full bg-[#57e0c5] animate-pulse shrink-0" />
@@ -123,7 +140,10 @@ export function Sidebar({
         {/* Globalne wyszukiwanie (Cmd+K) */}
         <button
           type="button"
-          onClick={onOpenSearch}
+          onClick={() => {
+            if (isMobileView && onCloseMobile) onCloseMobile();
+            onOpenSearch();
+          }}
           className="mt-4 w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#0d1318] border border-[rgba(159,186,199,0.14)] text-xs text-[#8e9da7] hover:text-white hover:border-[rgba(159,186,199,0.25)] transition-all group"
         >
           <span className="flex items-center gap-2">
@@ -150,7 +170,12 @@ export function Sidebar({
             <button
               key={item.role}
               type="button"
-              onClick={() => onSelectRole(item.role)}
+              onClick={() => {
+                onSelectRole(item.role);
+                if (isMobileView && onCloseMobile) {
+                  onCloseMobile();
+                }
+              }}
               className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
                 isActive
                   ? "bg-[#111a21] text-white border border-[rgba(87,224,197,0.3)] shadow-sm"
@@ -186,6 +211,29 @@ export function Sidebar({
           <span className="text-[10px] font-mono text-[#5d6b74]">v1.0 Fable 5.1</span>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* 1. Desktop Sidebar (widoczny od md w górę) */}
+      <aside className="hidden md:flex md:w-[260px] lg:w-[288px] border-r border-[rgba(159,186,199,0.14)] bg-[#070a0d] flex-col shrink-0 select-none z-30 h-full">
+        {renderContent(false)}
+      </aside>
+
+      {/* 2. Mobile Slide-Over Drawer (widoczny na telefonach po otwarciu) */}
+      {isOpenOnMobile && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-150"
+            onClick={onCloseMobile}
+            aria-hidden="true"
+          />
+          <aside className="fixed inset-y-0 left-0 w-[285px] max-w-[85vw] border-r border-[rgba(159,186,199,0.2)] bg-[#070a0d] flex flex-col shrink-0 select-none z-50 md:hidden shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderContent(true)}
+          </aside>
+        </>
+      )}
+    </>
   );
 }

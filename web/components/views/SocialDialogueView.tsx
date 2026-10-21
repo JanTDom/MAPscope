@@ -158,7 +158,7 @@ export function SocialDialogueView({ onOpenDossier }: SocialDialogueViewProps) {
         </div>
 
         {/* Zakładki */}
-        <div className="flex items-center gap-1 bg-[#0d1318] p-1 rounded-lg border border-[rgba(159,186,199,0.14)] self-start md:self-auto shrink-0">
+        <div className="flex items-center gap-1 bg-[#0d1318] p-1 rounded-lg border border-[rgba(159,186,199,0.14)] max-w-full overflow-x-auto scrollbar-none whitespace-nowrap shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab("disputes")}

@@ -43,49 +43,49 @@ export function OsintSearchModal({ isOpen, onClose, initialQuery = "PKP Cargo re
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-xl sm:rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[96vh] sm:max-h-[90vh]">
         {/* Nagłówek modalu */}
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-3.5 sm:p-6 border-b border-slate-800 flex items-start sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
-              <h2 className="text-xl font-bold text-white tracking-wide">
-                Wyszukiwarka OSINT i nasłuch sieci w czasie rzeczywistym
+              <h2 className="text-base sm:text-xl font-bold text-white tracking-wide">
+                Wyszukiwarka OSINT i nasłuch sieci
               </h2>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1 line-clamp-2 sm:line-clamp-none">
               Przeszukiwanie otwartego Internetu (Google News RSS PL, PAP, serwisy regionalne, BIP MAP i biura prasowe SSP)
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition"
+            className="text-slate-400 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-slate-800 transition text-xs shrink-0"
           >
             Zamknij [ESC]
           </button>
         </div>
 
         {/* Pasek wyszukiwania */}
-        <div className="p-6 border-b border-slate-800 bg-slate-950/60 space-y-3">
+        <div className="p-3.5 sm:p-6 border-b border-slate-800 bg-slate-950/60 space-y-3">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSearch(query);
             }}
-            className="flex gap-3"
+            className="flex flex-col sm:flex-row gap-2 sm:gap-3"
           >
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Wpisz nazwę spółki, nazwisko członka zarządu lub frazę kryzysową..."
-              className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition disabled:opacity-50"
+              className="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg transition disabled:opacity-50 shrink-0"
             >
               {loading ? "Przeszukiwanie..." : "Szukaj w sieci"}
             </button>
