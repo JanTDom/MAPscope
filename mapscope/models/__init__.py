@@ -46,6 +46,13 @@ from mapscope.models.webhook import (
     WebhookProcessingResult,
     WebhookSource,
 )
+from mapscope.models.social_dialogue import (
+    DisputeLegalStage,
+    DisputeThreatLevel,
+    LaborDispute,
+    SocialDialogueCalendarItem,
+    SocialDialogueSummary,
+)
 
 __all__ = [
     "EntityStatus",
@@ -87,4 +94,9 @@ __all__ = [
     "WebhookEventType",
     "EspiWebhookPayload",
     "WebhookProcessingResult",
+    "DisputeLegalStage",
+    "DisputeThreatLevel",
+    "LaborDispute",
+    "SocialDialogueCalendarItem",
+    "SocialDialogueSummary",
 ]

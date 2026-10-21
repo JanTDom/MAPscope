@@ -464,6 +464,73 @@ test("13. Asynchroniczny Nasłuch Webhooków KNF ESPI / PAP Biznes (Zero Polling
   assert.strictEqual(heartbeatResult.status, "HEARTBEAT");
 });
 
+test("MAPscope Ministerialny Test 14: Rejestr napięć społecznych, spory zbiorowe (Ustawa z 1991 r.) i symulator kompromisu płacowego", async () => {
+  const {
+    LABOR_DISPUTES_DATABASE,
+    SOCIAL_DIALOGUE_CALENDAR,
+    getSocialDialogueSummary,
+    simulateWageCompromise,
+  } = await import("./social-dialogue-data.ts");
+
+  // 1. Sprawdzenie integralności rejestru sporów zbiorowych
+  assert.ok(LABOR_DISPUTES_DATABASE.length >= 7, "Rejestr musi zawierać kluczowe spory w SSP");
+
+  const pkpCargo = LABOR_DISPUTES_DATABASE.find((d) => d.ticker === "PKPCARGO");
+  assert.ok(pkpCargo, "PKP CARGO musi być w rejestrze");
+  assert.strictEqual(pkpCargo?.threatLevel, "KRYTYCZNY");
+  assert.strictEqual(pkpCargo?.isZuzpThreatened, true, "ZUZP w PKP CARGO musi być oflagowane");
+  assert.strictEqual(pkpCargo?.legalStage, "PROTOKOL_ROZBIEZNOSCI");
+
+  const jsw = LABOR_DISPUTES_DATABASE.find((d) => d.ticker === "JSW");
+  assert.ok(jsw, "JSW musi być w rejestrze");
+  assert.strictEqual(jsw?.threatLevel, "WYSOKI");
+  assert.strictEqual(jsw?.legalStage, "MEDIACJA_MRPIPS");
+
+  const pocztaPolska = LABOR_DISPUTES_DATABASE.find((d) => d.ticker === "POCZTA_POLSKA");
+  assert.ok(pocztaPolska, "Poczta Polska musi być w rejestrze");
+  assert.strictEqual(pocztaPolska?.threatLevel, "KRYTYCZNY");
+  assert.strictEqual(pocztaPolska?.legalStage, "REFERENDUM_STRAJKOWE");
+
+  // 2. Weryfikacja agregacji podsumowania dla kierownictwa MAP
+  const summary = getSocialDialogueSummary();
+  assert.strictEqual(summary.totalActiveDisputes, LABOR_DISPUTES_DATABASE.length);
+  assert.ok(summary.criticalDisputesCount >= 2, "Minimum 2 spory na poziomie krytycznym");
+  assert.ok(summary.totalWorkersAffected > 100000, "Ponad 100 tysięcy pracowników w reżimie sporów");
+  assert.ok(summary.totalWageDemandsCostMlnPln > 1000, "Łączny koszt żądań płacowych przekracza 1 mld PLN rocznie");
+  assert.ok(summary.calendarEventsNext30Days >= 5, "Harmonogram posiedzeń WRDS i mediacji");
+
+  // 3. Weryfikacja kalendarium i posiedzeń WRDS
+  assert.ok(SOCIAL_DIALOGUE_CALENDAR.length >= 6);
+  const wrdsEvent = SOCIAL_DIALOGUE_CALENDAR.find((e) => e.eventType === "POSIEDZENIE_WRDS");
+  assert.ok(wrdsEvent, "Musi zawierać posiedzenie Wojewódzkiej Rady Dialogu Społecznego");
+  assert.ok(wrdsEvent?.actionRequiredByMap, "Posiedzenie WRDS musi mieć wytyczną działania dla MAP");
+
+  // 4. Test symulatora kompromisu płacowego (Stress-Test EBITDA i kowenantów)
+  // Scenariusz A: Bezpieczny kompromis dla JSW (np. 3.5% + 1 000 PLN premii)
+  const simResultSafe = simulateWageCompromise({
+    disputeId: "disp-jsw-01",
+    proposedWageIncreasePct: 3.5,
+    proposedOneOffBonusPln: 1000,
+  });
+
+  assert.strictEqual(simResultSafe.disputeId, "disp-jsw-01");
+  assert.ok(simResultSafe.simulatedAnnualCostMlnPln > 100 && simResultSafe.simulatedAnnualCostMlnPln < 200);
+  assert.strictEqual(simResultSafe.covenantBreached, false, "Kowenant JSW 3.0x nie może być przekroczony przy 3.5%");
+  assert.ok(simResultSafe.savingsVsDemandsMlnPln > 100, "Musi wykazać oszczędności względem pierwotnych żądań związków");
+  assert.ok(simResultSafe.socialPeaceHorizonMonths >= 12, "Gwarantuje spokój społeczny");
+
+  // Scenariusz B: Nadmierne ustępstwo w Grupie Azoty (gdzie EBITDA bazowa jest ujemna -620 mln)
+  const simResultAzoty = simulateWageCompromise({
+    disputeId: "disp-grupa-azoty-01",
+    proposedWageIncreasePct: 5.0,
+    proposedOneOffBonusPln: 2000,
+  });
+
+  assert.strictEqual(simResultAzoty.covenantBreached, true, "W Grupie Azoty każde ustępstwo pogłębia stratę i narusza kowenant");
+  assert.ok(simResultAzoty.recommendationNote.includes("Ostrzeżenie: Proponowany kompromis narusza kowenanty bankowe"));
+});
+
+
 
 
 

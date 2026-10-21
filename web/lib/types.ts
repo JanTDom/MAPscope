@@ -4,7 +4,8 @@ export type UserRole =
   | "governance"
   | "analytics"
   | "catalog"
-  | "internal_data";
+  | "internal_data"
+  | "social_dialogue";
 
 export type EntityStatus =
   | "active"
@@ -814,6 +815,100 @@ export interface EspiWebhookServiceState {
   lastHeartbeatAt: string;
   recentTransmissions: WebhookTransmissionRecord[];
 }
+
+export type DisputeLegalStage =
+  | "ROKOWANIA"
+  | "PROTOKOL_ROZBIEZNOSCI"
+  | "MEDIACJA_MRPIPS"
+  | "STRAJK_OSTRZEGAWCZY"
+  | "REFERENDUM_STRAJKOWE"
+  | "POGOTOWIE_STRAJKOWE"
+  | "STRAJK_GENERALNY"
+  | "POROZUMIENIE_ZAWISLE";
+
+export type DisputeThreatLevel =
+  | "KRYTYCZNY"
+  | "WYSOKI"
+  | "UMIARKOWANY"
+  | "MONITOROWANY";
+
+export interface LaborDisputeFinancialBaseline {
+  revenueMlnPln: number;
+  ebitdaMlnPln: number;
+  netDebtMlnPln: number;
+  netDebtToEbitda: number;
+  maxCovenantRatio: number;
+  totalPayrollMlnPln: number;
+}
+
+export interface LaborDisputeRecord {
+  id: string;
+  entityName: string;
+  ticker: string;
+  sector: string;
+  voivodeship: string;
+  facilityLocation: string;
+  unionsInvolved: string[];
+  demandSummary: string;
+  demandedWageIncreasePct: number;
+  demandedOneOffBonusPln?: number;
+  estimatedAnnualCostMlnPln: number;
+  workersAffectedCount: number;
+  legalStage: DisputeLegalStage;
+  threatLevel: DisputeThreatLevel;
+  isZuzpThreatened: boolean;
+  mediatorAssigned?: string;
+  nextDeadlineDate: string;
+  nextDeadlineDescription: string;
+  ministerialNegotiationLine: string;
+  mapPoliticalRisk: string;
+  financialBaseline: LaborDisputeFinancialBaseline;
+}
+
+export interface SocialDialogueCalendarRecord {
+  id: string;
+  eventDate: string;
+  entityTicker: string;
+  entityName: string;
+  voivodeship: string;
+  eventType: "ROKOWANIA" | "MEDIACJA" | "POSIEDZENIE_WRDS" | "REFERENDUM" | "TERMIN_ZAWIESZENIA_ZUZP";
+  title: string;
+  description: string;
+  threatLevel: DisputeThreatLevel;
+  actionRequiredByMap?: string;
+}
+
+export interface WageCompromiseSimulationInput {
+  disputeId: string;
+  proposedWageIncreasePct: number;
+  proposedOneOffBonusPln: number;
+}
+
+export interface WageCompromiseSimulationResult {
+  disputeId: string;
+  entityName: string;
+  baselineEbitdaMlnPln: number;
+  baselineNetDebtToEbitda: number;
+  simulatedAnnualCostMlnPln: number;
+  simulatedEbitdaMlnPln: number;
+  simulatedNetDebtToEbitda: number;
+  covenantBreached: boolean;
+  covenantMaxAllowed: number;
+  savingsVsDemandsMlnPln: number;
+  socialPeaceHorizonMonths: number;
+  recommendationNote: string;
+}
+
+export interface SocialDialogueSummaryRecord {
+  totalActiveDisputes: number;
+  criticalDisputesCount: number;
+  totalWorkersAffected: number;
+  totalWageDemandsCostMlnPln: number;
+  disputesByVoivodeship: Record<string, number>;
+  zuzpThreatenedCount: number;
+  calendarEventsNext30Days: number;
+}
+
 
 
 

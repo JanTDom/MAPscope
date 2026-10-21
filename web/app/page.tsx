@@ -9,6 +9,7 @@ import { GovernanceView } from "@/components/views/GovernanceView.tsx";
 import { AnalyticsView } from "@/components/views/AnalyticsView.tsx";
 import { EntitiesCatalog } from "@/components/EntitiesCatalog.tsx";
 import { InternalDataView } from "@/components/views/InternalDataView.tsx";
+import { SocialDialogueView } from "@/components/views/SocialDialogueView.tsx";
 import { DossierModal } from "@/components/views/DossierModal.tsx";
 import { AuthScreen } from "@/components/AuthScreen.tsx";
 import { OsintSearchModal } from "@/components/OsintSearchModal.tsx";
@@ -101,6 +102,7 @@ export default function HomePage() {
               {activeRole === "governance" && "Ład Korporacyjny (Władze i Nadzór)"}
               {activeRole === "analytics" && "Centrum Zestawień i Własności (Portfel 406 SSP)"}
               {activeRole === "catalog" && "Katalog Wszystkich Spółek Skarbu Państwa"}
+              {activeRole === "social_dialogue" && "Dialog Społeczny (Spory Zbiorowe i Negocjacje Płacowe w Regionach)"}
               {activeRole === "internal_data" && "Skarbiec Danych Wewnętrznych MAP"}
             </span>
           </div>
@@ -177,6 +179,10 @@ export default function HomePage() {
                 onSelectEntity={(id) => setSelectedEntityId(id)}
                 onOpenDossier={handleOpenDossier}
               />
+            </div>
+
+            <div className={activeRole === "social_dialogue" ? "block" : "hidden"}>
+              <SocialDialogueView onOpenDossier={handleOpenDossier} />
             </div>
 
             <div className={activeRole === "internal_data" ? "block" : "hidden"}>

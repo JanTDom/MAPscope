@@ -13,6 +13,7 @@ import {
   Radio,
   FileSpreadsheet,
   BarChart3,
+  Users,
 } from "lucide-react";
 import type { UserRole } from "@/lib/types.ts";
 
@@ -68,6 +69,15 @@ export function Sidebar({
       subtitle: "100% podmiotów bez wykluczeń",
       icon: Landmark,
       color: "text-[#75b8ff]",
+    },
+    {
+      role: "social_dialogue" as UserRole,
+      label: "Dialog Społeczny",
+      subtitle: "Spory zbiorowe i kalendarz WRDS",
+      icon: Users,
+      color: "text-[#57e0c5]",
+      badge: "7 sporów",
+      badgeColor: "bg-[#57e0c5]/20 text-[#57e0c5] border-[#57e0c5]/40",
     },
     {
       role: "internal_data" as UserRole,
