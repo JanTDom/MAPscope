@@ -20,13 +20,10 @@ export function AuthScreen({ onSuccess }: AuthScreenProps) {
     setError(false);
 
     if (password === "MWB2026") {
-      try {
-        localStorage.setItem("mapscope_authenticated", "true");
-        sessionStorage.setItem("mapscope_authenticated", "true");
-      } catch {
-        // Storage restricted
-      }
+      // Celowy brak trwałego zapisu w localStorage / sessionStorage:
+      // Każde nowe wejście lub odświeżenie strony bezwzględnie wymaga ponownego wprowadzenia hasła.
       setTimeout(() => {
+        setPassword("");
         onSuccess();
       }, 150);
     } else {
@@ -61,7 +58,7 @@ export function AuthScreen({ onSuccess }: AuthScreenProps) {
         </div>
 
         {/* Formularz wprowadzania hasła */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
           <div>
             <label className="block text-[11px] font-mono uppercase tracking-wider text-[#8e9da7] mb-2">
               Klucz dostępu (Hasło strefowe):
@@ -73,6 +70,8 @@ export function AuthScreen({ onSuccess }: AuthScreenProps) {
               <input
                 type={showPassword ? "text" : "password"}
                 autoFocus
+                autoComplete="new-password"
+                name="mapscope_access_key"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);

@@ -22,7 +22,8 @@ import type { UserRole, EntityRecord, InternalDataEntry } from "@/lib/types.ts";
 import { Search, Flame, Bell, Shield, Radio, LogOut } from "lucide-react";
 
 export default function HomePage() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // Bezwzględny wymóg: za każdym wejściem lub odświeżeniem strony wymagane jest podanie hasła
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeRole, setActiveRole] = useState<UserRole>("minister");
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
@@ -32,12 +33,10 @@ export default function HomePage() {
 
   useEffect(() => {
     try {
-      const isAuth =
-        sessionStorage.getItem("mapscope_authenticated") === "true" ||
-        localStorage.getItem("mapscope_authenticated") === "true";
-      setIsAuthenticated(isAuth);
+      localStorage.removeItem("mapscope_authenticated");
+      sessionStorage.removeItem("mapscope_authenticated");
     } catch {
-      setIsAuthenticated(false);
+      // Ignored
     }
   }, []);
 
@@ -50,15 +49,6 @@ export default function HomePage() {
     }
     setIsAuthenticated(false);
   };
-
-  if (isAuthenticated === null) {
-    // Ekran ładowania przed weryfikacją sesji
-    return (
-      <div className="h-screen w-screen bg-[#070a0d] flex items-center justify-center text-xs font-mono text-[#8e9da7]">
-        Inicjalizacja środowiska MAPscope...
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return <AuthScreen onSuccess={() => setIsAuthenticated(true)} />;
