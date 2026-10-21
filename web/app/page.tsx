@@ -148,45 +148,45 @@ export default function HomePage() {
           </div>
         </header>
 
-        {/* Dynamiczny Widok Perspektywy */}
+        {/* Dynamiczny Widok Perspektywy (Zachowanie stanu i pozycji widoków przy przełączaniu ról) */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            {activeRole === "minister" && (
+            <div className={activeRole === "minister" ? "block" : "hidden"}>
               <MinisterView onOpenDossier={handleOpenDossier} />
-            )}
+            </div>
 
-            {activeRole === "communication" && (
+            <div className={activeRole === "communication" ? "block" : "hidden"}>
               <CommunicationView onOpenDossier={handleOpenDossier} />
-            )}
+            </div>
 
-            {activeRole === "governance" && (
+            <div className={activeRole === "governance" ? "block" : "hidden"}>
               <GovernanceView onOpenDossier={handleOpenDossier} />
-            )}
+            </div>
 
-            {activeRole === "analytics" && (
+            <div className={activeRole === "analytics" ? "block" : "hidden"}>
               <AnalyticsView
                 entities={ALL_ENTITIES_REGISTRY}
                 onSelectEntity={handleOpenDossier}
               />
-            )}
+            </div>
 
-            {activeRole === "catalog" && (
+            <div className={activeRole === "catalog" ? "block" : "hidden"}>
               <EntitiesCatalog
                 entities={ALL_ENTITIES_REGISTRY}
                 selectedEntityId={selectedEntityId}
                 onSelectEntity={(id) => setSelectedEntityId(id)}
                 onOpenDossier={handleOpenDossier}
               />
-            )}
+            </div>
 
-            {activeRole === "internal_data" && (
+            <div className={activeRole === "internal_data" ? "block" : "hidden"}>
               <InternalDataView
                 entities={ALL_ENTITIES_REGISTRY}
                 internalData={internalData}
                 onUpdateInternalData={setInternalData}
                 onOpenDossier={handleOpenDossier}
               />
-            )}
+            </div>
           </div>
         </main>
       </div>
