@@ -10,6 +10,7 @@ import { AnalyticsView } from "@/components/views/AnalyticsView.tsx";
 import { EntitiesCatalog } from "@/components/EntitiesCatalog.tsx";
 import { InternalDataView } from "@/components/views/InternalDataView.tsx";
 import { SocialDialogueView } from "@/components/views/SocialDialogueView.tsx";
+import { MapZoneView } from "@/components/views/MapZoneView.tsx";
 import { DossierModal } from "@/components/views/DossierModal.tsx";
 import { AuthScreen } from "@/components/AuthScreen.tsx";
 import { OsintSearchModal } from "@/components/OsintSearchModal.tsx";
@@ -98,6 +99,7 @@ export default function HomePage() {
             <span className="text-[#5d6b74]">/</span>
             <span className="text-xs font-bold text-white capitalize">
               {activeRole === "minister" && "Gabinet Ministra (Kokpit Zarządczy)"}
+              {activeRole === "map_zone" && "Strefa MAP (Kierownictwo, Komunikacja i Kryzysy Resortu)"}
               {activeRole === "communication" && "Szef Komunikacji (Audytor i Media Radar)"}
               {activeRole === "governance" && "Ład Korporacyjny (Władze i Nadzór)"}
               {activeRole === "analytics" && "Centrum Zestawień i Własności (Portfel 406 SSP)"}
@@ -155,6 +157,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto">
             <div className={activeRole === "minister" ? "block" : "hidden"}>
               <MinisterView onOpenDossier={handleOpenDossier} />
+            </div>
+
+            <div className={activeRole === "map_zone" ? "block" : "hidden"}>
+              <MapZoneView />
             </div>
 
             <div className={activeRole === "communication" ? "block" : "hidden"}>

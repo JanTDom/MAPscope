@@ -5,7 +5,8 @@ export type UserRole =
   | "analytics"
   | "catalog"
   | "internal_data"
-  | "social_dialogue";
+  | "social_dialogue"
+  | "map_zone";
 
 export type EntityStatus =
   | "active"
@@ -908,6 +909,105 @@ export interface SocialDialogueSummaryRecord {
   zuzpThreatenedCount: number;
   calendarEventsNext30Days: number;
 }
+
+export type MapLeadershipRole =
+  | "MINISTER"
+  | "SEKRETARZ_STANU"
+  | "PODSEKRETARZ_STANU"
+  | "DYREKTOR_GENERALNY"
+  | "RZECZNIK_PRASOWY";
+
+export type PressInquiryUrgency =
+  | "PILNE_DO_2H"
+  | "DZISIAJ"
+  | "USTAWOWE_14DNI"
+  | "ZREALIZOWANE";
+
+export type MapCrisisSeverity =
+  | "KRYTYCZNE"
+  | "WYSOKIE"
+  | "SREDNIE"
+  | "MONITOROWANE";
+
+export interface MapLeadershipMemberRecord {
+  id: string;
+  name: string;
+  role: MapLeadershipRole;
+  title: string;
+  supervisedDepartments: string[];
+  assignedSectors: string[];
+  activeCrisesCount: number;
+  mediaSentimentScore: number;
+  currentKeyTopics: string[];
+  lastMediaAppearance?: {
+    date: string;
+    mediaOutlet: string;
+    topic: string;
+    tone: "pozytywny" | "neutralny" | "trudny";
+  };
+}
+
+export interface MapPressReleaseRecord {
+  id: string;
+  title: string;
+  category: "KOMUNIKAT_PRASOWY" | "SPROSTOWANIE" | "OŚWIADCZENIE" | "BRIEFING";
+  publishedAt: string;
+  channel: "gov.pl/aktywa-panstwowe" | "BIP MAP" | "X / @MAPSkarbPanstwa" | "PAP";
+  summary: string;
+  keyQuotes: string[];
+  isRectification: boolean;
+  targetMediaOutlet?: string;
+  reachEstimate: number;
+  defenseStrengthScore: number;
+}
+
+export interface MapPressInquiryRecord {
+  id: string;
+  mediaOutlet: string;
+  journalistName: string;
+  receivedAt: string;
+  deadlineAt: string;
+  urgency: PressInquiryUrgency;
+  subject: string;
+  detailedQuestions: string[];
+  politicalRiskScore: number;
+  assignedSpokespersonLine: string;
+  factsAndFigures: string;
+  redLines: string;
+  status: "NOWE" | "W_OPRACOWANIU" | "ZAAKCEPTOWANE_PRZEZ_GABINET" | "WYSLANE";
+}
+
+export interface MapDirectCrisisRecord {
+  id: string;
+  title: string;
+  severity: MapCrisisSeverity;
+  category: "KADRY_OBSADA" | "PROTESTY_SPOŁECZNE" | "KONTROLA_SEJMOWA" | "SPÓR_MIĘDZYRESORTOWY" | "AUDYT_I_PROKURATURA";
+  incidentDate: string;
+  affectedLeadership: string[];
+  summary: string;
+  oppositionAttackVector: string;
+  ministerialCounterNarrative: string;
+  streetProtestThreat: boolean;
+  protestDetails?: {
+    location: string;
+    registeredParticipants: number;
+    organizer: string;
+    policeCoordination: boolean;
+  };
+  parliamentaryControlActive: boolean;
+  actionItemsForCabinet: string[];
+}
+
+export interface MapZoneSummaryRecord {
+  overallMapTensionIndex: number;
+  activePressInquiriesCount: number;
+  criticalDirectCrisesCount: number;
+  pendingParliamentaryInquiriesCount: number;
+  registeredStreetProtestsCount: number;
+  pressReleasesThisMonthCount: number;
+  averageSpokespersonResponseTimeHours: number;
+}
+
 
 
 

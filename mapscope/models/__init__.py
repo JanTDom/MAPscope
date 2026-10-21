@@ -53,6 +53,16 @@ from mapscope.models.social_dialogue import (
     SocialDialogueCalendarItem,
     SocialDialogueSummary,
 )
+from mapscope.models.map_zone import (
+    MapCrisisSeverity,
+    MapDirectCrisis,
+    MapLeadershipMember,
+    MapLeadershipRole,
+    MapPressInquiry,
+    MapPressRelease,
+    MapZoneSummary,
+    PressInquiryUrgency,
+)
 
 __all__ = [
     "EntityStatus",
@@ -99,4 +109,12 @@ __all__ = [
     "LaborDispute",
     "SocialDialogueCalendarItem",
     "SocialDialogueSummary",
+    "MapLeadershipRole",
+    "PressInquiryUrgency",
+    "MapCrisisSeverity",
+    "MapLeadershipMember",
+    "MapPressRelease",
+    "MapPressInquiry",
+    "MapDirectCrisis",
+    "MapZoneSummary",
 ]

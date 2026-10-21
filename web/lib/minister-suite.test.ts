@@ -530,6 +530,55 @@ test("MAPscope Ministerialny Test 14: Rejestr napięć społecznych, spory zbior
   assert.ok(simResultAzoty.recommendationNote.includes("Ostrzeżenie: Proponowany kompromis narusza kowenanty bankowe"));
 });
 
+test("MAPscope Ministerialny Test 15: Strefa MAP (Kierownictwo, Komunikacja i Kryzysy Resortu)", async () => {
+  const {
+    MAP_LEADERSHIP,
+    MAP_DIRECT_CRISES,
+    MAP_PRESS_RELEASES,
+    MAP_PRESS_INQUIRIES,
+    getMapZoneSummary,
+  } = await import("./map-zone-data.ts");
+
+  // 1. Sprawdzenie integralności kierownictwa resortu MAP
+  assert.ok(MAP_LEADERSHIP.length >= 4, "Musi obejmować całe ścisłe kierownictwo MAP");
+  const minister = MAP_LEADERSHIP.find((l) => l.role === "MINISTER");
+  assert.ok(minister, "Minister Aktywów Państwowych musi być w rejestrze");
+  assert.strictEqual(minister?.name, "Jakub Jaworowski");
+  assert.ok(minister?.supervisedDepartments.includes("Departament Spółek Strategicznych"));
+
+  const bartminski = MAP_LEADERSHIP.find((l) => l.name.includes("Bartmiński"));
+  assert.ok(bartminski, "Sekretarz Stanu Bartmiński musi być w rejestrze");
+  assert.strictEqual(bartminski?.role, "SEKRETARZ_STANU");
+
+  // 2. Weryfikacja kryzysów bezpośrednio uderzających w gmach i kierownictwo MAP
+  assert.ok(MAP_DIRECT_CRISES.length >= 4);
+  const kruczaProtest = MAP_DIRECT_CRISES.find((c) => c.streetProtestThreat);
+  assert.ok(kruczaProtest, "Musi identyfikować pikietę pod gmachem przy ul. Kruczej 36");
+  assert.strictEqual(kruczaProtest?.severity, "KRYTYCZNE");
+  assert.ok(kruczaProtest?.protestDetails?.registeredParticipants, "Musi zawierać liczbę uczestników protestu");
+  assert.ok(kruczaProtest?.ministerialCounterNarrative, "Musi zawierać rządową linię obrony");
+
+  // 3. Weryfikacja rejestru zapytań dziennikarskich do Biura Prasowego MAP
+  assert.ok(MAP_PRESS_INQUIRIES.length >= 4);
+  const urgentInquiry = MAP_PRESS_INQUIRIES.find((q) => q.urgency === "PILNE_DO_2H");
+  assert.ok(urgentInquiry, "Musi obsługiwać zapytania w trybie pilnym do 2h");
+  assert.ok(urgentInquiry?.redLines, "Musi definiować czerwone linie (czego nie wolno mówić)");
+  assert.ok(urgentInquiry?.assignedSpokespersonLine, "Musi posiadać autoryzowaną linię rzecznika");
+
+  // 4. Weryfikacja oficjalnych komunikatów i sprostowań resortowych
+  assert.ok(MAP_PRESS_RELEASES.length >= 4);
+  const rectification = MAP_PRESS_RELEASES.find((r) => r.isRectification);
+  assert.ok(rectification, "Musi rejestrować formalne sprostowania prasowe MAP w trybie art. 31a");
+  assert.ok(rectification?.targetMediaOutlet, "Sprostowanie musi mieć wskazaną redakcję");
+
+  // 5. Podsumowanie Strefy MAP
+  const summary = getMapZoneSummary();
+  assert.ok(summary.overallMapTensionIndex > 50, "Wskaźnik napięcia wokół MAP musi być policzony");
+  assert.strictEqual(summary.registeredStreetProtestsCount, 1);
+  assert.ok(summary.activePressInquiriesCount >= 2);
+});
+
+
 
 
 

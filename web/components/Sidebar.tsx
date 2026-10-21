@@ -43,6 +43,15 @@ export function Sidebar({
       badgeColor: "bg-[#ff7f87]/20 text-[#ff7f87] border-[#ff7f87]/40",
     },
     {
+      role: "map_zone" as UserRole,
+      label: "Strefa MAP",
+      subtitle: "Gmach, kierownictwo, komunikaty",
+      icon: Shield,
+      color: "text-[#57e0c5]",
+      badge: "GMACH",
+      badgeColor: "bg-[#57e0c5]/20 text-[#57e0c5] border-[#57e0c5]/40",
+    },
+    {
       role: "communication" as UserRole,
       label: "Szef Komunikacji",
       subtitle: "Audyt oświadczeń i radar mediów",
