@@ -33,6 +33,11 @@ import {
   DEBT_STABILITY_RECORDS,
   MORNING_CABINET_BRIEFING,
 } from "./mapscope-data.ts";
+import {
+  OFFICIAL_GPW_PERIODIC_REPORTS,
+  parseEspiXbrlContent,
+  evaluateCovenant,
+} from "./espi-xbrl-parser.ts";
 
 test("1. Gabinet Ministra: Tarcza Sejmowa zawiera pancerne Q&A, czerwone linie i rozróżnienie genezy", () => {
   assert.ok(TOP_FIRE_ALERTS.length >= 5, "Pożary dnia muszą zawierać co najmniej 5 spraw strategicznych");
@@ -331,6 +336,70 @@ test("11. Pakiet High-Level: Suwerenność Rezerw, Tarcza Wrogiego Przejęcia, K
   assert.strictEqual(MORNING_CABINET_BRIEFING.top3StrategicEvents.length, 3, "Musi zawierać dokładnie 3 fakty strategiczne");
   assert.ok(MORNING_CABINET_BRIEFING.transcriptText.length > 200, "Transkrypcja musi być kompletna");
 });
+
+test("12. Bezpośredni Parser Raportów Okresowych GPW w standardzie XBRL / ESPI", () => {
+  assert.ok(
+    OFFICIAL_GPW_PERIODIC_REPORTS.length >= 7,
+    "Baza musi zawierać raporty dla co najmniej 7 kluczowych SSP (Orlen, Azoty, Cargo, PGE, Tauron, KGHM, JSW)"
+  );
+
+  // Raport Grupy Azoty (ESEF iXBRL)
+  const azotyReport = OFFICIAL_GPW_PERIODIC_REPORTS.find((r: any) => r.ticker === "ATT");
+  assert.ok(azotyReport, "Musi zawierać raport dla Grupy Azoty");
+  assert.strictEqual(azotyReport.reportStandard, "ESEF_IXBRL");
+  assert.strictEqual(azotyReport.covenant.isBreached, true, "Kowenant Grupy Azoty musi być oznaczony jako naruszony");
+  assert.strictEqual(azotyReport.covenant.waiverRequired, true, "Wymagany waiver bankowy");
+  assert.ok(azotyReport.calculatedEbitdaMlnPln < 0, "EBITDA Grupy Azoty w Q3 2025 musi być ujemna");
+  assert.ok(azotyReport.netDebtMlnPln >= 10000, "Dług netto Grupy Azoty musi wynosić ponad 10 mld PLN");
+
+  // Raport ORLEN (KNF ESPI XML)
+  const orlenReport = OFFICIAL_GPW_PERIODIC_REPORTS.find((r: any) => r.ticker === "PKN");
+  assert.ok(orlenReport, "Musi zawierać raport dla ORLEN");
+  assert.strictEqual(orlenReport.reportStandard, "KNF_ESPI_XML");
+  assert.strictEqual(orlenReport.covenant.isBreached, false, "Kowenant ORLENU musi być bezpieczny");
+  assert.ok(
+    orlenReport.covenant.netDebtToEbitda !== null && orlenReport.covenant.netDebtToEbitda < 1.0,
+    "Dług Netto / EBITDA Orlenu musi wynosić < 1.0x"
+  );
+  assert.ok(orlenReport.calculatedEbitdaMlnPln > 25000, "EBITDA Orlenu musi przekraczać 25 mld PLN");
+
+  // Test dynamicznego parsera na surowym ciągu iXBRL
+  const sampleIxbrl = `
+    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ix="http://www.xbrl.org/2013/inlineXBRL" xmlns:ifrs-full="http://xbrl.ifrs.org/taxonomy/2021-03-24/ifrs-full">
+      <ix:nonNumeric name="ifrs-full:TradingSymbol">TEST_SSP</ix:nonNumeric>
+      <ix:nonNumeric name="ifrs-full:DocumentType">SA-Q 3/2025</ix:nonNumeric>
+      <ix:nonFraction name="ifrs-full:Revenue" scale="6">5000.00</ix:nonFraction>
+      <ix:nonFraction name="ifrs-full:OperatingProfit" scale="6">800.00</ix:nonFraction>
+      <ix:nonFraction name="ifrs-full:DepreciationAndAmortisationExpense" scale="6">200.00</ix:nonFraction>
+      <ix:nonFraction name="ifrs-full:NoncurrentBorrowings" scale="6">2500.00</ix:nonFraction>
+      <ix:nonFraction name="ifrs-full:CurrentBorrowings" scale="6">500.00</ix:nonFraction>
+      <ix:nonFraction name="ifrs-full:CashAndCashEquivalents" scale="6">1000.00</ix:nonFraction>
+    </html>
+  `;
+
+  const parsedDynamic = parseEspiXbrlContent(sampleIxbrl);
+  assert.strictEqual(parsedDynamic.ticker, "TEST_SSP");
+  assert.strictEqual(parsedDynamic.revenueMlnPln, 5000);
+  assert.strictEqual(parsedDynamic.operatingProfitEbitMlnPln, 800);
+  assert.strictEqual(parsedDynamic.depreciationMlnPln, 200);
+  // EBITDA = 800 + 200 = 1000 mln PLN
+  assert.strictEqual(parsedDynamic.calculatedEbitdaMlnPln, 1000);
+  // Dług brutto = 2500 + 500 = 3000, Gotówka = 1000, Dług netto = 2000 mln PLN
+  assert.strictEqual(parsedDynamic.netDebtMlnPln, 2000);
+  // Dług Netto / EBITDA = 2000 / 1000 = 2.0x
+  assert.strictEqual(parsedDynamic.covenant.netDebtToEbitda, 2.0);
+  assert.strictEqual(parsedDynamic.covenant.isBreached, false);
+  assert.strictEqual(parsedDynamic.covenant.status, "BEZPIECZNY");
+  assert.ok(parsedDynamic.tagsProvenance.length >= 6, "Musi zachować metadane audytowe tagów taksonomii");
+
+  // Test oceny kowenantowej z naruszeniem limitu
+  const evalBreached = evaluateCovenant("TEST", 4000, 1000, 100, 3.5);
+  assert.strictEqual(evalBreached.netDebtToEbitda, 4.0);
+  assert.strictEqual(evalBreached.isBreached, true);
+  assert.strictEqual(evalBreached.status, "KOWENANT_NARUSZONY");
+  assert.strictEqual(evalBreached.waiverRequired, true);
+});
+
 
 
 

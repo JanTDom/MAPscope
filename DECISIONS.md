@@ -88,3 +88,30 @@ Wdrożono cztery zintegrowane moduły wykonawcze:
 ### Konsekwencje
 - Przejrzysty wgląd w newralgiczne punkty suwerenności państwa z poziomu głównego pulpitu gabinetu.
 - Pełna zgodność z wymogami ustawowymi i eliminacja ryzyka paraliżu finansowego spółek kluczowych.
+
+---
+
+## ADR-005: Bezpośredni parser raportów okresowych GPW w standardzie XBRL / ESPI (ESEF Inline XBRL & KNF XML)
+
+### Kontekst
+Wskaźniki zadłużenia i stabilności finansowej spółek Skarbu Państwa notowanych na GPW (np. Grupa Azoty, Orlen, PKP Cargo, PGE, Tauron, KGHM, JSW) opierają się na oficjalnych raportach okresowych (kwartalnych, półrocznych, rocznych) publikowanych w systemie ESPI. Raporty te są przekazywane jako pakiety ESEF Inline XBRL (iXBRL w XHTML) lub pliki XML zgodne z taksonomią KNF ESPI. Do tej pory dane były odświeżane okresowo; istniała konieczność wdrożenia bezpośredniego silnika dekompozycji i audytu, który pozwala na natychmiastowe parsowanie i audytowanie raportu w momencie jego wpłynięcia do systemu ESPI.
+
+### Decyzja
+Wdrożono dwuwarstwowy silnik parsowania raportów okresowych GPW (Python backend + TypeScript/Next.js frontend):
+1. **Silnik backendowy (`mapscope/ingest/espi_xbrl_parser.py`):**
+   - Obsługuje tagi ESEF/iXBRL (`<ix:nonFraction>`, `<ix:nonNumeric>`) oraz taksonomię KNF ESPI XML.
+   - Mapuje znaczniki IFRS/MSR (`Revenue`, `OperatingProfit`, `DepreciationAndAmortisationExpense`, `Borrowings`, `CashAndCashEquivalents`, `ProfitLoss`, `Equity`, itp.).
+   - Normalizuje jednostki (tys. PLN / mln PLN / PLN), uwzględnia atrybuty skali (`scale`, `decimals`) oraz notację księgową kwot ujemnych.
+2. **Kalkulacja kowenantowa i audyt MAR:**
+   - Automatycznie oblicza skonsolidowaną EBITDA (`EBIT + D&A`), Dług Brutto oraz Dług Netto (`Dług Brutto - Gotówka`).
+   - Oblicza wskaźnik lewarowania Dług Netto / EBITDA oraz wskaźnik pokrycia odsetek (ICR).
+   - Porównuje wskaźniki z umownymi progami kowenantów (np. 3.50x lub 3.00x).
+   - W przypadku ujemnej EBITDA przy dodatnim długu lub przekroczenia progu wyznacza status `KOWENANT_NARUSZONY`, wymóg porozumienia `waiver/standstill` oraz flagę ryzyka MAR.
+3. **Endpoint API oraz widok wykonawczy w panelu Ministra:**
+   - Dedykowany endpoint `/api/espi/xbrl-parser` umożliwiający parsowanie i weryfikację raportów online.
+   - Wbudowane zindeksowane raporty okresowe dla 7 strategicznych grup GPW z udziałem Skarbu Państwa.
+   - Interaktywny podgląd wyekstrahowanych tagów XBRL gwarantujący 100% audytowalności danych.
+
+### Konsekwencje
+- Błyskawiczna detekcja naruszeń kowenantów bankowych w dniu publikacji raportu przez spółkę.
+- Kierownictwo MAP otrzymuje natychmiastową notę operacyjną z rekomendacją działań wobec konsorcjów bankowych i zarządów spółek.

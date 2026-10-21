@@ -33,6 +33,13 @@ from mapscope.models.risk import (
     RiskAssessment,
     RiskAssessmentBase,
 )
+from mapscope.models.espi_xbrl import (
+    CovenantEvaluation,
+    CovenantStatus,
+    EspiXbrlLineItem,
+    EspiXbrlPeriodicReportModel,
+    ReportStandard,
+)
 
 __all__ = [
     "EntityStatus",
@@ -65,4 +72,9 @@ __all__ = [
     "RiskAssessmentBase",
     "Alert",
     "AlertBase",
+    "ReportStandard",
+    "CovenantStatus",
+    "EspiXbrlLineItem",
+    "CovenantEvaluation",
+    "EspiXbrlPeriodicReportModel",
 ]

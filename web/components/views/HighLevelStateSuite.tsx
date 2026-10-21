@@ -24,6 +24,13 @@ import {
   ChevronUp,
   X,
   SlidersHorizontal,
+  Code2,
+  Database,
+  UploadCloud,
+  RefreshCw,
+  FileSpreadsheet,
+  FileCode,
+  Layers,
 } from "lucide-react";
 import {
   STRATEGIC_RESERVE_INDICATORS,
@@ -31,10 +38,15 @@ import {
   DEBT_STABILITY_RECORDS,
   MORNING_CABINET_BRIEFING,
 } from "@/lib/mapscope-data.ts";
+import {
+  OFFICIAL_GPW_PERIODIC_REPORTS,
+  parseEspiXbrlContent,
+} from "@/lib/espi-xbrl-parser.ts";
 import type {
   StrategicReserveIndicator,
   ForeignTakeoverShieldEntity,
   DebtStabilityRecord,
+  EspiXbrlPeriodicReport,
 } from "@/lib/types.ts";
 
 interface HighLevelStateSuiteProps {
@@ -63,6 +75,16 @@ export function HighLevelStateSuite({
     "Podejrzenie niejawnego działania na rzecz podmiotu objętego sankcjami międzynarodowymi oraz naruszenie art. 4 ust. 1 ustawy o kontroli niektórych inwestycji."
   );
   const [vetoIssued, setVetoIssued] = useState(false);
+
+  // Stan bezpośredniego parsera raportów okresowych GPW (XBRL/ESPI)
+  const [covenantSubTab, setCovenantSubTab] = useState<"PORTFEL" | "PARSER_XBRL">("PORTFEL");
+  const [selectedXbrlReportId, setSelectedXbrlReportId] = useState<string>("xbrl-att-20250930");
+  const [customXmlInput, setCustomXmlInput] = useState<string>("");
+  const [isCustomInputOpen, setIsCustomInputOpen] = useState(false);
+  const [parsedCustomReport, setParsedCustomReport] = useState<EspiXbrlPeriodicReport | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [copiedXbrlReport, setCopiedXbrlReport] = useState(false);
+  const [showTagsDetails, setShowTagsDetails] = useState(false);
 
   // Efekt symulujący postęp odtwarzania audio
   useEffect(() => {
@@ -102,6 +124,48 @@ export function HighLevelStateSuite({
 
   const totalNetDebtMldPln = DEBT_STABILITY_RECORDS.reduce((sum, r) => sum + r.netDebtMldPln, 0);
   const breachedCovenantsCount = DEBT_STABILITY_RECORDS.filter((r) => r.isCovenantBreached).length;
+
+  const handleParseCustomXml = () => {
+    setParseError(null);
+    try {
+      if (!customXmlInput.trim()) {
+        setParseError("Wklej treść raportu XML lub iXBRL.");
+        return;
+      }
+      const parsed = parseEspiXbrlContent(customXmlInput);
+      setParsedCustomReport(parsed);
+      setIsCustomInputOpen(false);
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : "Nieprawidłowy format raportu XBRL/ESPI.");
+    }
+  };
+
+  const activeXbrlReport: EspiXbrlPeriodicReport =
+    parsedCustomReport ||
+    OFFICIAL_GPW_PERIODIC_REPORTS.find((r) => r.id === selectedXbrlReportId) ||
+    OFFICIAL_GPW_PERIODIC_REPORTS[0];
+
+  const handleCopyXbrlReport = () => {
+    const text = `MAPscope • AUDYT KOWENANTOWY XBRL/ESPI
+Podmiot: ${activeXbrlReport.entityName} (${activeXbrlReport.ticker})
+Raport: ${activeXbrlReport.reportNumber} (okres do: ${activeXbrlReport.periodEnded})
+Standard: ${activeXbrlReport.reportStandard}
+Przychody ze sprzedaży: ${activeXbrlReport.revenueMlnPln.toLocaleString("pl-PL")} mln PLN
+Zysk operacyjny (EBIT): ${activeXbrlReport.operatingProfitEbitMlnPln.toLocaleString("pl-PL")} mln PLN
+Amortyzacja: ${activeXbrlReport.depreciationMlnPln.toLocaleString("pl-PL")} mln PLN
+Skalkulowana EBITDA: ${activeXbrlReport.calculatedEbitdaMlnPln.toLocaleString("pl-PL")} mln PLN
+Dług brutto: ${activeXbrlReport.totalGrossDebtMlnPln.toLocaleString("pl-PL")} mln PLN
+Środki pieniężne: ${activeXbrlReport.cashAndEquivalentsMlnPln.toLocaleString("pl-PL")} mln PLN
+Dług netto: ${activeXbrlReport.netDebtMlnPln.toLocaleString("pl-PL")} mln PLN (${activeXbrlReport.covenant.netDebtMldPln} mld PLN)
+Dług Netto / EBITDA: ${activeXbrlReport.covenant.netDebtToEbitda !== null ? activeXbrlReport.covenant.netDebtToEbitda + "x" : "NIEWYZNACZALNY (EBITDA UJEMNA)"}
+Status kowenantu: ${activeXbrlReport.covenant.status} (limit: ${activeXbrlReport.covenant.covenantLimit}x)
+Wymóg waiver / standstill: ${activeXbrlReport.covenant.waiverRequired ? "TAK" : "NIE"}
+Rekomendacja dla MAP: ${activeXbrlReport.covenant.ministerialRecommendation}`;
+
+    navigator.clipboard.writeText(text);
+    setCopiedXbrlReport(true);
+    setTimeout(() => setCopiedXbrlReport(false), 2000);
+  };
 
   return (
     <div className="space-y-6">
@@ -429,128 +493,633 @@ export function HighLevelStateSuite({
         {/* MODUŁ: KOMITET STABILNOŚCI FINANSOWEJ SSP (DŁUG, PŁYNNOŚĆ, KOWENANTY) */}
         {activeToolkitTab === "KOWENANTY" && (
           <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-[#0e161c] border border-[rgba(159,186,199,0.14)] flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-rose-400" />
-                  Komitet stabilności finansowej i kowenantów bankowych SSP
-                </h3>
-                <p className="text-xs text-[#8e9da7] mt-0.5">
-                  Nadzór nad zadłużeniem bilansowym, wskaźnikami Dług Netto / EBITDA oraz porozumieniami z konsorcjami banków.
-                </p>
+            {/* Przełącznik podwidoków: Portfel Kowenantów vs Bezpośredni Parser XBRL/ESPI */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 rounded-xl bg-[#0b1218] border border-[rgba(159,186,199,0.14)]">
+              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#070d11]">
+                <button
+                  type="button"
+                  onClick={() => setCovenantSubTab("PORTFEL")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${
+                    covenantSubTab === "PORTFEL"
+                      ? "bg-[#182631] text-cyan-300 border border-cyan-500/40 shadow-sm"
+                      : "text-[#8e9da7] hover:text-white"
+                  }`}
+                >
+                  <Scale className="w-3.5 h-3.5" />
+                  Portfel kowenantów SSP ({DEBT_STABILITY_RECORDS.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCovenantSubTab("PARSER_XBRL")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${
+                    covenantSubTab === "PARSER_XBRL"
+                      ? "bg-[#182631] text-rose-300 border border-rose-500/40 shadow-sm"
+                      : "text-[#8e9da7] hover:text-white"
+                  }`}
+                >
+                  <Code2 className="w-3.5 h-3.5" />
+                  Bezpośredni parser raportów GPW (XBRL / ESPI)
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-widest font-mono">
+                    ESEF / KNF
+                  </span>
+                </button>
               </div>
 
-              <div className="flex items-center gap-4 shrink-0 font-mono text-xs">
-                <div className="p-2 rounded bg-[#121c23] border border-[rgba(159,186,199,0.12)]">
-                  <span className="text-[#8e9da7] text-[10px] block">Zagregowany dług netto:</span>
-                  <span className="text-white font-bold text-sm">
-                    {totalNetDebtMldPln.toFixed(1)} mld PLN
-                  </span>
-                </div>
-                <div className="p-2 rounded bg-rose-950/30 border border-rose-800/40">
-                  <span className="text-rose-300 text-[10px] block">Naruszone kowenanty:</span>
-                  <span className="text-rose-400 font-bold text-sm">
-                    {breachedCovenantsCount} spółki (Azoty, Cargo)
-                  </span>
-                </div>
+              <div className="flex items-center gap-3 px-2 text-xs font-mono">
+                <span className="text-[#8e9da7]">
+                  Dług łączny: <strong className="text-white">{totalNetDebtMldPln.toFixed(1)} mld PLN</strong>
+                </span>
+                <span className="text-rose-400 font-semibold">
+                  Naruszenia: {breachedCovenantsCount}
+                </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {DEBT_STABILITY_RECORDS.map((rec) => {
-                const isBreached = rec.isCovenantBreached;
+            {/* WIDOK 1: ZAGREGOWANY PORTFEL KOWENANTÓW */}
+            {covenantSubTab === "PORTFEL" && (
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-[#0e161c] border border-[rgba(159,186,199,0.14)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <Scale className="w-4 h-4 text-rose-400" />
+                      Komitet stabilności finansowej i kowenantów bankowych SSP
+                    </h3>
+                    <p className="text-xs text-[#8e9da7] mt-0.5">
+                      Nadzór nad zadłużeniem bilansowym, wskaźnikami Dług Netto / EBITDA oraz porozumieniami z konsorcjami banków.
+                    </p>
+                  </div>
 
-                return (
-                  <div
-                    key={rec.id}
-                    className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
-                      isBreached
-                        ? "bg-[#180d11] border-rose-500/40 shadow-sm"
-                        : "bg-[#0d1419] border-[rgba(159,186,199,0.14)]"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-white">{rec.entityName}</span>
-                          <span className="text-[10px] font-mono text-[#8e9da7]">({rec.ticker})</span>
+                  <div className="flex items-center gap-4 shrink-0 font-mono text-xs">
+                    <div className="p-2 rounded bg-[#121c23] border border-[rgba(159,186,199,0.12)]">
+                      <span className="text-[#8e9da7] text-[10px] block">Zagregowany dług netto:</span>
+                      <span className="text-white font-bold text-sm">
+                        {totalNetDebtMldPln.toFixed(1)} mld PLN
+                      </span>
+                    </div>
+                    <div className="p-2 rounded bg-rose-950/30 border border-rose-800/40">
+                      <span className="text-rose-300 text-[10px] block">Naruszone kowenanty:</span>
+                      <span className="text-rose-400 font-bold text-sm">
+                        {breachedCovenantsCount} spółki (Azoty, Cargo)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {DEBT_STABILITY_RECORDS.map((rec) => {
+                    const isBreached = rec.isCovenantBreached;
+
+                    return (
+                      <div
+                        key={rec.id}
+                        className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                          isBreached
+                            ? "bg-[#180d11] border-rose-500/40 shadow-sm"
+                            : "bg-[#0d1419] border-[rgba(159,186,199,0.14)]"
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-bold text-white">{rec.entityName}</span>
+                              <span className="text-[10px] font-mono text-[#8e9da7]">({rec.ticker})</span>
+                            </div>
+                            <span
+                              className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${
+                                isBreached
+                                  ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                                  : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                              }`}
+                            >
+                              {isBreached ? "KOWENANT NARUSZONY" : "STABILNY"}
+                            </span>
+                          </div>
+
+                          {/* Metryki Długu */}
+                          <div className="grid grid-cols-2 gap-2 bg-[#121c23] p-3 rounded-lg border border-[rgba(159,186,199,0.1)] mb-3">
+                            <div>
+                              <span className="text-[10px] text-[#8e9da7] block">Dług netto:</span>
+                              <span className="text-sm font-bold font-mono text-white">
+                                {rec.netDebtMldPln} mld PLN
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-[#8e9da7] block">EBITDA:</span>
+                              <span
+                                className={`text-sm font-bold font-mono ${
+                                  rec.ebitdaMldPln < 0 ? "text-rose-400" : "text-emerald-400"
+                                }`}
+                              >
+                                {rec.ebitdaMldPln} mld PLN
+                              </span>
+                            </div>
+                            <div className="col-span-2 pt-2 border-t border-[rgba(159,186,199,0.1)] flex items-center justify-between">
+                              <span className="text-xs text-[#8e9da7]">Dług / EBITDA:</span>
+                              <span
+                                className={`text-sm font-bold font-mono ${
+                                  isBreached ? "text-rose-400" : "text-cyan-300"
+                                }`}
+                              >
+                                {rec.netDebtToEbitda}x{" "}
+                                <span className="text-[10px] font-normal text-slate-400">
+                                  (limit: {rec.covenantLimit}x)
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Terminy i Banki */}
+                          <div className="space-y-1.5 text-xs text-[#b8c6cf] mb-3">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-[#8e9da7]">Najbliższa zapadalność:</span>
+                              <span className="font-mono text-white">
+                                {rec.nearestMaturityDate} ({rec.nearestMaturityAmountMlnPln} mln PLN)
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-[#8e9da7]">Konsorcjum bankowe:</span>
+                              <span className="font-mono text-slate-300 text-right truncate max-w-[180px]">
+                                {rec.creditorConsortium}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Rekomendacja Stabilizacyjna */}
+                          <p className="text-xs text-[#b8c6cf] leading-relaxed bg-[#0b1014] p-2.5 rounded border border-[rgba(159,186,199,0.08)]">
+                            {rec.stabilizationRecommendation}
+                          </p>
                         </div>
+
+                        <div className="mt-4 pt-3 border-t border-[rgba(159,186,199,0.1)] flex items-center justify-between text-[11px]">
+                          <span className="text-[#8e9da7]">Status porozumienia:</span>
+                          <span className="font-semibold text-white">
+                            {isBreached ? "Wymaga zgody na standstill" : "Obsługa bieżąca"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* WIDOK 2: BEZPOŚREDNI PARSER RAPORTÓW GPW (XBRL / ESPI) */}
+            {covenantSubTab === "PARSER_XBRL" && (
+              <div className="space-y-4">
+                {/* Pasek Kontrolny Parsera */}
+                <div className="p-4 rounded-xl bg-[#0b1218] border border-rose-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-rose-950/20">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
+                        BEZPOŚREDNI SILNIK XBRL / ESPI • GPW & KNF
+                      </span>
+                      <span className="text-xs text-[#8e9da7]">
+                        MSR / MSSF / ESEF Inline XBRL • Dekompozycja bilansowa
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-white mt-1 flex items-center gap-2">
+                      <Code2 className="w-5 h-5 text-rose-400" />
+                      Bezpośredni parser raportów okresowych GPW i audytor kowenantów
+                    </h3>
+                    <p className="text-xs text-[#8e9da7] mt-0.5">
+                      Pobieranie i dekonstrukcja raportów kwartalnych, wyodrębnianie tagów taksonomicznych i natychmiastowa weryfikacja naruszeń umów kredytowych.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomInputOpen(!isCustomInputOpen)}
+                      className="px-3 py-1.5 rounded-lg bg-[#182631] hover:bg-[#203342] text-xs text-white border border-[rgba(159,186,199,0.2)] font-medium transition-all flex items-center gap-1.5"
+                    >
+                      <UploadCloud className="w-4 h-4 text-cyan-400" />
+                      {isCustomInputOpen ? "Zamknij edytor" : "Wklej kod XML / iXBRL"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyXbrlReport}
+                      className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/50 text-xs text-rose-300 border border-rose-700/50 font-medium transition-all flex items-center gap-1.5"
+                    >
+                      {copiedXbrlReport ? (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-400" />
+                          Skopiowano audyt
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          Kopiuj brief dla Ministra
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Edytor Wklejania Własnego Kodu XML / iXBRL */}
+                {isCustomInputOpen && (
+                  <div className="p-4 rounded-xl bg-[#0e161c] border border-cyan-500/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white flex items-center gap-2">
+                        <FileCode className="w-4 h-4 text-cyan-400" />
+                        Wklej treść raportu okresowego w standardzie ESEF iXBRL (XHTML) lub KNF ESPI XML:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomInputOpen(false)}
+                        className="text-[#8e9da7] hover:text-white"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <textarea
+                      value={customXmlInput}
+                      onChange={(e) => setCustomXmlInput(e.target.value)}
+                      placeholder='Wklej kod XML lub XHTML raportu okresowego (np. zawierający znaczniki <ix:nonFraction name="ifrs-full:Revenue" scale="6">... lub <RaportOkresowy><PozycjeFinansowe>...)'
+                      className="w-full h-40 p-3 bg-[#080d11] border border-[rgba(159,186,199,0.2)] rounded-lg text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500"
+                    />
+
+                    {parseError && (
+                      <p className="text-xs text-rose-400 font-mono flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        {parseError}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-[#8e9da7]">
+                        Wspierane taksonomie: IFRS 2021/2023/2024, ESEF iXBRL, KNF ESPI XML (tys. / mln PLN).
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomXmlInput("");
+                            setParsedCustomReport(null);
+                            setParseError(null);
+                          }}
+                          className="px-3 py-1.5 rounded bg-[#152028] text-xs text-[#8e9da7] hover:text-white"
+                        >
+                          Wyczyść
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleParseCustomXml}
+                          className="px-4 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          Parsuj raport w czasie rzeczywistym
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Szybki Selektor Oficjalnych Raportów GPW SSP */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs text-[#8e9da7] px-1">
+                    <span>Wybierz zindeksowany raport okresowy GPW ze Skarbu Państwa:</span>
+                    {parsedCustomReport && (
+                      <span className="text-cyan-400 font-semibold font-mono">
+                        (Aktywny raport z niestandardowego pliku XML)
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                    {OFFICIAL_GPW_PERIODIC_REPORTS.map((rep) => {
+                      const isSelected = !parsedCustomReport && rep.id === selectedXbrlReportId;
+                      const isBreached = rep.covenant.isBreached;
+
+                      return (
+                        <button
+                          key={rep.id}
+                          type="button"
+                          onClick={() => {
+                            setParsedCustomReport(null);
+                            setSelectedXbrlReportId(rep.id);
+                          }}
+                          className={`px-3 py-2 rounded-xl text-left border transition-all shrink-0 font-mono text-xs ${
+                            isSelected
+                              ? "bg-[#182631] border-cyan-400 text-white shadow-md shadow-cyan-950/40"
+                              : "bg-[#0d1419] border-[rgba(159,186,199,0.12)] text-[#8e9da7] hover:text-white hover:bg-[#121c23]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className="font-bold text-white">{rep.ticker}</span>
+                            <span
+                              className={`text-[9px] px-1.5 py-0.2 rounded uppercase font-bold ${
+                                isBreached
+                                  ? "bg-rose-500/20 text-rose-300"
+                                  : "bg-emerald-500/20 text-emerald-300"
+                              }`}
+                            >
+                              {isBreached ? "Naruszenie" : "Stabilny"}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-[#8e9da7] truncate max-w-[150px]">
+                            {rep.entityName}
+                          </div>
+                          <div className="text-[9px] text-slate-400 mt-0.5">
+                            {rep.reportNumber} • {rep.periodEnded}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* KARTA WYNIKOWA: ZDEKOMPONOWANY RAPORT XBRL/ESPI */}
+                <div className="p-5 rounded-xl bg-[#0d1419] border border-[rgba(159,186,199,0.18)] space-y-5 shadow-xl">
+                  {/* Nagłówek raportu i wskaźnik główny */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[rgba(159,186,199,0.12)]">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-700/40">
+                          {activeXbrlReport.ticker}
+                        </span>
+                        <span className="text-xs text-white font-bold">
+                          {activeXbrlReport.entityName}
+                        </span>
+                        {activeXbrlReport.nip && (
+                          <span className="text-[11px] font-mono text-[#8e9da7]">
+                            NIP: {activeXbrlReport.nip}
+                          </span>
+                        )}
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#16222c] text-[#8e9da7] border border-[rgba(159,186,199,0.1)]">
+                          Standard: {activeXbrlReport.reportStandard}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-semibold text-white">
+                        Raport okresowy {activeXbrlReport.reportNumber} (za okres kończący się {activeXbrlReport.periodEnded})
+                      </h4>
+                      <p className="text-xs text-[#8e9da7]">
+                        Opublikowano w systemie ESPI: {activeXbrlReport.publishedAt} • Waluta sprawozdania: {activeXbrlReport.currency}
+                      </p>
+                    </div>
+
+                    {/* Główny Callout Wskaźnika Kowenantowego */}
+                    <div className="flex items-center gap-4 bg-[#121c23] p-3 rounded-xl border border-[rgba(159,186,199,0.14)] shrink-0">
+                      <div>
+                        <span className="text-[10px] font-mono text-[#8e9da7] block uppercase tracking-wider">
+                          Dług Netto / EBITDA:
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span
+                            className={`text-2xl font-bold font-mono ${
+                              activeXbrlReport.covenant.isBreached
+                                ? "text-rose-400"
+                                : "text-emerald-400"
+                            }`}
+                          >
+                            {activeXbrlReport.covenant.netDebtToEbitda !== null
+                              ? `${activeXbrlReport.covenant.netDebtToEbitda}x`
+                              : "NIEWYZNACZALNY"}
+                          </span>
+                          <span className="text-xs font-mono text-slate-400">
+                            (limit umowny: {activeXbrlReport.covenant.covenantLimit}x)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
                         <span
-                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${
-                            isBreached
+                          className={`text-xs font-mono font-bold px-2.5 py-1 rounded border uppercase ${
+                            activeXbrlReport.covenant.isBreached
                               ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
                               : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                           }`}
                         >
-                          {isBreached ? "KOWENANT NARUSZONY" : "STABILNY"}
+                          {activeXbrlReport.covenant.status}
                         </span>
+                        {activeXbrlReport.covenant.waiverRequired && (
+                          <span className="text-[10px] font-mono text-amber-300 font-semibold flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3 text-amber-400" />
+                            Wymóg waiver / standstill
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Siatka 3 Kolumn Dekompozycji Finansowej */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Kolumna 1: Rachunek Zysków i Strat (RZiS) */}
+                    <div className="p-3.5 rounded-xl bg-[#090e13] border border-[rgba(159,186,199,0.1)] space-y-2.5">
+                      <div className="flex items-center justify-between pb-2 border-b border-[rgba(159,186,199,0.1)]">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                          <Coins className="w-3.5 h-3.5 text-cyan-400" />
+                          Rachunek Wyników (MSR)
+                        </span>
+                        <span className="text-[10px] font-mono text-[#8e9da7]">mln PLN</span>
                       </div>
 
-                      {/* Metryki Długu */}
-                      <div className="grid grid-cols-2 gap-2 bg-[#121c23] p-3 rounded-lg border border-[rgba(159,186,199,0.1)] mb-3">
-                        <div>
-                          <span className="text-[10px] text-[#8e9da7] block">Dług netto:</span>
-                          <span className="text-sm font-bold font-mono text-white">
-                            {rec.netDebtMldPln} mld PLN
+                      <div className="space-y-1.5 text-xs font-mono">
+                        <div className="flex items-center justify-between text-[#b8c6cf]">
+                          <span>Przychody ze sprzedaży:</span>
+                          <span className="font-bold text-white">
+                            {activeXbrlReport.revenueMlnPln.toLocaleString("pl-PL")}
                           </span>
                         </div>
-                        <div>
-                          <span className="text-[10px] text-[#8e9da7] block">EBITDA:</span>
+                        <div className="flex items-center justify-between text-[#b8c6cf]">
+                          <span>Zysk operacyjny (EBIT):</span>
                           <span
-                            className={`text-sm font-bold font-mono ${
-                              rec.ebitdaMldPln < 0 ? "text-rose-400" : "text-emerald-400"
-                            }`}
+                            className={
+                              activeXbrlReport.operatingProfitEbitMlnPln < 0
+                                ? "text-rose-400 font-bold"
+                                : "text-emerald-400 font-bold"
+                            }
                           >
-                            {rec.ebitdaMldPln} mld PLN
+                            {activeXbrlReport.operatingProfitEbitMlnPln.toLocaleString("pl-PL")}
                           </span>
                         </div>
-                        <div className="col-span-2 pt-2 border-t border-[rgba(159,186,199,0.1)] flex items-center justify-between">
-                          <span className="text-xs text-[#8e9da7]">Dług / EBITDA:</span>
+                        <div className="flex items-center justify-between text-[#b8c6cf]">
+                          <span>Amortyzacja (D&A):</span>
+                          <span className="text-white">
+                            {activeXbrlReport.depreciationMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-cyan-300 pt-1 border-t border-[rgba(159,186,199,0.08)]">
+                          <span className="font-bold">Skalkulowana EBITDA:</span>
                           <span
-                            className={`text-sm font-bold font-mono ${
-                              isBreached ? "text-rose-400" : "text-cyan-300"
+                            className={`font-bold ${
+                              activeXbrlReport.calculatedEbitdaMlnPln < 0
+                                ? "text-rose-400"
+                                : "text-cyan-300"
                             }`}
                           >
-                            {rec.netDebtToEbitda}x{" "}
+                            {activeXbrlReport.calculatedEbitdaMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[#8e9da7]">
+                          <span>Zysk / strata netto:</span>
+                          <span
+                            className={
+                              activeXbrlReport.netProfitLossMlnPln < 0
+                                ? "text-rose-400"
+                                : "text-slate-300"
+                            }
+                          >
+                            {activeXbrlReport.netProfitLossMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[#8e9da7]">
+                          <span>Koszty finansowe (odsetki):</span>
+                          <span className="text-slate-300">
+                            {activeXbrlReport.financeCostsMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Kolumna 2: Bilans i Dług Netto */}
+                    <div className="p-3.5 rounded-xl bg-[#090e13] border border-[rgba(159,186,199,0.1)] space-y-2.5">
+                      <div className="flex items-center justify-between pb-2 border-b border-[rgba(159,186,199,0.1)]">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-rose-400" />
+                          Zadłużenie i Płynność (Bilans)
+                        </span>
+                        <span className="text-[10px] font-mono text-[#8e9da7]">mln PLN</span>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs font-mono">
+                        <div className="flex items-center justify-between text-[#b8c6cf]">
+                          <span>Kredyty długoterminowe:</span>
+                          <span className="text-white">
+                            {activeXbrlReport.longTermBorrowingsMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[#b8c6cf]">
+                          <span>Kredyty krótkoterminowe:</span>
+                          <span className="text-white">
+                            {activeXbrlReport.shortTermBorrowingsMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-slate-300 pt-1 border-t border-[rgba(159,186,199,0.08)]">
+                          <span>Dług brutto razem:</span>
+                          <span className="font-bold text-white">
+                            {activeXbrlReport.totalGrossDebtMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-emerald-400">
+                          <span>Środki pieniężne (gotówka):</span>
+                          <span className="font-bold">
+                            {activeXbrlReport.cashAndEquivalentsMlnPln.toLocaleString("pl-PL")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-rose-300 pt-1 border-t border-[rgba(159,186,199,0.08)]">
+                          <span className="font-bold">Dług netto:</span>
+                          <span className="font-bold">
+                            {activeXbrlReport.netDebtMlnPln.toLocaleString("pl-PL")}{" "}
                             <span className="text-[10px] font-normal text-slate-400">
-                              (limit: {rec.covenantLimit}x)
+                              ({activeXbrlReport.covenant.netDebtMldPln} mld PLN)
                             </span>
                           </span>
                         </div>
-                      </div>
-
-                      {/* Terminy i Banki */}
-                      <div className="space-y-1.5 text-xs text-[#b8c6cf] mb-3">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-[#8e9da7]">Najbliższa zapadalność:</span>
-                          <span className="font-mono text-white">
-                            {rec.nearestMaturityDate} ({rec.nearestMaturityAmountMlnPln} mln PLN)
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-[#8e9da7]">Konsorcjum bankowe:</span>
-                          <span className="font-mono text-slate-300 text-right truncate max-w-[180px]">
-                            {rec.creditorConsortium}
+                        <div className="flex items-center justify-between text-[#8e9da7]">
+                          <span>Kapitał własny:</span>
+                          <span className="text-slate-300">
+                            {activeXbrlReport.totalEquityMlnPln.toLocaleString("pl-PL")}
                           </span>
                         </div>
                       </div>
-
-                      {/* Rekomendacja Stabilizacyjna */}
-                      <p className="text-xs text-[#b8c6cf] leading-relaxed bg-[#0b1014] p-2.5 rounded border border-[rgba(159,186,199,0.08)]">
-                        {rec.stabilizationRecommendation}
-                      </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[rgba(159,186,199,0.1)] flex items-center justify-between text-[11px]">
-                      <span className="text-[#8e9da7]">Status porozumienia:</span>
-                      <span className="font-semibold text-white">
-                        {isBreached ? "Wymaga zgody na standstill" : "Obsługa bieżąca"}
-                      </span>
+                    {/* Kolumna 3: Dyspozycja i Ryzyko dla Ministra Aktywów Państwowych */}
+                    <div className="p-3.5 rounded-xl bg-[#090e13] border border-[rgba(159,186,199,0.1)] space-y-2.5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between pb-2 border-b border-[rgba(159,186,199,0.1)]">
+                          <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <Scale className="w-3.5 h-3.5 text-amber-400" />
+                            Karta Dyspozycji Ministra
+                          </span>
+                          <span
+                            className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                              activeXbrlReport.covenant.isBreached
+                                ? "bg-rose-500/20 text-rose-300"
+                                : "bg-emerald-500/20 text-emerald-300"
+                            }`}
+                          >
+                            {activeXbrlReport.covenant.isBreached ? "Pilna akcja" : "Nadzór rutynowy"}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-[#b8c6cf] leading-relaxed mt-2.5 bg-[#0e161c] p-3 rounded-lg border border-[rgba(159,186,199,0.08)]">
+                          {activeXbrlReport.covenant.ministerialRecommendation}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5 pt-2 border-t border-[rgba(159,186,199,0.1)] text-xs font-mono">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#8e9da7]">Ryzyko MAR / KNF:</span>
+                          <span
+                            className={
+                              activeXbrlReport.covenant.marRiskFlag
+                                ? "text-rose-400 font-bold"
+                                : "text-emerald-400 font-bold"
+                            }
+                          >
+                            {activeXbrlReport.covenant.marRiskFlag
+                              ? "TAK (ryzyko sankcji)"
+                              : "BRAK (zgodność)"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#8e9da7]">Pokrycie odsetek (ICR):</span>
+                          <span className="text-white">
+                            {activeXbrlReport.covenant.interestCoverageRatio !== null
+                              ? `${activeXbrlReport.covenant.interestCoverageRatio}x`
+                              : "N/A"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Rozwijany Rejestr Tagi Taksonomii (100% Audytowalności) */}
+                  <div className="pt-2 border-t border-[rgba(159,186,199,0.1)]">
+                    <button
+                      type="button"
+                      onClick={() => setShowTagsDetails(!showTagsDetails)}
+                      className="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1.5 transition-colors"
+                    >
+                      {showTagsDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      {showTagsDetails
+                        ? "Ukryj wyekstrahowane znaczniki XBRL taksonomii"
+                        : `Pokaż wyekstrahowane znaczniki XBRL taksonomii (${activeXbrlReport.tagsProvenance.length} pozycji)`}
+                    </button>
+
+                    {showTagsDetails && (
+                      <div className="mt-3 overflow-x-auto rounded-lg border border-[rgba(159,186,199,0.12)]">
+                        <table className="w-full text-left text-xs font-mono">
+                          <thead className="bg-[#121c23] text-[#8e9da7] border-b border-[rgba(159,186,199,0.1)]">
+                            <tr>
+                              <th className="p-2.5">Oryginalny Tag Taksonomii</th>
+                              <th className="p-2.5">Pozycja Sprawozdania</th>
+                              <th className="p-2.5">Wartość Surowa</th>
+                              <th className="p-2.5">Znormalizowana (mln PLN)</th>
+                              <th className="p-2.5">Taksonomia</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[rgba(159,186,199,0.08)] bg-[#090f14]">
+                            {activeXbrlReport.tagsProvenance.map((item, idx) => (
+                              <tr key={idx} className="hover:bg-[#121c23]/60 transition-colors">
+                                <td className="p-2.5 text-cyan-300 font-semibold">{item.tag}</td>
+                                <td className="p-2.5 text-white">{item.label}</td>
+                                <td className="p-2.5 text-slate-400">{item.rawValue}</td>
+                                <td className="p-2.5 text-emerald-400 font-bold">
+                                  {item.normalizedValueMlnPln.toLocaleString("pl-PL")}
+                                </td>
+                                <td className="p-2.5 text-[#8e9da7] uppercase">{item.taxonomy}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

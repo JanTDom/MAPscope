@@ -714,6 +714,75 @@ export interface MorningCabinetBriefing {
   transcriptText: string;
 }
 
+export type ReportStandard = "ESEF_IXBRL" | "KNF_ESPI_XML" | "XBRL_2_1";
+
+export type CovenantStatus =
+  | "BEZPIECZNY"
+  | "OSTRZEGAWCZY"
+  | "KOWENANT_NARUSZONY"
+  | "KRYTYCZNY";
+
+export interface EspiXbrlLineItem {
+  tag: string;
+  label: string;
+  rawValue: string;
+  normalizedValueMlnPln: number;
+  period: string;
+  unit: string;
+  taxonomy: string;
+}
+
+export interface CovenantEvaluation {
+  netDebtMldPln: number;
+  ebitdaMldPln: number;
+  netDebtToEbitda: number | null;
+  covenantLimit: number;
+  status: CovenantStatus;
+  isBreached: boolean;
+  interestCoverageRatio: number | null;
+  waiverRequired: boolean;
+  marRiskFlag: boolean;
+  ministerialRecommendation: string;
+}
+
+export interface EspiXbrlPeriodicReport {
+  id: string;
+  reportNumber: string;
+  entityName: string;
+  ticker: string;
+  nip?: string;
+  krs?: string;
+  periodEnded: string;
+  publishedAt: string;
+  reportStandard: ReportStandard;
+  currency: string;
+
+  // Pozycje rachunku zysków i strat (mln PLN)
+  revenueMlnPln: number;
+  operatingProfitEbitMlnPln: number;
+  depreciationMlnPln: number;
+  calculatedEbitdaMlnPln: number;
+  netProfitLossMlnPln: number;
+  financeCostsMlnPln: number;
+
+  // Pozycje bilansowe (mln PLN)
+  longTermBorrowingsMlnPln: number;
+  shortTermBorrowingsMlnPln: number;
+  totalGrossDebtMlnPln: number;
+  cashAndEquivalentsMlnPln: number;
+  netDebtMlnPln: number;
+  totalEquityMlnPln: number;
+  totalAssetsMlnPln: number;
+
+  // Ocena kowenantowa
+  covenant: CovenantEvaluation;
+
+  // Identyfikowalność tagów taksonomii
+  tagsProvenance: EspiXbrlLineItem[];
+  rawXmlSnippet?: string;
+}
+
+
 
 
 
