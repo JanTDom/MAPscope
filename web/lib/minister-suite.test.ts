@@ -656,6 +656,90 @@ test("MAPscope Ministerialny Test 16: Paszport Źródła KRS, weryfikacja organ�
   assert.strictEqual(totCeo?.name, "Mariusz Błaszkiewicz");
 });
 
+test("MAPscope Ministerialny Test 17: Nocny Synchronizator KRS / CRBR (API Ministerstwa Sprawiedliwości)", async () => {
+  const {
+    getNightlySyncStatus,
+    runNightlyKrsSync,
+    parseKrsStructuralXml,
+    parseKrsStructuralJson,
+    KRS_API_BASE_URL,
+    CRBR_API_BASE_URL,
+  } = await import("./krs-sync-service.ts");
+
+  // 1. Sprawdzenie statusu technicznego synchronizatora
+  const status = getNightlySyncStatus();
+  assert.strictEqual(status.totalMonitoredEntities, 406);
+  assert.strictEqual(status.scheduleCron, "0 2 * * *");
+  assert.strictEqual(status.krsApiUrl, KRS_API_BASE_URL);
+  assert.strictEqual(status.crbrApiUrl, CRBR_API_BASE_URL);
+  assert.strictEqual(status.apiHealth, "operational");
+  assert.ok(status.lastRunReport.krsApiConnected);
+  assert.ok(status.lastRunReport.crbrApiConnected);
+
+  // 2. Parsowanie odpisu strukturalnego XML z Centralnej Informacji KRS
+  const testXml = `<?xml version="1.0" encoding="UTF-8"?>
+    <OdpisAktualny>
+      <NumerKRS>0000028860</NumerKRS>
+      <Reprezentacja>
+        <Osoba>
+          <Imiona>IRENEUSZ</Imiona>
+          <Nazwisko>FĄFARA</Nazwisko>
+          <Funkcja>PREZES ZARZĄDU</Funkcja>
+        </Osoba>
+      </Reprezentacja>
+      <OrganNadzoru>
+        <Osoba>
+          <Imiona>WOJCIECH</Imiona>
+          <Nazwisko>POPIOŁEK</Nazwisko>
+          <Funkcja>PRZEWODNICZĄCY RADY NADZORCZEJ</Funkcja>
+        </Osoba>
+      </OrganNadzoru>
+    </OdpisAktualny>`;
+
+  const parsedXml = parseKrsStructuralXml(testXml);
+  assert.strictEqual(parsedXml.krs, "0000028860");
+  assert.strictEqual(parsedXml.managementBoard.length, 1);
+  assert.strictEqual(parsedXml.managementBoard[0].name, "IRENEUSZ FĄFARA");
+  assert.strictEqual(parsedXml.supervisoryBoard.length, 1);
+  assert.strictEqual(parsedXml.supervisoryBoard[0].name, "WOJCIECH POPIOŁEK");
+
+  // 3. Parsowanie odpisu strukturalnego JSON z api-krs.ms.gov.pl
+  const testJson = {
+    odpis: {
+      naglowekA: { numerKRS: "0000023302" },
+      dane: {
+        dzial2: {
+          reprezentacja: {
+            sklad: [
+              {
+                identyfikator: { imiona: "ANDRZEJ", nazwisko: "SZYDŁO" },
+                funkcjaWOrganie: "PREZES ZARZĄDU",
+              },
+            ],
+          },
+        },
+      },
+    },
+  };
+
+  const parsedJson = parseKrsStructuralJson(testJson);
+  assert.strictEqual(parsedJson.krs, "0000023302");
+  assert.strictEqual(parsedJson.managementBoard.length, 1);
+  assert.strictEqual(parsedJson.managementBoard[0].name, "ANDRZEJ SZYDŁO");
+
+  // 4. Uruchomienie synchronizacji nocnej ad-hoc
+  const syncReport = await runNightlyKrsSync({
+    dryRun: true,
+    targetEntityIds: ["e-orlen", "e-kghm", "e-pge"],
+  });
+
+  assert.ok(syncReport.runId.startsWith("krs-sync-manual-"));
+  assert.strictEqual(syncReport.entitiesScannedCount, 3);
+  assert.strictEqual(syncReport.errorsCount, 0);
+  assert.strictEqual(syncReport.krsApiConnected, true);
+  assert.strictEqual(syncReport.crbrApiConnected, true);
+});
+
 
 
 

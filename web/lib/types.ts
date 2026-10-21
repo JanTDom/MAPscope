@@ -1021,6 +1021,51 @@ export interface MapZoneSummaryRecord {
   averageSpokespersonResponseTimeHours: number;
 }
 
+export interface NightlySyncEvent {
+  id: string;
+  timestamp: string;
+  eventType:
+    | "member_appointed"
+    | "member_dismissed"
+    | "liquidation_opened"
+    | "crbr_beneficiary_updated"
+    | "verified_unchanged";
+  entityId: string;
+  entityName: string;
+  personName: string;
+  role: string;
+  source: string;
+  details?: Record<string, unknown>;
+}
+
+export interface NightlyKrsSyncReport {
+  runId: string;
+  startedAt: string;
+  finishedAt: string;
+  durationSeconds: number;
+  entitiesScannedCount: number;
+  entitiesUpdatedCount: number;
+  errorsCount: number;
+  eventsCount: number;
+  events: NightlySyncEvent[];
+  krsApiConnected: boolean;
+  crbrApiConnected: boolean;
+  nextScheduledRun: string;
+}
+
+export interface NightlySyncStatus {
+  lastSyncAt: string;
+  scheduleCron: string;
+  scheduleHuman: string;
+  totalMonitoredEntities: number;
+  syncedEntitiesCount: number;
+  pendingSyncCount: number;
+  krsApiUrl: string;
+  crbrApiUrl: string;
+  apiHealth: "operational" | "degraded" | "maintenance";
+  lastRunReport: NightlyKrsSyncReport;
+}
+
 
 
 
