@@ -578,6 +578,84 @@ test("MAPscope Ministerialny Test 15: Strefa MAP (Kierownictwo, Komunikacja i Kr
   assert.ok(summary.activePressInquiriesCount >= 2);
 });
 
+test("MAPscope Ministerialny Test 16: Paszport Źródła KRS, weryfikacja organów i autentyczne zarządy spółek strategicznych", () => {
+  // 1. Sprawdzenie, że wszystkie 406 podmiotów posiada metadane weryfikacji z eKRS
+  assert.strictEqual(ALL_ENTITIES_REGISTRY.length, 406);
+  for (const entity of ALL_ENTITIES_REGISTRY) {
+    assert.ok(entity.krs_registry_url, `Podmiot ${entity.id} musi posiadać link do rejestru eKRS`);
+    assert.strictEqual(entity.krs_verification_date, "2026-10-21");
+    assert.ok(entity.krs_verification_source, `Podmiot ${entity.id} musi posiadać źródło weryfikacji`);
+    assert.ok(
+      ["verified_krs", "verified_espi"].includes(entity.krs_verification_status || ""),
+      `Podmiot ${entity.id} musi posiadać status zweryfikowany`
+    );
+    if (entity.dossier) {
+      assert.strictEqual(entity.dossier.krs_verification_date, "2026-10-21");
+      assert.ok(entity.dossier.krs_verification_source);
+      // Każdy członek zarządu musi mieć poświadczenie źródła
+      for (const member of entity.dossier.managementBoard) {
+        assert.ok(member.sourceReference, `Członek zarządu ${member.name} musi mieć wskazane źródło`);
+        assert.strictEqual(member.verifiedAt, "2026-10-21");
+      }
+    }
+  }
+
+  // 2. ORLEN S.A. - Prezes Ireneusz Fąfara i zarząd powołany w 2024 r.
+  const orlen = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-orlen" || e.stock_ticker === "PKN");
+  assert.ok(orlen, "ORLEN S.A. musi istnieć w rejestrze");
+  const orlenCeo = orlen?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.ok(orlenCeo, "ORLEN musi mieć Prezesa Zarządu");
+  assert.strictEqual(orlenCeo?.name, "Ireneusz Fąfara");
+  assert.strictEqual(orlenCeo?.appointedAt, "2024-04-11");
+  assert.ok(orlenCeo?.sourceReference?.includes("ESPI 19/2024"));
+  assert.ok(orlen?.dossier?.managementBoard.some((m) => m.name === "Witold Literacki"));
+  assert.ok(orlen?.dossier?.managementBoard.some((m) => m.name === "Magdalena Bartoś"));
+
+  // 3. KGHM Polska Miedź S.A. - Prezes Andrzej Szydło
+  const kghm = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-kghm" || e.stock_ticker === "KGH");
+  assert.ok(kghm, "KGHM musi istnieć w rejestrze");
+  const kghmCeo = kghm?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(kghmCeo?.name, "Andrzej Szydło");
+  assert.strictEqual(kghmCeo?.appointedAt, "2024-03-06");
+
+  // 4. PGE Polska Grupa Energetyczna S.A. - Prezes Dariusz Marzec
+  const pge = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-pge" || e.stock_ticker === "PGE");
+  assert.ok(pge, "PGE musi istnieć w rejestrze");
+  const pgeCeo = pge?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(pgeCeo?.name, "Dariusz Marzec");
+  assert.strictEqual(pgeCeo?.appointedAt, "2024-03-18");
+
+  // 5. Grupa Azoty S.A. - Prezes Adam Leszkiewicz
+  const azoty = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-azoty" || e.stock_ticker === "ATT");
+  assert.ok(azoty, "Grupa Azoty musi istnieć w rejestrze");
+  const azotyCeo = azoty?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(azotyCeo?.name, "Adam Leszkiewicz");
+
+  // 6. Poczta Polska S.A. - Prezes Sebastian Mikosz
+  const poczta = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-poczta" || e.name.toLowerCase().includes("poczta polska"));
+  assert.ok(poczta, "Poczta Polska musi istnieć w rejestrze");
+  const pocztaCeo = poczta?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(pocztaCeo?.name, "Sebastian Mikosz");
+
+  // 7. Polskie Koleje Państwowe S.A. (Grupa PKP) - Prezes Alan Beroud
+  const pkp = ALL_ENTITIES_REGISTRY.find((e) => e.name.toLowerCase().startsWith("polskie koleje państwowe s.a"));
+  assert.ok(pkp, "PKP S.A. musi istnieć w rejestrze");
+  const pkpCeo = pkp?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(pkpCeo?.name, "Alan Beroud");
+
+  // 8. Polska Grupa Zbrojeniowa S.A. (PGZ) - Prezes Krzysztof Trofiniak
+  const pgz = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-pgz" || e.name.toLowerCase().includes("zbrojeniowa"));
+  assert.ok(pgz, "PGZ S.A. musi istnieć w rejestrze");
+  const pgzCeo = pgz?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(pgzCeo?.name, "Krzysztof Trofiniak");
+
+  // 9. Totalizator Sportowy - Mariusz Błaszkiewicz
+  const totalizator = ALL_ENTITIES_REGISTRY.find((e) => e.id === "e-totalizator" || e.name.toLowerCase().includes("totalizator sportowy"));
+  assert.ok(totalizator, "Totalizator Sportowy musi istnieć w rejestrze");
+  const totCeo = totalizator?.dossier?.managementBoard.find((m) => m.role.includes("Prezes"));
+  assert.strictEqual(totCeo?.name, "Mariusz Błaszkiewicz");
+});
+
 
 
 

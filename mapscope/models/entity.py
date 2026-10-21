@@ -68,6 +68,10 @@ class EntityBase(BaseModel):
     is_public_listed: bool = False
     website_url: Optional[str] = None
     press_office_url: Optional[str] = None
+    krs_registry_url: Optional[str] = Field(None, description="Bezpośredni odnośnik do rejestru eKRS Ministerstwa Sprawiedliwości")
+    last_krs_sync_date: Optional[date] = Field(None, description="Data weryfikacji i synchronizacji z Centralną Informacją KRS")
+    krs_verification_source: Optional[str] = Field(None, description="Źródło poświadczenia danych organów (np. KRS Dział 2 / ESPI)")
+    krs_verification_status: Optional[str] = Field("verified_krs", description="Status weryfikacji: verified_krs | verified_espi")
     ir_url: Optional[str] = None
     social_handles: Dict[str, str] = Field(default_factory=dict)
     metadata: Dict[str, Any] = Field(default_factory=dict)

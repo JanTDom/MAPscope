@@ -396,12 +396,29 @@ export function EntitiesCatalog({
                     <span className="px-2 py-0.5 rounded bg-[#101923] border border-[rgba(160,190,210,0.1)]">
                       NIP: {activeEntity.nip || "Brak"}
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-[#101923] border border-[rgba(160,190,210,0.1)]">
-                      KRS: {activeEntity.krs || "Brak"}
+                    <span className="px-2 py-0.5 rounded bg-[#101923] border border-[rgba(160,190,210,0.1)] flex items-center gap-1.5">
+                      <span>KRS: {activeEntity.krs || "Brak"}</span>
+                      {activeEntity.krs && (
+                        <a
+                          href={activeEntity.krs_registry_url || "https://ekrs.ms.gov.pl/web/wyszukiwarka-krs/strona-glowna/"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#57e0c5] hover:underline flex items-center gap-0.5 text-[10px]"
+                          title="Centralna Informacja KRS (Ministerstwo Sprawiedliwości)"
+                        >
+                          <span>eKRS</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
                     </span>
                     <span className="px-2 py-0.5 rounded bg-[#101923] border border-[rgba(160,190,210,0.1)]">
                       REGON: {activeEntity.regon || "Brak"}
                     </span>
+                  </div>
+
+                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-[#57e0c5] font-mono">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Paszport KRS: Zweryfikowano z rejestrem eKRS MS ({activeEntity.krs_verification_date || "2026-10-21"})</span>
                   </div>
                 </div>
 

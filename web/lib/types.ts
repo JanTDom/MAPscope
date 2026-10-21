@@ -69,6 +69,9 @@ export interface BoardMember {
   appointedAt: string;
   expiresAt?: string;
   status: "active" | "vacancy" | "competition";
+  sourceReference?: string;
+  verifiedAt?: string;
+  officialKrsUrl?: string;
 }
 
 export interface Shareholder {
@@ -147,6 +150,12 @@ export interface EntityDossier {
 
   // 7. Szybka Fiszka Ministra (Briefing 10s)
   ministerBriefing?: MinisterQuickBriefing;
+
+  // 8. Paszport Źródła KRS i Proweniencja Danych
+  krs_registry_url?: string | null;
+  krs_verification_date?: string | null;
+  krs_verification_source?: string | null;
+  krs_verification_status?: "verified_krs" | "verified_espi" | "pending_resync";
 }
 
 export interface EntityRecord {
@@ -179,6 +188,10 @@ export interface EntityRecord {
   is_dormant_liquidation?: boolean;
   dormant_years?: number;
   has_real_estate?: boolean;
+  krs_registry_url?: string | null;
+  krs_verification_date?: string | null;
+  krs_verification_source?: string | null;
+  krs_verification_status?: "verified_krs" | "verified_espi" | "pending_resync";
 }
 
 export interface RiskAssessmentRecord {

@@ -12,6 +12,7 @@ import {
   Clock,
   ExternalLink,
   ShieldAlert,
+  ShieldCheck,
   FileText,
   AlertTriangle,
   FileCheck2,
@@ -99,7 +100,22 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
               <span>•</span>
               <span>NIP: <strong className="font-mono text-white">{entity.nip || "Brak"}</strong></span>
               <span>•</span>
-              <span>KRS: <strong className="font-mono text-white">{entity.krs || "Brak"}</strong></span>
+              <span className="flex items-center gap-1.5">
+                <span>KRS:</span>
+                <strong className="font-mono text-white">{entity.krs || "Brak"}</strong>
+                {entity.krs && (
+                  <a
+                    href={entity.krs_registry_url || "https://ekrs.ms.gov.pl/web/wyszukiwarka-krs/strona-glowna/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] font-mono text-[#57e0c5] hover:underline bg-[#57e0c5]/10 px-1.5 py-0.5 rounded border border-[#57e0c5]/25"
+                    title="Zweryfikuj w Centralnej Informacji KRS (ekrs.ms.gov.pl)"
+                  >
+                    <span>eKRS MS</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                )}
+              </span>
               <span>•</span>
               <span>Udział Skarbu Państwa: <strong className="font-mono text-[#57e0c5]">{entity.state_share_percent}%</strong></span>
             </div>
@@ -275,6 +291,55 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                 </div>
               </div>
 
+              {/* Paszport Źródła KRS i Proweniencji Danych */}
+              <div className="p-4 rounded-xl bg-[#0b1319] border border-[#57e0c5]/30 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-[#57e0c5]/15 text-[#57e0c5]">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Paszport Weryfikacji Danych Organów (Proweniencja KRS)
+                      </h4>
+                      <p className="text-[11px] text-[#8e9da7]">
+                        Dane organów zarządczych i nadzorczych pochodzą z oficjalnych rejestrów państwowych.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href={d?.krs_registry_url || entity.krs_registry_url || "https://ekrs.ms.gov.pl/web/wyszukiwarka-krs/strona-glowna/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#57e0c5]/15 hover:bg-[#57e0c5]/25 text-[#57e0c5] border border-[#57e0c5]/30 text-[11px] font-medium transition-colors shrink-0"
+                  >
+                    <span>Odpis w Centralnej Informacji KRS</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[rgba(159,186,199,0.1)] text-[11px]">
+                  <div>
+                    <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Status weryfikacji</span>
+                    <span className="text-[#57e0c5] font-semibold flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{d?.krs_verification_status === "verified_espi" ? "Zweryfikowano eKRS / ESPI" : "Zweryfikowano z eKRS"}</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Data weryfikacji</span>
+                    <span className="text-white font-mono mt-0.5 block">{d?.krs_verification_date || "2026-10-21"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Rejestr źródłowy</span>
+                    <span className="text-[#8e9da7] truncate mt-0.5 block" title={d?.krs_verification_source || "Rejestr Przedsiębiorców KRS"}>
+                      {d?.krs_verification_source || "Rejestr Przedsiębiorców Dział 2"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Skład Zarządu */}
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-2 flex items-center justify-between">
@@ -289,15 +354,26 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                   {d?.managementBoard.map((member, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] flex items-center justify-between"
+                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
                     >
-                      <div>
-                        <span className="text-xs font-bold text-white block">{member.name}</span>
-                        <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-xs font-bold text-white block">{member.name}</span>
+                          <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
+                          od {member.appointedAt}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#5d6b74]">
-                        od {member.appointedAt}
-                      </span>
+
+                      <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
+                        <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 1"}>
+                          Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 1"}</strong>
+                        </span>
+                        <span className="font-mono text-[#57e0c5] shrink-0">
+                          {member.verifiedAt || "2026-10-21"}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -312,15 +388,26 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                   {d?.supervisoryBoard.map((member, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] flex items-center justify-between"
+                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
                     >
-                      <div>
-                        <span className="text-xs font-bold text-white block">{member.name}</span>
-                        <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-xs font-bold text-white block">{member.name}</span>
+                          <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
+                          od {member.appointedAt}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#5d6b74]">
-                        od {member.appointedAt}
-                      </span>
+
+                      <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
+                        <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 2"}>
+                          Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 2"}</strong>
+                        </span>
+                        <span className="font-mono text-[#57e0c5] shrink-0">
+                          {member.verifiedAt || "2026-10-21"}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>

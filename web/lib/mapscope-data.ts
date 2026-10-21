@@ -1183,8 +1183,9 @@ export const NIK_INSPECTION_RECOMMENDATIONS: NikInspectionRecommendation[] = [
 ];
 
 import { ALL_ENTITIES_REGISTRY as RAW_ENTITIES_REGISTRY, EXECUTIVE_ANALYTICS } from "./all-ssp-registry.ts";
+import { enrichEntityWithKrsPassport, VERIFIED_STRATEGIC_BOARDS, OFFICIAL_EKRS_BASE_URL } from "./verified-governance-data.ts";
 export type { ExecutiveAnalyticsSummary } from "./all-ssp-registry.ts";
-export { EXECUTIVE_ANALYTICS };
+export { EXECUTIVE_ANALYTICS, VERIFIED_STRATEGIC_BOARDS, OFFICIAL_EKRS_BASE_URL, enrichEntityWithKrsPassport };
 
 // Wzbogacony rejestr 406 spółek z obsługą grup kapitałowych, postępowań uśpionych oraz dossier gabinetowego
 export const ALL_ENTITIES_REGISTRY: EntityRecord[] = RAW_ENTITIES_REGISTRY.map((entity) => {
@@ -1397,7 +1398,7 @@ export const ALL_ENTITIES_REGISTRY: EntityRecord[] = RAW_ENTITIES_REGISTRY.map((
     updated.dossier = d;
   }
 
-  return updated;
+  return enrichEntityWithKrsPassport(updated);
 });
 
 // ==========================================

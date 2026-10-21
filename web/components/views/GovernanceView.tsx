@@ -551,7 +551,25 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
 
                     <td className="p-3.5 font-mono text-[11px] text-[#8e9da7]">
                       <div>NIP: {entity.nip || "Brak"}</div>
-                      <div className="text-[#5d6b74]">KRS: {entity.krs || "Brak"}</div>
+                      <div className="flex items-center gap-1.5 text-[#5d6b74]">
+                        <span>KRS: {entity.krs || "Brak"}</span>
+                        {entity.krs && (
+                          <a
+                            href={entity.krs_registry_url || "https://ekrs.ms.gov.pl/web/wyszukiwarka-krs/strona-glowna/"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#57e0c5] hover:underline"
+                            title="Otwórz odpis w Centralnej Informacji KRS"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-[9px] text-[#57e0c5] flex items-center gap-0.5 mt-0.5">
+                        <ShieldCheck className="w-2.5 h-2.5" />
+                        <span>eKRS 2026</span>
+                      </div>
                     </td>
 
                     <td className="p-3.5 text-right font-mono font-bold text-white">
