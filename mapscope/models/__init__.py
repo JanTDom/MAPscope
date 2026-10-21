@@ -40,6 +40,12 @@ from mapscope.models.espi_xbrl import (
     EspiXbrlPeriodicReportModel,
     ReportStandard,
 )
+from mapscope.models.webhook import (
+    EspiWebhookPayload,
+    WebhookEventType,
+    WebhookProcessingResult,
+    WebhookSource,
+)
 
 __all__ = [
     "EntityStatus",
@@ -77,4 +83,8 @@ __all__ = [
     "EspiXbrlLineItem",
     "CovenantEvaluation",
     "EspiXbrlPeriodicReportModel",
+    "WebhookSource",
+    "WebhookEventType",
+    "EspiWebhookPayload",
+    "WebhookProcessingResult",
 ]

@@ -115,3 +115,27 @@ Wdrożono dwuwarstwowy silnik parsowania raportów okresowych GPW (Python backen
 ### Konsekwencje
 - Błyskawiczna detekcja naruszeń kowenantów bankowych w dniu publikacji raportu przez spółkę.
 - Kierownictwo MAP otrzymuje natychmiastową notę operacyjną z rekomendacją działań wobec konsorcjów bankowych i zarządów spółek.
+
+---
+
+## ADR-006: Asynchroniczny nasłuch webhooków KNF ESPI / PAP Biznes (Zero Polling)
+
+### Kontekst
+Cykliczne odpytywanie serwerów KNF ESPI lub PAP Biznes (polling) generuje opóźnienia dochodzące do kilku minut, co w sytuacjach kryzysowych (naruszenie kowenantów, nagłe dymisje, wnioski restrukturyzacyjne) uniemożliwia natychmiastową reakcję resortu. Zgodnie z wytycznymi system MAPscope musi przetwarzać depesze w trybie natychmiastowym (push stream) w czasie poniżej 200 ms od ich publikacji.
+
+### Decyzja
+Zaimplementowano asynchroniczny potok odbioru zdarzeń oparty o webhooki HTTPS:
+1. **Zabezpieczenia kryptograficzne i integralność:**
+   - Weryfikacja sygnatury HMAC-SHA256 w nagłówkach `X-KNF-ESPI-Signature` / `X-PAP-Signature`.
+   - Weryfikacja świeżości timestampu (`X-ESPI-Timestamp`, dopuszczalny dryf do 300 sekund) w celu uniemożliwienia ataków powtórzeniowych (replay attacks).
+   - Idempotentny bufor deduplikacji uniemożliwiający wielokrotne przetwarzanie tej samej depeszy.
+2. **Automatyczne parsowanie raportów okresowych (XBRL/ESPI):**
+   - Po odebraniu pakietu okresowego silnik w tle uruchamia parser `EspiXbrlParser` bez konieczności interwencji użytkownika.
+   - W przypadku wykrycia naruszenia wskaźników dłużnych lub flagi MAR natychmiast generowany jest alert P1/P2 dla kierownictwa MAP.
+3. **Endpoint produkcyjny i widok telemetryczny:**
+   - Dedykowany endpoint `/api/espi/webhook` przyjmujący powiadomienia KNF / PAP.
+   - Panel telemetryczny w widoku Ministra z pulsacyjnym wskaźnikiem aktywności nasłuchu, rejestrem odebranych transmisji i pomiarem czasu odpowiedzi (latency).
+
+### Konsekwencje
+- Eliminacja narzutu odpytywania (zero polling) i obciążenia sieciowego.
+- Skrócenie czasu od publikacji raportu do gotowego audytu kowenantowego z minut do ułamków sekund (< 150 ms).

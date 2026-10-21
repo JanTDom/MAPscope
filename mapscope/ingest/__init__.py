@@ -5,6 +5,7 @@ from mapscope.ingest.rss import RssParser, RssChannel, RssItem
 from mapscope.ingest.extractor import HtmlArticleExtractor, ExtractedArticleContent
 from mapscope.ingest.osint_search import OsintSearchEngine, SearchResultItem
 from mapscope.ingest.espi_xbrl_parser import EspiXbrlParser
+from mapscope.ingest.espi_webhook_handler import EspiWebhookHandler
 
 __all__ = [
     "ArticleDeduplicator",
@@ -20,4 +21,5 @@ __all__ = [
     "OsintSearchEngine",
     "SearchResultItem",
     "EspiXbrlParser",
+    "EspiWebhookHandler",
 ]

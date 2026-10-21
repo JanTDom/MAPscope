@@ -38,6 +38,12 @@ import {
   parseEspiXbrlContent,
   evaluateCovenant,
 } from "./espi-xbrl-parser.ts";
+import {
+  getWebhookServiceState,
+  processIncomingEspiWebhook,
+} from "./espi-webhook-service.ts";
+import { verifyHmacSignature } from "./espi-webhook-verifier.ts";
+import crypto from "node:crypto";
 
 test("1. Gabinet Ministra: Tarcza Sejmowa zawiera pancerne Q&A, czerwone linie i rozróżnienie genezy", () => {
   assert.ok(TOP_FIRE_ALERTS.length >= 5, "Pożary dnia muszą zawierać co najmniej 5 spraw strategicznych");
@@ -399,6 +405,65 @@ test("12. Bezpośredni Parser Raportów Okresowych GPW w standardzie XBRL / ESPI
   assert.strictEqual(evalBreached.status, "KOWENANT_NARUSZONY");
   assert.strictEqual(evalBreached.waiverRequired, true);
 });
+
+test("13. Asynchroniczny Nasłuch Webhooków KNF ESPI / PAP Biznes (Zero Polling)", () => {
+  // 1. Sprawdzenie stanu usługi webhooka
+  const state = getWebhookServiceState();
+  assert.strictEqual(state.isListening, true, "Nasłuch webhooka musi być aktywny");
+  assert.ok(state.activeSources.includes("KNF_ESPI"), "KNF ESPI musi być aktywnym źródłem");
+  assert.ok(state.activeSources.includes("PAP_BIZNES"), "PAP Biznes musi być aktywnym źródłem");
+  assert.ok(state.recentTransmissions.length >= 3, "Musi zawierać historię odebranych transmisji");
+
+  // 2. Weryfikacja sygnatury kryptograficznej HMAC-SHA256
+  const secret = "test_secret_abc";
+  const body = JSON.stringify({ eventId: "test-123", ticker: "PKN" });
+  const validSig = crypto.createHmac("sha256", secret).update(body).digest("hex");
+
+  assert.strictEqual(verifyHmacSignature(body, validSig, secret), true, "Prawidłowy podpis musi zostać zaakceptowany");
+  assert.strictEqual(verifyHmacSignature(body, "invalid_sig", secret), false, "Sfałszowany podpis musi zostać odrzucony");
+
+  // 3. Przetworzenie przychodzącego webhooka z raportem okresowym (Grupa Azoty)
+  const incomingSample = {
+    eventId: "webhook-live-test-001",
+    source: "KNF_ESPI" as const,
+    eventType: "PERIODIC_REPORT_PUBLISHED" as const,
+    ticker: "ATT",
+    entityName: "Grupa Azoty S.A.",
+    reportNumber: "SA-QSr 3/2025",
+    rawContent: `
+      <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ix="http://www.xbrl.org/2013/inlineXBRL" xmlns:ifrs-full="http://xbrl.ifrs.org/taxonomy/2021-03-24/ifrs-full">
+        <ix:nonNumeric name="ifrs-full:TradingSymbol">ATT</ix:nonNumeric>
+        <ix:nonNumeric name="ifrs-full:DocumentType">SA-QSr 3/2025</ix:nonNumeric>
+        <ix:nonFraction name="ifrs-full:Revenue" scale="6">9850.40</ix:nonFraction>
+        <ix:nonFraction name="ifrs-full:OperatingProfit" scale="6">-1240.20</ix:nonFraction>
+        <ix:nonFraction name="ifrs-full:DepreciationAndAmortisationExpense" scale="6">420.10</ix:nonFraction>
+        <ix:nonFraction name="ifrs-full:NoncurrentBorrowings" scale="6">8120.00</ix:nonFraction>
+        <ix:nonFraction name="ifrs-full:CurrentBorrowings" scale="6">2850.00</ix:nonFraction>
+        <ix:nonFraction name="ifrs-full:CashAndCashEquivalents" scale="6">570.00</ix:nonFraction>
+      </html>
+    `,
+  };
+
+  const processResult = processIncomingEspiWebhook(incomingSample, undefined, false);
+  assert.strictEqual(processResult.status, "COVENANT_ALERT");
+  assert.strictEqual(processResult.covenantBreached, true, "Musi natychmiast wykryć naruszenie kowenantu bez pollingu");
+  assert.strictEqual(processResult.marRiskFlag, true, "Musi oflagować ryzyko MAR");
+  assert.strictEqual(processResult.ministerialAlertRequired, true, "Musi zażądać alertu ministerialnego");
+  assert.ok(processResult.parsedReport, "Musi zwrócić natychmiast sparsowany raport");
+  assert.strictEqual(processResult.parsedReport?.netDebtMlnPln, 10400);
+
+  // 4. Test przetworzenia systemowego sygnału kontrolnego (Heartbeat)
+  const heartbeatResult = processIncomingEspiWebhook({
+    eventId: "hb-999",
+    source: "KNF_ESPI",
+    eventType: "SYSTEM_HEARTBEAT",
+    ticker: "SYSTEM",
+    entityName: "KNF ESPI Gateway",
+    reportNumber: "HEARTBEAT",
+  });
+  assert.strictEqual(heartbeatResult.status, "HEARTBEAT");
+});
+
 
 
 

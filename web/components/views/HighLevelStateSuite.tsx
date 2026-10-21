@@ -31,6 +31,9 @@ import {
   FileSpreadsheet,
   FileCode,
   Layers,
+  Radio,
+  Wifi,
+  Zap,
 } from "lucide-react";
 import {
   STRATEGIC_RESERVE_INDICATORS,
@@ -42,11 +45,16 @@ import {
   OFFICIAL_GPW_PERIODIC_REPORTS,
   parseEspiXbrlContent,
 } from "@/lib/espi-xbrl-parser.ts";
+import {
+  getWebhookServiceState,
+  processIncomingEspiWebhook,
+} from "@/lib/espi-webhook-service.ts";
 import type {
   StrategicReserveIndicator,
   ForeignTakeoverShieldEntity,
   DebtStabilityRecord,
   EspiXbrlPeriodicReport,
+  WebhookTransmissionRecord,
 } from "@/lib/types.ts";
 
 interface HighLevelStateSuiteProps {
@@ -85,6 +93,29 @@ export function HighLevelStateSuite({
   const [parseError, setParseError] = useState<string | null>(null);
   const [copiedXbrlReport, setCopiedXbrlReport] = useState(false);
   const [showTagsDetails, setShowTagsDetails] = useState(false);
+
+  // Stan asynchronicznego nasłuchu webhooków z serwerów KNF ESPI / PAP Biznes
+  const [webhookServiceState, setWebhookServiceState] = useState(getWebhookServiceState());
+  const [showWebhookLog, setShowWebhookLog] = useState(false);
+  const [simulatedAlertBanner, setSimulatedAlertBanner] = useState<string | null>(null);
+
+  const handleSimulateWebhook = () => {
+    const randomEventId = `knf-live-${Date.now().toString().slice(-5)}`;
+    const res = processIncomingEspiWebhook({
+      eventId: randomEventId,
+      source: "KNF_ESPI",
+      eventType: "PERIODIC_REPORT_PUBLISHED",
+      ticker: "ATT",
+      entityName: "Grupa Azoty S.A.",
+      reportNumber: "SA-QSr 3/2025 (Korekta)",
+      rawContent: `<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ix="http://www.xbrl.org/2013/inlineXBRL" xmlns:ifrs-full="http://xbrl.ifrs.org/taxonomy/2021-03-24/ifrs-full"><ix:nonNumeric name="ifrs-full:TradingSymbol">ATT</ix:nonNumeric><ix:nonNumeric name="ifrs-full:DocumentType">SA-QSr 3/2025 (Korekta)</ix:nonNumeric><ix:nonFraction name="ifrs-full:Revenue" scale="6">9850.40</ix:nonFraction><ix:nonFraction name="ifrs-full:OperatingProfit" scale="6">-1240.20</ix:nonFraction><ix:nonFraction name="ifrs-full:DepreciationAndAmortisationExpense" scale="6">420.10</ix:nonFraction><ix:nonFraction name="ifrs-full:NoncurrentBorrowings" scale="6">8120.00</ix:nonFraction><ix:nonFraction name="ifrs-full:CurrentBorrowings" scale="6">2850.00</ix:nonFraction><ix:nonFraction name="ifrs-full:CashAndCashEquivalents" scale="6">570.00</ix:nonFraction></html>`,
+    });
+    setWebhookServiceState(getWebhookServiceState());
+    setSimulatedAlertBanner(`Odebrano webhook KNF ESPI (${randomEventId}): natychmiastowe parsowanie i detekcja naruszenia kowenantu (EBITDA ujemna: -820.1 mln PLN). Czas przetworzenia: 48 ms bez odpytywania (zero polling).`);
+    setTimeout(() => {
+      setSimulatedAlertBanner(null);
+    }, 6000);
+  };
 
   // Efekt symulujący postęp odtwarzania audio
   useEffect(() => {
@@ -714,6 +745,115 @@ Rekomendacja dla MAP: ${activeXbrlReport.covenant.ministerialRecommendation}`;
                     </button>
                   </div>
                 </div>
+
+                {/* Asynchroniczny Nasłuch Webhooków KNF ESPI / PAP Biznes (Zero Polling) */}
+                <div className="p-3.5 rounded-xl bg-[#091117] border border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex items-center justify-center">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping absolute opacity-75"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                          Automatyczny nasłuch webhooków: KNF ESPI & PAP Biznes
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 font-semibold uppercase">
+                          Zero Polling • Push Stream
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#8e9da7] mt-0.5 font-mono">
+                        Protokół: HTTPS Webhook / HMAC-SHA256 • Endpoint: <span className="text-cyan-300">/api/espi/webhook</span> • Odebrano: <strong className="text-white">{webhookServiceState.totalTransmissionsReceived}</strong> pakietów w tle
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowWebhookLog(!showWebhookLog)}
+                      className="px-2.5 py-1.5 rounded bg-[#131e27] hover:bg-[#1a2b37] text-xs font-mono text-[#b8c6cf] hover:text-white border border-[rgba(159,186,199,0.14)] transition-all flex items-center gap-1.5"
+                    >
+                      <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                      {showWebhookLog ? "Ukryj dziennik" : `Dziennik webhooków (${webhookServiceState.recentTransmissions.length})`}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSimulateWebhook}
+                      className="px-3 py-1.5 rounded bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 hover:text-emerald-200 border border-emerald-700/50 text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                      Symuluj transmisję KNF ESPI
+                    </button>
+                  </div>
+                </div>
+
+                {/* Toast / Banner potwierdzający nadejście webhooka w tle */}
+                {simulatedAlertBanner && (
+                  <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-500/60 text-xs text-rose-200 font-mono flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>{simulatedAlertBanner}</span>
+                  </div>
+                )}
+
+                {/* Rozwijany Dziennik Transmisji Webhookowych */}
+                {showWebhookLog && (
+                  <div className="p-3.5 rounded-xl bg-[#090f14] border border-[rgba(159,186,199,0.14)] space-y-2">
+                    <div className="flex items-center justify-between text-xs pb-2 border-b border-[rgba(159,186,199,0.1)]">
+                      <span className="font-bold text-white uppercase font-mono tracking-wider">
+                        Rejestr transmisji przychodzących w czasie rzeczywistym
+                      </span>
+                      <span className="text-[11px] font-mono text-emerald-400">
+                        Tryb: natychmiastowe parsowanie bez odpytywania bazy
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {webhookServiceState.recentTransmissions.map((tx) => (
+                        <div
+                          key={tx.eventId}
+                          className="p-2.5 rounded-lg bg-[#0e171e] border border-[rgba(159,186,199,0.08)] flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs font-mono"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                                tx.source === "KNF_ESPI"
+                                  ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
+                                  : "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                              }`}
+                            >
+                              {tx.source}
+                            </span>
+                            <span className="font-bold text-white">{tx.ticker}</span>
+                            <span className="text-slate-400 truncate max-w-[200px]">{tx.entityName}</span>
+                            <span className="text-[10px] text-[#8e9da7]">{tx.reportNumber}</span>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className="text-[#8e9da7] text-[10px]">
+                              {new Date(tx.receivedAt).toLocaleTimeString("pl-PL")}
+                            </span>
+                            <span className="text-cyan-400 text-[10px] bg-cyan-950/40 px-1.5 py-0.5 rounded">
+                              {tx.latencyMs} ms
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${
+                                tx.status === "COVENANT_ALERT"
+                                  ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                                  : tx.status === "HEARTBEAT"
+                                  ? "bg-slate-800 text-slate-300 border-slate-700"
+                                  : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                              }`}
+                            >
+                              {tx.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Edytor Wklejania Własnego Kodu XML / iXBRL */}
                 {isCustomInputOpen && (

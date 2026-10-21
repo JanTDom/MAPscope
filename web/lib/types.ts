@@ -782,6 +782,40 @@ export interface EspiXbrlPeriodicReport {
   rawXmlSnippet?: string;
 }
 
+export type WebhookSourceType = "KNF_ESPI" | "PAP_BIZNES";
+
+export type WebhookEventType =
+  | "PERIODIC_REPORT_PUBLISHED"
+  | "CURRENT_REPORT_PUBLISHED"
+  | "REPORT_CORRECTION"
+  | "SYSTEM_HEARTBEAT";
+
+export interface WebhookTransmissionRecord {
+  eventId: string;
+  source: WebhookSourceType;
+  eventType: WebhookEventType;
+  ticker: string;
+  entityName: string;
+  reportNumber: string;
+  receivedAt: string;
+  status: "PROCESSED" | "COVENANT_ALERT" | "HEARTBEAT" | "REJECTED";
+  covenantBreached: boolean;
+  marRiskFlag: boolean;
+  latencyMs: number;
+  details: string;
+}
+
+export interface EspiWebhookServiceState {
+  isListening: boolean;
+  gatewayProtocol: string;
+  endpointUrl: string;
+  activeSources: WebhookSourceType[];
+  totalTransmissionsReceived: number;
+  lastHeartbeatAt: string;
+  recentTransmissions: WebhookTransmissionRecord[];
+}
+
+
 
 
 
