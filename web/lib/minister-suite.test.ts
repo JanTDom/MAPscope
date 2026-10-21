@@ -543,12 +543,12 @@ test("MAPscope Ministerialny Test 15: Strefa MAP (Kierownictwo, Komunikacja i Kr
   assert.ok(MAP_LEADERSHIP.length >= 4, "Musi obejmować całe ścisłe kierownictwo MAP");
   const minister = MAP_LEADERSHIP.find((l) => l.role === "MINISTER");
   assert.ok(minister, "Minister Aktywów Państwowych musi być w rejestrze");
-  assert.strictEqual(minister?.name, "Jakub Jaworowski");
+  assert.strictEqual(minister?.name, "Wojciech Balczun");
   assert.ok(minister?.supervisedDepartments.includes("Departament Spółek Strategicznych"));
 
-  const bartminski = MAP_LEADERSHIP.find((l) => l.name.includes("Bartmiński"));
-  assert.ok(bartminski, "Sekretarz Stanu Bartmiński musi być w rejestrze");
-  assert.strictEqual(bartminski?.role, "SEKRETARZ_STANU");
+  const zeidler = MAP_LEADERSHIP.find((l) => l.name.includes("Zeidler"));
+  assert.ok(zeidler, "Sekretarz Stanu Eliza Zeidler musi być w rejestrze");
+  assert.strictEqual(zeidler?.role, "SEKRETARZ_STANU");
 
   // 2. Weryfikacja kryzysów bezpośrednio uderzających w gmach i kierownictwo MAP
   assert.ok(MAP_DIRECT_CRISES.length >= 4);

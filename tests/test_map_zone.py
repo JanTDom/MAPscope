@@ -16,7 +16,7 @@ from mapscope.models.map_zone import (
 def test_map_leadership_member_creation() -> None:
     leader = MapLeadershipMember(
         id="lead-01",
-        name="Jakub Jaworowski",
+        name="Wojciech Balczun",
         role=MapLeadershipRole.MINISTER,
         title="Minister Aktywów Państwowych",
         supervised_departments=[
@@ -35,6 +35,7 @@ def test_map_leadership_member_creation() -> None:
     )
 
     assert leader.role == MapLeadershipRole.MINISTER
+    assert leader.name == "Wojciech Balczun"
     assert len(leader.supervised_departments) == 3
     assert leader.active_crises_count == 3
 
