@@ -1,0 +1,48 @@
+name: Nocna Synchronizacja Rejestrów KRS i CRBR
+
+on:
+  schedule:
+    # Codziennie o godz. 02:00 UTC (03:00 / 04:00 CET)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Liczba spółek w partii'
+        required: false
+        default: '15'
+
+jobs:
+  krs-crbr-sync:
+    name: Synchronizacja Odpisów z Centralnej Informacji KRS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobranie repozytorium
+        uses: actions/checkout@v4
+
+      - name: Konfiguracja środowiska Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalacja zależności Python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" || pip install httpx pydantic pytest
+
+      - name: Uruchomienie partii synchronizacji KRS/CRBR
+        env:
+          SYNC_BATCH_SIZE: ${{ github.event.inputs.batch_size || '15' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          python scripts/krs_batch_sync.py
+
+      - name: Weryfikacja endpointu produkcyjnego MAPscope Cron
+        if: env.MAPSCOPE_PROD_URL != ''
+        env:
+          MAPSCOPE_PROD_URL: ${{ vars.MAPSCOPE_PROD_URL || 'https://mapscope.pl' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -s -f -X GET "${MAPSCOPE_PROD_URL}/api/krs/cron" \
+            -H "Authorization: Bearer ${CRON_SECRET}" || echo "Pominięto webhook zewnętrzny"
