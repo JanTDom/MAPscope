@@ -191,12 +191,14 @@ export function MapZoneView() {
         <div className="bg-[#0d1318] border border-[rgba(159,186,199,0.14)] rounded-lg p-3">
           <div className="flex items-center justify-between text-[#8e9da7] text-[11px]">
             <span>Pikiety pod gmachem</span>
-            <Users className="w-3.5 h-3.5 text-[#ff7f87]" />
+            <Users className="w-3.5 h-3.5 text-[#57e0c5]" />
           </div>
-          <div className="text-xl font-bold font-mono text-[#ff7f87] mt-1">
-            {summary.registeredStreetProtestsCount}
+          <div className="text-xl font-bold font-mono mt-1 text-white">
+            0 <span className="text-xs font-normal text-[#8e9da7]">aktywnych</span>
           </div>
-          <div className="text-[10px] text-[#5d6b74] mt-0.5">Ul. Krucza 36</div>
+          <div className="text-[10px] text-[#57e0c5] mt-0.5">
+            Ostatnia: 23.10 (zakończona)
+          </div>
         </div>
 
         <div className="bg-[#0d1318] border border-[rgba(159,186,199,0.14)] rounded-lg p-3">
@@ -281,6 +283,16 @@ export function MapZoneView() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {crisis.temporalStatus === "ODBYŁO_SIĘ" && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#75b8ff]/15 text-[#75b8ff] border border-[#75b8ff]/35">
+                        ODBYŁO SIĘ (3 DNI TEMU)
+                      </span>
+                    )}
+                    {crisis.temporalStatus === "W_TOKU" && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#f6c56b]/15 text-[#f6c56b] border border-[#f6c56b]/35">
+                        W TOKU (AUDYT TRWA)
+                      </span>
+                    )}
                     <span
                       className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${getSeverityBadge(
                         crisis.severity
@@ -288,9 +300,9 @@ export function MapZoneView() {
                     >
                       {crisis.severity}
                     </span>
-                    {crisis.streetProtestThreat && (
+                    {crisis.isLiveProtestToday && (
                       <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#ff7f87]/20 text-[#ff7f87] border border-[#ff7f87]/40 animate-pulse">
-                        PIKIETA POD RESORTEM
+                        PIKIETA POD RESORTEM DZISIAJ
                       </span>
                     )}
                     {crisis.parliamentaryControlActive && (
@@ -306,12 +318,30 @@ export function MapZoneView() {
                   {crisis.summary}
                 </div>
 
+                {/* Rezultat i realizacja ustaleń (post-crisis) */}
+                {crisis.postCrisisResolution && (
+                  <div className="p-3 rounded bg-[#57e0c5]/10 border border-[#57e0c5]/30 text-xs space-y-1">
+                    <div className="flex items-center gap-1.5 text-[#57e0c5] font-bold text-[11px] uppercase font-mono">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Rezultat i realizacja ustaleń (post-crisis):</span>
+                    </div>
+                    <div className="text-zinc-200 leading-relaxed">
+                      {crisis.postCrisisResolution}
+                    </div>
+                  </div>
+                )}
+
                 {/* Pikieta szczegóły jeśli występuje */}
                 {crisis.protestDetails && (
-                  <div className="p-3 rounded bg-red-950/20 border border-red-500/30 text-xs space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-red-400 font-bold text-[11px] uppercase font-mono">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>Parametry zgłoszonego zgromadzenia publicznego pod MAP:</span>
+                  <div className="p-3 rounded bg-zinc-900/60 border border-[rgba(159,186,199,0.18)] text-xs space-y-1.5">
+                    <div className="flex items-center justify-between text-[#8e9da7] font-bold text-[11px] uppercase font-mono">
+                      <div className="flex items-center gap-1.5 text-[#75b8ff]">
+                        <Users className="w-3.5 h-3.5" />
+                        <span>Parametry zgromadzenia publicznego (odbyte 23.10 pod MAP):</span>
+                      </div>
+                      <span className="text-[10px] text-[#57e0c5] font-normal normal-case">
+                        Zakończone • Petycja przyjęta
+                      </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#8e9da7]">
                       <div>

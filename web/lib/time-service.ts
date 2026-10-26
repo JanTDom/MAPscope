@@ -167,6 +167,46 @@ export function getRelativeDeadlineStatus(
 }
 
 /**
+ * Ocenia stan czasowy incydentu względem bieżącej daty (czy już się odbył, trwa dzisiaj czy jest planowany).
+ */
+export function evaluateIncidentTemporalState(
+  dateIso: string,
+  now: Date = getSystemNow()
+): {
+  state: "ODBYŁO_SIĘ" | "DZISIAJ" | "PLANOWANE";
+  daysDiff: number;
+  label: string;
+} {
+  const incidentDate = new Date(dateIso);
+  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const incDateOnly = new Date(incidentDate.getFullYear(), incidentDate.getMonth(), incidentDate.getDate());
+
+  const diffTime = incDateOnly.getTime() - nowDate.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const abs = Math.abs(diffDays);
+    return {
+      state: "ODBYŁO_SIĘ",
+      daysDiff: diffDays,
+      label: `Odbyło się ${abs} ${abs === 1 ? "dzień" : "dni"} temu (${dateIso})`,
+    };
+  } else if (diffDays === 0) {
+    return {
+      state: "DZISIAJ",
+      daysDiff: 0,
+      label: `Wydarzenie dzisiaj (${dateIso})`,
+    };
+  } else {
+    return {
+      state: "PLANOWANE",
+      daysDiff: diffDays,
+      label: `Planowane za ${diffDays} ${diffDays === 1 ? "dzień" : "dni"} (${dateIso})`,
+    };
+  }
+}
+
+/**
  * Oblicza dynamiczną temperaturę kryzysową portfela (skala 0-100)
  * na podstawie realnych incydentów i alertów.
  */

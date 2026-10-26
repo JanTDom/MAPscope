@@ -150,18 +150,23 @@ export const MAP_LEADERSHIP: MapLeadershipMemberRecord[] = [
 export const MAP_DIRECT_CRISES: MapDirectCrisisRecord[] = [
   {
     id: "cris-map-krucza-protest",
-    title: "Zapowiedziana demonstracja związkowa przed gmachem MAP (ul. Krucza 36)",
+    title: "Przebieg i realizacja ustaleń po demonstracji związkowej przed gmachem MAP (ul. Krucza 36)",
     severity: "KRYTYCZNE",
     category: "PROTESTY_SPOŁECZNE",
-    incidentDate: "2026-10-23 (piątek)",
+    dateIso: "2026-10-23",
+    temporalStatus: "ODBYŁO_SIĘ",
+    incidentDate: "2026-10-23 (odbyła się 3 dni temu — petycja przyjęta)",
     affectedLeadership: ["Wojciech Balczun (Minister)", "Grzegorz Wrona (Wiceminister)"],
     summary:
-      "Organizacje związkowe kolejarzy z PKP CARGO oraz pocztowców zgłosiły w stołecznym ratuszu zgromadzenie publiczne na 2 500 osób bezpośrednio przed wejściem głównym do MAP przy ul. Kruczej 36.",
+      "Zgromadzenie publiczne 2 500 pracowników PKP CARGO oraz Poczty Polskiej odbyło się w piątek 23.10 przed gmachem MAP przy ul. Kruczej 36. Wydarzenie przebiegło bez incydentów naruszenia bezpieczeństwa; petycja strony społecznej została formalnie odebrana.",
     oppositionAttackVector:
-      "Politycy opozycji zapowiedzieli obecność z megafonami i żądanie natychmiastowego wyjścia Ministra Wojciecha Balczuna do protestujących oraz zarzuty 'likwidacji polskiej kolei przez b. prezesa PKP Cargo'.",
+      "Politycy opozycji podnosili w mediach żądania wyjścia kierownictwa resortu do protestujących oraz zarzuty 'likwidacji polskiej kolei przez b. prezesa PKP Cargo'.",
     ministerialCounterNarrative:
-      "Minister Wojciech Balczun, który z sukcesem zrestrukturyzował PKP Cargo w latach 2008-2013, doskonale zna wyzwania branży: MAP wyznaczyło zespół kierowniczy do przyjęcia petycji w sali konferencyjnej. Sanacja ratuje spółkę przed twardą upadłością likwidacyjną, a 12 innych spółek kolejowych zagwarantowało już zatrudnienie ponad 1 800 odchodzącym pracownikom.",
+      "Minister Wojciech Balczun, który z sukcesem zrestrukturyzował PKP Cargo w latach 2008-2013, doskonale zna wyzwania branży: MAP wyznaczyło zespół kierowniczy na czele z wiceministrem Grzegorzem Wroną, który przyjął delegację związkową w sali konferencyjnej resortu. Sanacja ratuje spółkę przed twardą upadłością likwidacyjną, a 12 innych spółek kolejowych zagwarantowało już zatrudnienie ponad 1 800 odchodzącym pracownikom.",
     streetProtestThreat: true,
+    isLiveProtestToday: false,
+    postCrisisResolution:
+      "Zgromadzenie zakończone. Petycja zarejestrowana w Biurze Ministra; Departament Spółek Strategicznych wdrożył cotygodniowy monitoring realizacji transferów pracowniczych do Polregio, PKP Intercity i Wars.",
     protestDetails: {
       location: "Warszawa, ul. Krucza 36 (plac przed Ministerstwem)",
       registeredParticipants: 2500,
@@ -170,25 +175,28 @@ export const MAP_DIRECT_CRISES: MapDirectCrisisRecord[] = [
     },
     parliamentaryControlActive: false,
     actionItemsForCabinet: [
-      "Odprawa ze Służbą Ochrony Państwa i Komendą Rejonową Policji Warszawa I w celu zabezpieczenia ciągłości pracy urzędu",
-      "Przygotowanie infografiki dla mediów: 'Fakty o porozumieniach zatrudnieniowych dla kolejarzy'",
-      "Wyznaczenie Podsekretarza Stanu Grzegorza Wrony do wystąpienia prasowego po spotkaniu z delegacją",
+      "Realizacja ustaleń ze spotkania z delegacją związkową w sali konferencyjnej MAP",
+      "Publikacja infografiki dla mediów: 'Fakty o porozumieniach zatrudnieniowych dla kolejarzy'",
+      "Podsumowanie operacyjne ze Służbą Ochrony Państwa — plac przed gmachem zabezpieczony",
     ],
   },
   {
     id: "cris-map-totalizator-kontrol",
-    title: "Kontrola poselska i zarzuty polityczne ws. procedur rekrutacyjnych w SSP",
+    title: "Kontrola poselska i audyt procedur rekrutacyjnych w Totalizatorze Sportowym",
     severity: "WYSOKIE",
     category: "KONTROLA_SEJMOWA",
-    incidentDate: "2026-10-17 - trwa",
+    dateIso: "2026-10-17",
+    temporalStatus: "W_TOKU",
+    incidentDate: "2026-10-17 — w toku (audyt i udostępnianie dokumentów)",
     affectedLeadership: ["Eliza Zeidler (Sekretarz Stanu)", "Wojciech Balczun (Minister)"],
     summary:
-      "Posłowie klubu opozycyjnego prowadzą fizyczną kontrolę poselską w Departamencie Nadzoru II w MAP, żądając korespondencji resortu z Radą Nadzorczą Totalizatora Sportowego oraz protokołów ze zgromadzeń wspólników.",
+      "Czynności kontrolne w Departamencie Nadzoru II w MAP. Resort udostępnia posłom dokumentację korespondencji z Radą Nadzorczą Totalizatora Sportowego oraz uchwały organów spółki.",
     oppositionAttackVector:
       "Zarzut upolitycznienia obsady spółek zależnych i tolerowania zatrudniania działaczy partyjnych bez konkursów na szczeblu dyrekcji terenowych.",
     ministerialCounterNarrative:
       "Ministerstwo Aktywów Państwowych pod kierownictwem Wojciecha Balczuna natychmiast po powzięciu sygnałów zażądało od Rady Nadzorczej audytu wszystkich 17 postępowań w regionach. Sekretarz Stanu Eliza Zeidler przygotowała nowy, rygorystyczny Kodeks Dobrych Praktyk Rekrutacyjnych dla rad nadzorczych.",
     streetProtestThreat: false,
+    isLiveProtestToday: false,
     parliamentaryControlActive: true,
     actionItemsForCabinet: [
       "Udostępnienie posłom jawnych dokumentów w czytelni Departamentu Prawnego zgodnie z ustawą o wykonywaniu mandatu posła i senatora",
@@ -198,18 +206,21 @@ export const MAP_DIRECT_CRISES: MapDirectCrisisRecord[] = [
   },
   {
     id: "cris-map-azoty-covenants",
-    title: "Presja banków komercyjnych na MAP ws. porozumienia standstill i dokapitalizowania Grupy Azoty",
+    title: "Dialog z bankami komercyjnymi ws. porozumienia standstill i stabilizacji Grupy Azoty",
     severity: "WYSOKIE",
     category: "AUDYT_I_PROKURATURA",
-    incidentDate: "2026-10-19 - trwa",
+    dateIso: "2026-10-19",
+    temporalStatus: "W_TOKU",
+    incidentDate: "2026-10-19 — w toku negocjacji standstill",
     affectedLeadership: ["Wojciech Balczun (Minister)", "Konrad Gołota (Wiceminister)"],
     summary:
-      "Konsorcjum 13 banków kredytujących projekt Polimery Police uzależnia przedłużenie waiveru kowenantowego od deklaracji właścicielskiej MAP dotyczącej wsparcia płynnościowego lub konwersji długu.",
+      "Konsorcjum 13 banków kredytujących projekt Polimery Police prowadzi negocjacje przedłużenia waiveru kowenantowego z udziałem doradców finansowych MAP i PFR.",
     oppositionAttackVector:
       "Oskarżenia o brak sprawczości resortu wobec instytucji finansowych i groźbę utraty kontroli nad strategicznym producentem kaprolaktamu i nawozów.",
     ministerialCounterNarrative:
       "Minister Wojciech Balczun prowadzi konstruktywne rozmowy z wierzycielami. Nie dopuścimy do wrogiego przejęcia majątku, a zarząd wdrożył program optymalizacji kosztowej na 480 mln zł rocznie bez konieczności niekontrolowanej wyprzedaży aktywów.",
     streetProtestThreat: false,
+    isLiveProtestToday: false,
     parliamentaryControlActive: false,
     actionItemsForCabinet: [
       "Zamknięta narada z Polskim Funduszem Rozwoju (PFR) i PKO BP w sprawie struktury gwarancji płynnościowych",
@@ -218,18 +229,21 @@ export const MAP_DIRECT_CRISES: MapDirectCrisisRecord[] = [
   },
   {
     id: "cris-map-sprostowanie-onet",
-    title: "Rozbieżności informacyjne dotyczące odwołania wiceprezesa ds. finansowych w KGHM",
+    title: "Wyjaśnienie okoliczności zmian w organach statutowych KGHM",
     severity: "SREDNIE",
     category: "KADRY_OBSADA",
-    incidentDate: "2026-10-16",
+    dateIso: "2026-10-16",
+    temporalStatus: "ODBYŁO_SIĘ",
+    incidentDate: "2026-10-16 (sprawa zamknięta wyjaśnieniem)",
     affectedLeadership: ["Eliza Zeidler (Sekretarz Stanu)"],
     summary:
-      "Spekulacje medialne sugerujące konflikt wewnątrzkoalicyjny o nadzór nad spółką miedziową i rzekomą blokadę uchwały przez przedstawicieli Skarbu Państwa.",
+      "Publikacje sugerujące rzekomy konflikt decyzyjny o nadzór nad spółką miedziową. Rzecznik prasowy MAP przekazał oficjalne dementi.",
     oppositionAttackVector:
       "Próba wywołania wrażenia chaosu zarządczego w kluczowym eksporterze surowcowym GPW.",
     ministerialCounterNarrative:
       "Decyzje kadrowe w KGHM są wyłączną prerogatywą Rady Nadzorczej oceniającej wykonanie wskaźników KPI i planu CAPEX na projektach zagranicznych (Sierra Gorda).",
     streetProtestThreat: false,
+    isLiveProtestToday: false,
     parliamentaryControlActive: false,
     actionItemsForCabinet: [
       "Wystosowanie oficjalnego dementi rzecznika prasowego MAP",
@@ -305,12 +319,31 @@ export const MAP_PRESS_RELEASES: MapPressReleaseRecord[] = [
 
 export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   {
+    id: "inq-media-05",
+    mediaOutlet: "Polska Agencja Prasowa (PAP Biznes)",
+    journalistName: "Tomasz Więcławski",
+    receivedAt: "2026-10-26 10:15",
+    deadlineAt: "2026-10-26 12:15",
+    urgency: "PILNE_DO_2H",
+    subject: "Stan wdrożenia wytycznych rekrutacyjnych w grupach kapitałowych po naradzie kierownictwa MAP",
+    detailedQuestions: [
+      "Kiedy Departament Nadzoru II przedstawi raport z wdrożenia kodeksu rekrutacyjnego w spółkach zależnych?",
+      "Czy planowane są dodatkowe kontrole doraźne w radach nadzorczych spółek sektora zbrojeniowego i energetycznego?",
+    ],
+    politicalRiskScore: 0.52,
+    assignedSpokespersonLine:
+      "Wytyczne Ministra Wojciecha Balczuna obowiązują wszystkie 406 podmiotów portfelowych. Departament Nadzoru II weryfikuje zgodność procedur konkursowych, a raport z rekomendacjami zostanie przedstawiony na najbliższym posiedzeniu kierownictwa resortu.",
+    factsAndFigures: "Wytyczne obejmują 100% grup kapitałowych; do końca roku zaplanowano audyt 42 spółek-córek.",
+    redLines: "Nie wskazywać konkretnych podmiotów przed formalnym zakończeniem czynności sprawdzających.",
+    status: "W_OPRACOWANIU",
+  },
+  {
     id: "inq-media-01",
     mediaOutlet: "TVN24 / Fakty",
     journalistName: "Krzysztof Skórzyński",
     receivedAt: "2026-10-21 08:45",
     deadlineAt: "2026-10-21 13:00",
-    urgency: "PILNE_DO_2H",
+    urgency: "ZREALIZOWANE",
     subject: "Pytanie o planowaną obecność Ministra na demonstracji kolejarzy pod gmachem MAP",
     detailedQuestions: [
       "Czy Minister Wojciech Balczun wyjdzie w piątek do protestujących kolejarzy z PKP CARGO (spółki, którą sam kierował w latach 2008-2013)?",
@@ -324,14 +357,14 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
       "12 podpisanych listów intencyjnych na transfer 1 850 pracowników; fundusze odprawowe zabezpieczone z FGŚP; sanacja chroni przed likwidacją 10 000 pozostałych etatów.",
     redLines:
       "Nie składać obietnic cofnięcia sanacji, gdyż doprowadziłoby to do upadłości likwidacyjnej w ciągu 14 dni.",
-    status: "ZAAKCEPTOWANE_PRZEZ_GABINET",
+    status: "WYSLANE",
   },
   {
     id: "inq-media-02",
     mediaOutlet: "Business Insider Polska",
     journalistName: "Bartek Godusławski",
-    receivedAt: "2026-10-20 16:20",
-    deadlineAt: "2026-10-21 16:00",
+    receivedAt: "2026-10-26 11:00",
+    deadlineAt: "2026-10-26 16:00",
     urgency: "DZISIAJ",
     subject: "Stan negocjacji z konsorcjum banków finansujących Polimery Police w Grupie Azoty",
     detailedQuestions: [
@@ -353,7 +386,7 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
     journalistName: "Paweł Rożyński",
     receivedAt: "2026-10-21 07:10",
     deadlineAt: "2026-10-22 12:00",
-    urgency: "DZISIAJ",
+    urgency: "ZREALIZOWANE",
     subject: "Projekt nowelizacji ustawy o zasadach zarządzania mieniem państwowym (Art. 19)",
     detailedQuestions: [
       "Kiedy projekt trafi do konsultacji międzyresortowych w KPRM?",
@@ -364,7 +397,7 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
       "Projekt ustawy uszczelniającej nadzór właścicielski został wpisany do wykazu prac legislacyjnych rządu. Naszym celem jest objęcie standardami kompetencyjnymi całych grup kapitałowych, a nie tylko spółek-matek.",
     factsAndFigures: "Obecnie wymóg z art. 19 dotyczy bezpośrednio 406 podmiotów.",
     redLines: "Nie podawać dat posiedzeń Stałego Komitetu Rady Ministrów przed decyzją KPRM.",
-    status: "W_OPRACOWANIU",
+    status: "WYSLANE",
   },
   {
     id: "inq-media-04",
@@ -398,13 +431,17 @@ export function getMapZoneSummary(): MapZoneSummaryRecord {
     (q) => q.status === "NOWE" || q.status === "W_OPRACOWANIU" || q.status === "ZAAKCEPTOWANE_PRZEZ_GABINET"
   ).length;
   const registeredStreetProtestsCount = directCrises.filter((c) => c.streetProtestThreat).length;
+  const activeStreetProtestsTodayCount = directCrises.filter((c) => c.isLiveProtestToday === true).length;
+  const recentPastProtestsCount = directCrises.filter((c) => c.temporalStatus === "ODBYŁO_SIĘ" && c.category === "PROTESTY_SPOŁECZNE").length;
 
   return {
-    overallMapTensionIndex: 74, // Podwyższone napięcie medialne wokół resortu
+    overallMapTensionIndex: 68,
     activePressInquiriesCount,
     criticalDirectCrisesCount,
     pendingParliamentaryInquiriesCount: 14,
     registeredStreetProtestsCount,
+    activeStreetProtestsTodayCount,
+    recentPastProtestsCount,
     pressReleasesThisMonthCount: pressReleases.length + 15,
     averageSpokespersonResponseTimeHours: 3.2,
   };

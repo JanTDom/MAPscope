@@ -996,11 +996,15 @@ export interface MapDirectCrisisRecord {
   severity: MapCrisisSeverity;
   category: "KADRY_OBSADA" | "PROTESTY_SPOŁECZNE" | "KONTROLA_SEJMOWA" | "SPÓR_MIĘDZYRESORTOWY" | "AUDYT_I_PROKURATURA";
   incidentDate: string;
+  dateIso?: string;
+  temporalStatus?: "ODBYŁO_SIĘ" | "W_TOKU" | "PLANOWANE";
+  postCrisisResolution?: string;
   affectedLeadership: string[];
   summary: string;
   oppositionAttackVector: string;
   ministerialCounterNarrative: string;
   streetProtestThreat: boolean;
+  isLiveProtestToday?: boolean;
   protestDetails?: {
     location: string;
     registeredParticipants: number;
@@ -1017,6 +1021,8 @@ export interface MapZoneSummaryRecord {
   criticalDirectCrisesCount: number;
   pendingParliamentaryInquiriesCount: number;
   registeredStreetProtestsCount: number;
+  activeStreetProtestsTodayCount?: number;
+  recentPastProtestsCount?: number;
   pressReleasesThisMonthCount: number;
   averageSpokespersonResponseTimeHours: number;
 }
