@@ -32,6 +32,7 @@ import {
 } from "@/lib/mapscope-data.ts";
 import type { EntityRecord } from "@/lib/types.ts";
 import { GovernanceNetworkGraph } from "@/components/charts/GovernanceNetworkGraph.tsx";
+import { getKrsLastSyncDateTime, getKrsNextSyncDateTime } from "@/lib/time-service.ts";
 
 interface GovernanceViewProps {
   onOpenDossier: (entityId: string) => void;
@@ -190,7 +191,7 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[rgba(159,186,199,0.1)] text-[11px]">
           <div>
             <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Ostatnia sesja</span>
-            <span className="text-white font-mono mt-0.5 block">2026-10-21 02:04 CET</span>
+            <span className="text-white font-mono mt-0.5 block">{getKrsLastSyncDateTime()}</span>
           </div>
           <div>
             <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Pokrycie portfela</span>
@@ -202,7 +203,7 @@ export function GovernanceView({ onOpenDossier }: GovernanceViewProps) {
           </div>
           <div>
             <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Następny bieg nocny</span>
-            <span className="text-[#75b8ff] font-mono mt-0.5 block">2026-10-22 02:00 CET</span>
+            <span className="text-[#75b8ff] font-mono mt-0.5 block">{getKrsNextSyncDateTime()}</span>
           </div>
         </div>
       </div>

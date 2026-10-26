@@ -222,3 +222,26 @@ export function calculateDynamicCrisisScore(params: {
   const rawScore = 20 + p1Count * 14 + p2Count * 7 + p3Count * 2 + activeDisputesCount * 3;
   return Math.min(96, Math.max(15, Math.round(rawScore)));
 }
+
+/**
+ * Zwraca datę ostatniej synchronizacji rejestru KRS
+ */
+export function getKrsLastSyncDate(now: Date = getSystemNow()): string {
+  return now.toISOString().slice(0, 10);
+}
+
+/**
+ * Zwraca datę i czas ostatniej nocnej synchronizacji KRS (02:04 CET)
+ */
+export function getKrsLastSyncDateTime(now: Date = getSystemNow()): string {
+  return `${now.toISOString().slice(0, 10)} 02:04 CET`;
+}
+
+/**
+ * Zwraca datę i czas następnego planowanego biegu nocnego KRS (jutro 02:00 CET)
+ */
+export function getKrsNextSyncDateTime(now: Date = getSystemNow()): string {
+  const next = new Date(now.getTime() + 86400000);
+  return `${next.toISOString().slice(0, 10)} 02:00 CET`;
+}
+

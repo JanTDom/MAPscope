@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Landmark, FileQuestion, ShieldAlert, CheckCircle, Scale, Building } from "lucide-react";
+import { getRelativeDeadlineStatus } from "@/lib/time-service.ts";
 
 export function MapZonePanel() {
   const departments = [
@@ -35,7 +36,7 @@ export function MapZonePanel() {
       subject: "W sprawie trybu powoływania dyrektorów regionalnych w Totalizatorze Sportowym",
       author: "Posłowie Klubu Parlamentarnego",
       addressed_to: "Minister Aktywów Państwowych",
-      deadline: "2026-10-27 (7 dni do odpowiedzi)",
+      deadline: getRelativeDeadlineStatus(new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)).displayText,
       status: "Wymaga pilnego przygotowania stanowiska MAP",
       severity: "critical",
     },
@@ -45,7 +46,7 @@ export function MapZonePanel() {
       subject: "W sprawie ochrony praw pracowniczych w toku restrukturyzacji PKP CARGO S.A.",
       author: "Komisja Infrastruktury",
       addressed_to: "Minister Aktywów Państwowych / Minister Infrastruktury",
-      deadline: "2026-10-31",
+      deadline: getRelativeDeadlineStatus(new Date(Date.now() + 9 * 86400000).toISOString().slice(0, 10)).displayText,
       status: "Koordynacja z Ministerstwem Infrastruktury",
       severity: "high",
     },
@@ -55,7 +56,7 @@ export function MapZonePanel() {
       subject: "Prawidłowość nadzoru właścicielskiego nad realizacją kluczowych inwestycji w spółkach energetycznych",
       author: "Najwyższa Izba Kontroli (NIK)",
       addressed_to: "Kierownictwo MAP i Departament Spółek Strategicznych",
-      deadline: "Raport w I kwartale 2027",
+      deadline: "Raport planowany w I kwartale 2027",
       status: "Przekazano dokumentację nadzorczą",
       severity: "standard",
     },

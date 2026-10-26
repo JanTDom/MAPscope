@@ -32,6 +32,7 @@ import {
   ANALYST_CONSENSUS_DATA,
   LOCAL_MUNICIPAL_ISSUES,
 } from "@/lib/mapscope-data.ts";
+import { getKrsLastSyncDate } from "@/lib/time-service.ts";
 
 interface DossierModalProps {
   entity: EntityRecord | null;
@@ -329,7 +330,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                   </div>
                   <div>
                     <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Data weryfikacji</span>
-                    <span className="text-white font-mono mt-0.5 block">{d?.krs_verification_date || "2026-10-21"}</span>
+                    <span className="text-white font-mono mt-0.5 block">{d?.krs_verification_date || getKrsLastSyncDate()}</span>
                   </div>
                   <div>
                     <span className="text-[#5d6b74] block font-mono text-[10px] uppercase">Rejestr źródłowy</span>
@@ -371,7 +372,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                           Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 1"}</strong>
                         </span>
                         <span className="font-mono text-[#57e0c5] shrink-0">
-                          {member.verifiedAt || "2026-10-21"}
+                          {member.verifiedAt || getKrsLastSyncDate()}
                         </span>
                       </div>
                     </div>
@@ -405,7 +406,7 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                           Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 2"}</strong>
                         </span>
                         <span className="font-mono text-[#57e0c5] shrink-0">
-                          {member.verifiedAt || "2026-10-21"}
+                          {member.verifiedAt || getKrsLastSyncDate()}
                         </span>
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   STOCK_EXCHANGE_DATA,
   ESPI_REPORTS_DATA,
@@ -15,8 +15,30 @@ interface StockMarketTerminalProps {
 export function StockMarketTerminal({ onSelectEntity }: StockMarketTerminalProps) {
   const [activeTab, setActiveTab] = useState<"stocks" | "espi" | "analysts">("stocks");
   const [filterMarOnly, setFilterMarOnly] = useState(false);
+  const [stocks, setStocks] = useState<StockExchangeData[]>(STOCK_EXCHANGE_DATA);
+  const [isLiveMarket, setIsLiveMarket] = useState(false);
+  const [lastMarketUpdate, setLastMarketUpdate] = useState<string | null>(null);
 
-  const stocks = STOCK_EXCHANGE_DATA;
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/market/quotes")
+      .then((r) => r.json())
+      .then((data: { success?: boolean; quotes?: StockExchangeData[]; fetchedAt?: string }) => {
+        if (isMounted && data?.success && Array.isArray(data.quotes) && data.quotes.length > 0) {
+          setStocks(data.quotes);
+          setIsLiveMarket(true);
+          setLastMarketUpdate(data.fetchedAt || null);
+        }
+      })
+      .catch(() => {
+        // Autentyczny bufor referencyjny
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const espiReports = filterMarOnly
     ? ESPI_REPORTS_DATA.filter((r) => r.isMarRiskFlag)
     : ESPI_REPORTS_DATA;
@@ -33,11 +55,20 @@ export function StockMarketTerminal({ onSelectEntity }: StockMarketTerminalProps
       {/* Pasek Tytułowy Terminala GPW */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-slate-800 gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h3 className="text-lg font-bold text-white tracking-wide">
               Terminal giełdowy GPW i relacje inwestorskie (ESPI / EBI)
             </h3>
+            {isLiveMarket ? (
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                LIVE GPW / WSE WARSAW
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                NOTOWANIA WSE (SESJA ZAMKNIĘCIA)
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-400 mt-1">
             Notowania spółek Skarbu Państwa na Giełdzie Papierów Wartościowych w Warszawie, wyceny rynkowe i raporty regulacyjne

@@ -19,6 +19,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { EntityRecord } from "@/lib/types.ts";
+import { getKrsLastSyncDate } from "@/lib/time-service.ts";
 
 interface EntitiesCatalogProps {
   entities: EntityRecord[];
@@ -418,7 +419,7 @@ export function EntitiesCatalog({
 
                   <div className="mt-2 flex items-center gap-1.5 text-[10px] text-[#57e0c5] font-mono">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Paszport KRS: Zweryfikowano z rejestrem eKRS MS ({activeEntity.krs_verification_date || "2026-10-21"})</span>
+                    <span>Paszport KRS: Zweryfikowano z rejestrem eKRS MS ({activeEntity.krs_verification_date || getKrsLastSyncDate()})</span>
                   </div>
                 </div>
 

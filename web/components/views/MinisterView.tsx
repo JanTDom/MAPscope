@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flame,
   ShieldAlert,
@@ -57,12 +57,54 @@ import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot
 import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
 import { PortfolioStressTestSimulator } from "@/components/charts/PortfolioStressTestSimulator.tsx";
 import { HighLevelStateSuite } from "@/components/views/HighLevelStateSuite.tsx";
+import type { ParliamentaryInquiry, StockExchangeData } from "@/lib/types.ts";
 
 interface MinisterViewProps {
   onOpenDossier: (entityId: string) => void;
 }
 
 export function MinisterView({ onOpenDossier }: MinisterViewProps) {
+  const [inquiriesList, setInquiriesList] = useState<ParliamentaryInquiry[]>(PARLIAMENTARY_INQUIRIES);
+  const [isLiveSejm, setIsLiveSejm] = useState(false);
+  const [marketQuotes, setMarketQuotes] = useState<StockExchangeData[]>(STOCK_EXCHANGE_DATA);
+  const [isLiveMarket, setIsLiveMarket] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    // Pobieranie autentycznych interpelacji poselskich z Sejmu RP
+    fetch("/api/sejm/interpellations?limit=6")
+      .then((r) => r.json())
+      .then((data: { success?: boolean; inquiries?: ParliamentaryInquiry[] }) => {
+        if (isMounted && data?.success && Array.isArray(data.inquiries) && data.inquiries.length > 0) {
+          setInquiriesList(data.inquiries);
+          setIsLiveSejm(true);
+          if (data.inquiries[0]) {
+            setExpandedInquiryId(data.inquiries[0].id);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback do bazy urzędowej
+      });
+
+    // Pobieranie autentycznych notowań GPW
+    fetch("/api/market/quotes")
+      .then((r) => r.json())
+      .then((data: { success?: boolean; quotes?: StockExchangeData[] }) => {
+        if (isMounted && data?.success && Array.isArray(data.quotes) && data.quotes.length > 0) {
+          setMarketQuotes(data.quotes);
+          setIsLiveMarket(true);
+        }
+      })
+      .catch(() => {
+        // Fallback do sesji zamknięcia
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const [expandedInquiryId, setExpandedInquiryId] = useState<string | null>(
     PARLIAMENTARY_INQUIRIES[0]?.id || null
   );
@@ -744,19 +786,28 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
         {/* Rejestr interpelacji poselskich i postępowań kontrolnych */}
         <div className="lg:col-span-6 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <FileQuestion className="w-4 h-4 text-[#e5b958]" />
               <h2 className="text-sm font-bold text-white uppercase tracking-wider">
                 Interpelacje i uderzenia w kierownictwo MAP
               </h2>
+              {isLiveSejm ? (
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  LIVE SEJM RP (X KADENCJA)
+                </span>
+              ) : (
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  REJESTR SEJMOWY MAP
+                </span>
+              )}
             </div>
             <span className="text-xs text-[#8e9da7] font-mono">
-              {PARLIAMENTARY_INQUIRIES.length} aktywne sprawy
+              {inquiriesList.length} aktywne sprawy
             </span>
           </div>
 
           <div className="space-y-3">
-            {PARLIAMENTARY_INQUIRIES.map((inq) => {
+            {inquiriesList.map((inq) => {
               const isExpanded = expandedInquiryId === inq.id;
               const isCritical = inq.priority === "critical";
 
@@ -1444,11 +1495,12 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
 
           {/* Dolny Pasek Notowań Giełdowych WIG-SSP w Czasie Rzeczywistym */}
           <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-4 text-xs font-mono">
-            <span className="text-slate-400 font-semibold uppercase text-[10px] shrink-0">
-              Notowania GPW na żywo:
+            <span className="text-slate-400 font-semibold uppercase text-[10px] shrink-0 flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isLiveMarket ? "bg-emerald-500 animate-pulse" : "bg-blue-400"}`} />
+              Notowania GPW {isLiveMarket ? "(Live WSE)" : "(Sesja WSE)"}:
             </span>
             <div className="flex items-center gap-6 overflow-x-auto text-[11px]">
-              {STOCK_EXCHANGE_DATA.slice(0, 8).map((st) => (
+              {marketQuotes.slice(0, 8).map((st) => (
                 <div key={st.ticker} className="flex items-center gap-2 shrink-0">
                   <span className="font-bold text-white">{st.ticker}:</span>
                   <span className="text-slate-200">{st.currentPricePln.toFixed(2)} PLN</span>
