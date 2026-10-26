@@ -23,6 +23,7 @@ import {
   Gavel,
   TrendingUp,
   MapPin,
+  Network,
 } from "lucide-react";
 import type { EntityRecord, InternalDataEntry } from "@/lib/types.ts";
 import { RadarSpiderChart } from "@/components/charts/RadarSpiderChart.tsx";
@@ -33,6 +34,7 @@ import {
   LOCAL_MUNICIPAL_ISSUES,
 } from "@/lib/mapscope-data.ts";
 import { getKrsLastSyncDate } from "@/lib/time-service.ts";
+import { getSubsidiariesForEntity } from "@/lib/subsidiaries-registry.ts";
 
 interface DossierModalProps {
   entity: EntityRecord | null;
@@ -413,6 +415,78 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                   ))}
                 </div>
               </div>
+
+              {/* Filar Struktury Grupy Kapitałowej: Spółki zależne II i III szczebla */}
+              {(() => {
+                const subs = getSubsidiariesForEntity(entity.id);
+                if (subs.length === 0) return null;
+
+                return (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+                        <Network className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Spółki Zależne Grupy (II i III szczebel — eliminacja martwych stref nadzoru)</span>
+                      </h3>
+                      <span className="text-[10px] font-mono text-cyan-400 font-bold px-2 py-0.5 rounded bg-cyan-950/40 border border-cyan-500/30">
+                        {subs.length} podmiotów zależnych
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {subs.map((sub) => (
+                        <div
+                          key={sub.id}
+                          className={`p-3 rounded-lg border space-y-2 transition-all ${
+                            sub.hasDirectMinisterRisk
+                              ? "bg-red-950/20 border-red-500/35"
+                              : "bg-[#111a21] border-[rgba(159,186,199,0.1)]"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold text-white block">
+                                  {sub.name}
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-mono text-cyan-300">
+                                {sub.tier === "II_SZCZEBEL_CORKA" ? "II szczebel (Spółka-córka)" : "III szczebel (Spółka-wnuczka)"} • Udział grupy: {sub.sharePercent}%
+                              </span>
+                            </div>
+
+                            <span
+                              className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded font-bold shrink-0 border ${
+                                sub.hasDirectMinisterRisk
+                                  ? "bg-red-500/20 text-red-300 border-red-500/40"
+                                  : "bg-slate-800 text-slate-300 border-slate-700"
+                              }`}
+                            >
+                              {sub.hasDirectMinisterRisk ? "RYKOSZET W MAP" : "Nadzór pośredni"}
+                            </span>
+                          </div>
+
+                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                            {sub.roleDescription}
+                          </p>
+
+                          {sub.hasDirectMinisterRisk && sub.ministerRiskContext && (
+                            <div className="p-2 rounded bg-red-950/40 border border-red-500/30 text-[10px] text-red-200">
+                              <strong className="text-red-300 block font-semibold mb-0.5">Zarzewie kryzysu politycznego:</strong>
+                              {sub.ministerRiskContext}
+                            </div>
+                          )}
+
+                          <div className="pt-1.5 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                            <span>Sektor: {sub.sector}</span>
+                            {sub.krs && <span>KRS: {sub.krs}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 

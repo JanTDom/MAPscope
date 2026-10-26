@@ -40,6 +40,7 @@ import {
   AlertCircle,
   ExternalLink,
   Volume2,
+  Send,
 } from "lucide-react";
 import {
   OVERALL_CRISIS_TEMPERATURE,
@@ -113,6 +114,45 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
   );
   const [isKprmModalOpen, setIsKprmModalOpen] = useState(false);
   const [copiedAlertId, setCopiedAlertId] = useState<string | null>(null);
+  const [dispatchingAlertId, setDispatchingAlertId] = useState<string | null>(null);
+  const [dispatchedAlertIds, setDispatchedAlertIds] = useState<Record<string, boolean>>({});
+
+  const handleDispatchTelegram = async (alert: (typeof TOP_FIRE_ALERTS)[0]) => {
+    setDispatchingAlertId(alert.id);
+    try {
+      const res = await fetch("/api/alerts/dispatch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          alertId: alert.id,
+          entityName: alert.entityName,
+          priority: alert.priority,
+          title: alert.title,
+          whatHappened: alert.whatHappened,
+          whoResponsible: alert.whoResponsible,
+          governmentRisk: alert.governmentRisk,
+          recommendedAction: alert.recommendedAction,
+          hardFacts: alert.sejmQnA?.map((q) => q.hardFacts).filter(Boolean),
+          redLines: alert.sejmQnA?.map((q) => q.redLines).filter(Boolean),
+        }),
+      });
+      const data = (await res.json()) as { success?: boolean };
+      if (data?.success) {
+        setDispatchedAlertIds((prev) => ({ ...prev, [alert.id]: true }));
+        setTimeout(() => {
+          setDispatchedAlertIds((prev) => {
+            const next = { ...prev };
+            delete next[alert.id];
+            return next;
+          });
+        }, 5000);
+      }
+    } catch (err) {
+      console.error("Błąd wysyłki dyspozycji Telegram:", err);
+    } finally {
+      setDispatchingAlertId(null);
+    }
+  };
 
   // Nowy stan: Sala Narad KPRM (Tryb Wielkoekranowy), Generator Mandatów WZ/NWZ oraz Fiszka 30s
   const [isBigScreenOpen, setIsBigScreenOpen] = useState(false);
@@ -617,7 +657,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                     {/* Moduł Tarczy Sejmowej per Alert */}
                     {hasQnA && (
                       <div className="mt-3 pt-3 border-t border-[rgba(159,186,199,0.12)]">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <button
                             type="button"
                             onClick={() => setExpandedQnAId(isQnAExpanded ? null : alert.id)}
@@ -632,24 +672,49 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                             )}
                           </button>
 
-                          <button
-                            type="button"
-                            onClick={() => handleCopyQnA(alert.id)}
-                            className="flex items-center gap-1 px-2 py-1 rounded bg-[#16222b] hover:bg-[#1f2f3c] text-[10px] text-[#8e9da7] hover:text-white border border-[rgba(159,186,199,0.14)] transition-colors"
-                            title="Kopiuj do schowka telefonu"
-                          >
-                            {copiedAlertId === alert.id ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3 text-[#57e0c5]" />
-                                <span className="text-[#57e0c5]">Skopiowano!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3 h-3" />
-                                <span>Kopiuj na telefon</span>
-                              </>
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={dispatchingAlertId === alert.id}
+                              onClick={() => handleDispatchTelegram(alert)}
+                              className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold border transition-colors ${
+                                dispatchedAlertIds[alert.id]
+                                  ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50"
+                                  : isP1
+                                  ? "bg-[#ff7f87]/15 hover:bg-[#ff7f87]/25 text-[#ff7f87] border-[#ff7f87]/40"
+                                  : "bg-[#75b8ff]/15 hover:bg-[#75b8ff]/25 text-[#75b8ff] border-[#75b8ff]/30"
+                              }`}
+                              title="Wyślij natychmiastową dyspozycję alarmową do oficera dyżurnego MAP na Telegram"
+                            >
+                              <Send className="w-3 h-3" />
+                              <span>
+                                {dispatchingAlertId === alert.id
+                                  ? "Wysyłanie..."
+                                  : dispatchedAlertIds[alert.id]
+                                  ? "Wysłano P1 na Telegram"
+                                  : "Telegram dyżurny P1"}
+                              </span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleCopyQnA(alert.id)}
+                              className="flex items-center gap-1 px-2 py-1 rounded bg-[#16222b] hover:bg-[#1f2f3c] text-[10px] text-[#8e9da7] hover:text-white border border-[rgba(159,186,199,0.14)] transition-colors"
+                              title="Kopiuj do schowka telefonu"
+                            >
+                              {copiedAlertId === alert.id ? (
+                                <>
+                                  <CheckCircle2 className="w-3 h-3 text-[#57e0c5]" />
+                                  <span className="text-[#57e0c5]">Skopiowano!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Kopiuj na telefon</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
 
                         {isQnAExpanded && (
@@ -969,12 +1034,12 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    window.print();
+                    window.open("/api/export/government-doc?type=kprm", "_blank");
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-xs text-white border border-[rgba(159,186,199,0.2)] flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs text-white border border-blue-400/40 flex items-center gap-1.5 transition-colors font-semibold"
                 >
-                  <Printer className="w-3.5 h-3.5 text-[#75b8ff]" />
-                  <span>Drukuj / PDF</span>
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Drukuj A4 / Urzędowy PDF</span>
                 </button>
                 <button
                   type="button"
@@ -1090,15 +1155,27 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             {/* Stopka Modalu */}
             <div className="p-4 border-t border-[rgba(159,186,199,0.14)] bg-[#0e161c] flex items-center justify-between text-xs">
               <span className="text-[11px] text-[#5d6b74] font-mono">
-                System MAPscope • Wersja gabinetowa v1.4
+                System MAPscope • Wersja gabinetowa KPRM A4
               </span>
-              <button
-                type="button"
-                onClick={() => setIsKprmModalOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
-              >
-                Zamknij podgląd
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open("/api/export/government-doc?type=kprm", "_blank");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center gap-1.5 text-xs"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Otwórz dokument A4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsKprmModalOpen(false)}
+                  className="px-4 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white transition-colors"
+                >
+                  Zamknij podgląd
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1125,6 +1202,16 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open(`/api/export/government-doc?type=agm&id=${encodeURIComponent(selectedAgmId)}`, "_blank");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-xs text-white flex items-center gap-1.5 transition-colors font-semibold"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Drukuj A4 / Mandat</span>
+                </button>
                 <button
                   type="button"
                   onClick={handleCopyAgmMandate}
@@ -1275,6 +1362,16 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
                 Mandat prawny MAP • Sygnatura: MAP-DW-WZ/2026/088
               </span>
               <div className="flex items-center justify-end gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open(`/api/export/government-doc?type=agm&id=${encodeURIComponent(selectedAgmId)}`, "_blank");
+                  }}
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors flex items-center justify-center gap-1.5 text-xs"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Drukuj A4</span>
+                </button>
                 <button
                   type="button"
                   onClick={handleCopyAgmMandate}
@@ -1537,6 +1634,16 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={() => {
+                    window.open(`/api/export/government-doc?type=briefing&id=${encodeURIComponent(selectedBriefingId)}`, "_blank");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs text-white flex items-center gap-1.5 transition-colors font-semibold"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Drukuj A4 / Fiszka</span>
+                </button>
+                <button
+                  type="button"
                   onClick={handleCopyBriefing}
                   className="px-3 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-xs text-white border border-[rgba(159,186,199,0.2)] flex items-center gap-1.5 transition-colors"
                 >
@@ -1650,8 +1757,18 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               <div className="flex items-center justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
-                  onClick={handleCopyBriefing}
+                  onClick={() => {
+                    window.open(`/api/export/government-doc?type=briefing&id=${encodeURIComponent(selectedBriefingId)}`, "_blank");
+                  }}
                   className="flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-colors flex items-center justify-center gap-1.5 text-xs"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Drukuj A4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyBriefing}
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-lg bg-[#16222b] hover:bg-[#1f2f3c] text-white font-semibold transition-colors flex items-center justify-center gap-1.5 text-xs border border-slate-700"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>Kopiuj briefing</span>
