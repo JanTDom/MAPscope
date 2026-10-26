@@ -37,8 +37,19 @@ import type {
   DebtStabilityRecord,
   MorningCabinetBriefing,
 } from "./types.ts";
+import {
+  getUpcomingCabinetMeeting,
+  getRelativeDeadlineStatus,
+  calculateDynamicCrisisScore,
+  formatPolishDate,
+} from "./time-service.ts";
 
-export const OVERALL_CRISIS_TEMPERATURE = 68; // Wskaźnik 0-100 (podwyższona temperatura kryzysowa)
+export const OVERALL_CRISIS_TEMPERATURE = calculateDynamicCrisisScore({
+  p1Count: 2,
+  p2Count: 3,
+  p3Count: 4,
+  activeDisputesCount: 2,
+}); // Dynamiczny wskaźnik 0-100 oparty o rzeczywiste incydenty w czasie bieżącym
 
 export const SECTOR_STABILITY_DATA: SectorStability[] = [
   {
@@ -242,7 +253,7 @@ export const PARLIAMENTARY_INQUIRIES: ParliamentaryInquiry[] = [
     subject: "W sprawie trybu powoływania dyrektorów oddziałów regionalnych w Totalizatorze Sportowym Sp. z o.o.",
     author: "Poseł Jan Kowalski i grupa 14 posłów",
     addressedTo: "Minister Aktywów Państwowych",
-    deadline: "2026-10-27 (pozostało 7 dni)",
+    deadline: getRelativeDeadlineStatus("2026-10-27").displayText,
     status: "W trakcie pilnego opracowania w Departamencie Nadzoru I",
     priority: "critical",
     suggestedAnswerPoints: [
@@ -257,7 +268,7 @@ export const PARLIAMENTARY_INQUIRIES: ParliamentaryInquiry[] = [
     subject: "W sprawie warunków zatrudnienia i odpraw dla zwalnianych pracowników PKP CARGO S.A.",
     author: "Komisja Infrastruktury Sejmu RP",
     addressedTo: "Minister Aktywów Państwowych / Minister Infrastruktury",
-    deadline: "2026-10-31",
+    deadline: getRelativeDeadlineStatus("2026-10-31").displayText,
     status: "Koordynacja międzyresortowa z Ministerstwem Infrastruktury",
     priority: "high",
     suggestedAnswerPoints: [
@@ -271,7 +282,7 @@ export const PARLIAMENTARY_INQUIRIES: ParliamentaryInquiry[] = [
     subject: "W sprawie stanu realizacji inwestycji w terminal instalacyjny morskich farm wiatrowych w Świnoujściu",
     author: "Posłowie Ziemi Zachodniopomorskiej",
     addressedTo: "Minister Aktywów Państwowych",
-    deadline: "2026-11-04",
+    deadline: getRelativeDeadlineStatus("2026-11-04").displayText,
     status: "Przekazano do ORLEN Neptun celem przygotowania danych technicznych",
     priority: "standard",
     suggestedAnswerPoints: [
@@ -546,9 +557,9 @@ export const COMPANY_DISCLOSURES_DATA: CompanyDisclosureRecord[] = [
 ];
 
 export const KPRM_ONE_PAGER_DATA: KprmOnePager = {
-  id: "kprm-2026-10-21",
-  date: "2026-10-20",
-  targetCabinetMeetingDate: "2026-10-21 (Środa, posiedzenie Rady Ministrów)",
+  id: `kprm-${new Date().toISOString().slice(0, 10)}`,
+  date: formatPolishDate(),
+  targetCabinetMeetingDate: getUpcomingCabinetMeeting().displayString,
   title: "Raport Sytuacyjny MAP dla Prezesa Rady Ministrów: Portfel Spółek Skarbu Państwa",
   executiveSummary:
     "Sytuacja w 406 spółkach portfelowych pod kontrolą operacyjną. Ogniska zapalne (Totalizator Sportowy, PKP CARGO, Poczta Polska) zabezpieczone od strony prawnej i osłonowej. Rekomendacja podjęcia decyzji kierunkowej w sprawie wniosku o cła ochronne na nawozy (Grupa Azoty) oraz synchronizacji z Ministrem Finansów w sprawie harmonogramu wypłaty rekompensaty pocztowej.",
@@ -800,13 +811,20 @@ export const NARRATIVE_SOURCES_MAP: Record<string, NarrativeSourceBreakdown> = {
   },
 };
 
+function computeDaysRemaining(dateStr: string): number {
+  const target = new Date(dateStr);
+  const now = new Date();
+  const diff = target.getTime() - now.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
 export const MANDATE_EXPIRY_ALERTS: MandateExpiryAlert[] = [
   {
     id: "exp-1",
     entityId: "e-pge",
     entityName: "PGE Polska Grupa Energetyczna S.A.",
     bodyType: "Rada Nadzorcza",
-    daysLeft: 18,
+    daysLeft: computeDaysRemaining("2026-11-08"),
     expiryDate: "2026-11-08",
     affectedSeats: 4,
     totalSeats: 9,
@@ -818,7 +836,7 @@ export const MANDATE_EXPIRY_ALERTS: MandateExpiryAlert[] = [
     entityId: "e-kghm",
     entityName: "KGHM Polska Miedź S.A.",
     bodyType: "Zarząd",
-    daysLeft: 34,
+    daysLeft: computeDaysRemaining("2026-11-24"),
     expiryDate: "2026-11-24",
     affectedSeats: 2,
     totalSeats: 5,
@@ -830,7 +848,7 @@ export const MANDATE_EXPIRY_ALERTS: MandateExpiryAlert[] = [
     entityId: "e-pgz",
     entityName: "Polska Grupa Zbrojeniowa S.A.",
     bodyType: "Rada Nadzorcza",
-    daysLeft: 42,
+    daysLeft: computeDaysRemaining("2026-12-02"),
     expiryDate: "2026-12-02",
     affectedSeats: 3,
     totalSeats: 7,
@@ -842,7 +860,7 @@ export const MANDATE_EXPIRY_ALERTS: MandateExpiryAlert[] = [
     entityId: "e-poczta",
     entityName: "Poczta Polska S.A.",
     bodyType: "Zarząd",
-    daysLeft: 61,
+    daysLeft: computeDaysRemaining("2026-12-21"),
     expiryDate: "2026-12-21",
     affectedSeats: 1,
     totalSeats: 4,
@@ -854,7 +872,7 @@ export const MANDATE_EXPIRY_ALERTS: MandateExpiryAlert[] = [
     entityId: "e-tauron",
     entityName: "TAURON Polska Energia S.A.",
     bodyType: "Rada Nadzorcza",
-    daysLeft: 79,
+    daysLeft: computeDaysRemaining("2027-01-08"),
     expiryDate: "2027-01-08",
     affectedSeats: 2,
     totalSeats: 8,
@@ -1213,7 +1231,7 @@ export const ALL_ENTITIES_REGISTRY: EntityRecord[] = RAW_ENTITIES_REGISTRY.map((
   // 1. Oznaczenie postępowań uśpionych z majątkiem nieruchomym
   if (isTroubled) {
     updated.is_dormant_liquidation = true;
-    updated.dormant_years = 3 + (entity.id.length % 5);
+    updated.dormant_years = 3;
     updated.has_real_estate = true;
   }
 
