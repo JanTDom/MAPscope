@@ -104,13 +104,33 @@ export function parseKrsStructuralJson(data: unknown): {
     if (typeof item === "object" && item !== null) {
       const itemObj = item as Record<string, unknown>;
       const id = (typeof itemObj.identyfikator === "object" && itemObj.identyfikator !== null ? itemObj.identyfikator : {}) as Record<string, unknown>;
-      const imiona = typeof id.imiona === "string" ? id.imiona.trim() : "";
-      const nazwisko = typeof id.nazwisko === "string" ? id.nazwisko.trim() : "";
-      const funkcja = typeof itemObj.funkcjaWOrganie === "string" ? itemObj.funkcjaWOrganie.trim() : "Członek Zarządu";
+      
+      let imiona = "";
+      if (typeof itemObj.imiona === "string") {
+        imiona = itemObj.imiona.trim();
+      } else if (typeof itemObj.imiona === "object" && itemObj.imiona !== null) {
+        const imObj = itemObj.imiona as Record<string, unknown>;
+        imiona = typeof imObj.imie === "string" ? imObj.imie.trim() : "";
+      } else if (typeof id.imiona === "string") {
+        imiona = id.imiona.trim();
+      }
 
-      if (imiona && nazwisko) {
+      let nazwisko = "";
+      if (typeof itemObj.nazwisko === "string") {
+        nazwisko = itemObj.nazwisko.trim();
+      } else if (typeof itemObj.nazwisko === "object" && itemObj.nazwisko !== null) {
+        const nazObj = itemObj.nazwisko as Record<string, unknown>;
+        nazwisko = typeof nazObj.nazwiskoICzlon === "string" ? nazObj.nazwiskoICzlon.trim() : "";
+      } else if (typeof id.nazwisko === "string") {
+        nazwisko = id.nazwisko.trim();
+      }
+
+      const funkcja = typeof itemObj.funkcjaWOrganie === "string" ? itemObj.funkcjaWOrganie.trim() : "Członek Zarządu";
+      const fullName = [imiona, nazwisko].filter(Boolean).join(" ");
+
+      if (fullName) {
         managementBoard.push({
-          name: `${imiona} ${nazwisko}`,
+          name: fullName,
           role: funkcja,
           appointedAt: "2024-03-15",
           status: "active",
@@ -130,13 +150,33 @@ export function parseKrsStructuralJson(data: unknown): {
       if (typeof item === "object" && item !== null) {
         const itemObj = item as Record<string, unknown>;
         const id = (typeof itemObj.identyfikator === "object" && itemObj.identyfikator !== null ? itemObj.identyfikator : {}) as Record<string, unknown>;
-        const imiona = typeof id.imiona === "string" ? id.imiona.trim() : "";
-        const nazwisko = typeof id.nazwisko === "string" ? id.nazwisko.trim() : "";
-        const funkcja = typeof itemObj.funkcjaWOrganie === "string" ? itemObj.funkcjaWOrganie.trim() : "Członek Rady Nadzorczej";
+        
+        let imiona = "";
+        if (typeof itemObj.imiona === "string") {
+          imiona = itemObj.imiona.trim();
+        } else if (typeof itemObj.imiona === "object" && itemObj.imiona !== null) {
+          const imObj = itemObj.imiona as Record<string, unknown>;
+          imiona = typeof imObj.imie === "string" ? imObj.imie.trim() : "";
+        } else if (typeof id.imiona === "string") {
+          imiona = id.imiona.trim();
+        }
 
-        if (imiona && nazwisko) {
+        let nazwisko = "";
+        if (typeof itemObj.nazwisko === "string") {
+          nazwisko = itemObj.nazwisko.trim();
+        } else if (typeof itemObj.nazwisko === "object" && itemObj.nazwisko !== null) {
+          const nazObj = itemObj.nazwisko as Record<string, unknown>;
+          nazwisko = typeof nazObj.nazwiskoICzlon === "string" ? nazObj.nazwiskoICzlon.trim() : "";
+        } else if (typeof id.nazwisko === "string") {
+          nazwisko = id.nazwisko.trim();
+        }
+
+        const funkcja = typeof itemObj.funkcjaWOrganie === "string" ? itemObj.funkcjaWOrganie.trim() : "Członek Rady Nadzorczej";
+        const fullName = [imiona, nazwisko].filter(Boolean).join(" ");
+
+        if (fullName) {
           supervisoryBoard.push({
-            name: `${imiona} ${nazwisko}`,
+            name: fullName,
             role: funkcja,
             appointedAt: "2024-02-01",
             status: "active",
