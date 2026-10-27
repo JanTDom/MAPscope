@@ -54,6 +54,7 @@ import {
   STOCK_EXCHANGE_DATA,
   VOIVODESHIP_REGIONAL_DATA,
 } from "@/lib/mapscope-data.ts";
+import { formatPolishDate, getSystemNow } from "@/lib/time-service.ts";
 import { RiskMatrixScatterPlot } from "@/components/charts/RiskMatrixScatterPlot.tsx";
 import { CalendarHeatmapChart } from "@/components/charts/CalendarHeatmapChart.tsx";
 import { PortfolioStressTestSimulator } from "@/components/charts/PortfolioStressTestSimulator.tsx";
@@ -104,6 +105,35 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  // Dynamiczny stan daty i godziny aktualizacji kokpitu
+  const [currentDateFormatted, setCurrentDateFormatted] = useState<string>("27 października 2026 r.");
+  const [currentDateTimeFormatted, setCurrentDateTimeFormatted] = useState<string>("27 października 2026, 21:55");
+  const [currentCestFormatted, setCurrentCestFormatted] = useState<string>("27 października 2026 r. • 22:00 CEST");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = getSystemNow();
+      setCurrentDateFormatted(formatPolishDate(now));
+
+      const day = now.getDate();
+      const monthNames = [
+        "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+        "lipca", "sierpnia", "września", "października", "listopada", "grudnia"
+      ];
+      const month = monthNames[now.getMonth()];
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+
+      setCurrentDateTimeFormatted(`${day} ${month} ${year}, ${hours}:${minutes}`);
+      setCurrentCestFormatted(`${day} ${month} ${year} r. • ${hours}:${minutes} CEST`);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const [expandedInquiryId, setExpandedInquiryId] = useState<string | null>(
@@ -238,7 +268,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
       "",
       `PRZERZUCENIE PIŁKI (POPRZEDNICY/RESORTY):\n${selectedBriefing.attributionPush}`,
       `--------------------------------------------------------------------------------`,
-      `Gabinet Polityczny MAP • 20 października 2026 r.`,
+      `Gabinet Polityczny MAP • ${currentDateFormatted}`,
     ].join("\n");
 
     navigator.clipboard.writeText(text);
@@ -264,7 +294,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
       `Czerwone Linie i Granice Pełnomocnictwa:\n${selectedAgmTemplate.redLineConstraint}`,
       `--------------------------------------------------------------------------------`,
       `Z upoważnienia Ministra Aktywów Państwowych: Podsekretarz Stanu`,
-      `Sporządzono w MAP • Data: 20 października 2026 r.`,
+      `Sporządzono w MAP • Data: ${currentDateFormatted}`,
     ].join("\n\n");
 
     navigator.clipboard.writeText(text);
@@ -304,7 +334,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
               <span className="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded bg-[#ff7f87]/15 text-[#ff7f87] border border-[#ff7f87]/30 font-bold">
                 GABINET MINISTRA • KOKPIT ZARZĄDCZY
               </span>
-              <span className="text-xs text-[#8e9da7]">Aktualizacja: 20 października 2026, 23:55</span>
+              <span className="text-xs text-[#8e9da7]">Aktualizacja: {currentDateTimeFormatted}</span>
             </div>
             <h1 className="text-lg font-bold text-white mt-1">
               Radar strategiczny, Tarcza Sejmowa i temperatura kryzysowa SSP
@@ -436,7 +466,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             </h2>
           </div>
           <span className="text-[11px] text-[#8e9da7] font-mono">
-            Wycena GPW & KRS: 20 października 2026, 23:55 • 406 podmiotów bez wykluczeń
+            Wycena GPW & KRS: {currentDateTimeFormatted} • 406 podmiotów bez wykluczeń
           </span>
         </div>
 
@@ -1413,7 +1443,7 @@ export function MinisterView({ onOpenDossier }: MinisterViewProps) {
             <div className="flex items-center gap-6">
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 uppercase font-mono block">Czas systemowy</span>
-                <span className="text-sm font-mono font-bold text-white">20 października 2026 r. • 23:59 CEST</span>
+                <span className="text-sm font-mono font-bold text-white">{currentCestFormatted}</span>
               </div>
               <div className="px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-xs font-mono flex items-center gap-2">
                 <Flame className="w-4 h-4 animate-bounce" />

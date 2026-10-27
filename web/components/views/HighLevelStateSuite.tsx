@@ -41,6 +41,7 @@ import {
   DEBT_STABILITY_RECORDS,
   MORNING_CABINET_BRIEFING,
 } from "@/lib/mapscope-data.ts";
+import { formatPolishDate, getSystemNow } from "@/lib/time-service.ts";
 import {
   OFFICIAL_GPW_PERIODIC_REPORTS,
   parseEspiXbrlContent,
@@ -75,6 +76,11 @@ export function HighLevelStateSuite({
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 1.25 | 1.5>(1);
   const [isDecisionSigned, setIsDecisionSigned] = useState(false);
   const [copiedDecision, setCopiedDecision] = useState(false);
+  const [briefingDateFormatted, setBriefingDateFormatted] = useState<string>("27 października 2026 r.");
+
+  useEffect(() => {
+    setBriefingDateFormatted(formatPolishDate(getSystemNow()));
+  }, []);
 
   // Stan sprzeciwu ministra w module tarczy
   const [isVetoModalOpen, setIsVetoModalOpen] = useState(false);
@@ -1353,7 +1359,7 @@ Rekomendacja dla MAP: ${activeXbrlReport.covenant.ministerialRecommendation}`;
                   </div>
                   <h3 className="text-base font-bold text-white mt-1 flex items-center gap-2">
                     <Volume2 className="w-5 h-5 text-emerald-400" />
-                    Gabinetowy audio-briefing: {MORNING_CABINET_BRIEFING.briefingDate}
+                    Gabinetowy audio-briefing: {briefingDateFormatted}
                   </h3>
                 </div>
 

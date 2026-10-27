@@ -2731,8 +2731,8 @@ export const DEBT_STABILITY_RECORDS: DebtStabilityRecord[] = [
 ];
 
 export const MORNING_CABINET_BRIEFING: MorningCabinetBriefing = {
-  id: "briefing-2026-10-21",
-  briefingDate: "21 października 2026 r.",
+  id: "briefing-2026-10-27",
+  briefingDate: "27 października 2026 r.",
   keyNumberValue: "384,5 mld PLN",
   keyNumberLabel: "Zagregowana wycena rynkowa i bilansowa portfela Skarbu Państwa (+14,2 mld r/r)",
   urgentDecisionToSign: "Podpisanie zgody właścicielskiej na przedłużenie umowy standstill Grupy Azoty z konsorcjum 13 banków wierzycieli do 31 grudnia 2026 r. (druk MAP-DK-88/2026).",
