@@ -55,11 +55,16 @@ export function CommunicationView({ onOpenDossier }: CommunicationViewProps) {
     setIsLoadingLiveFeeds(true);
     try {
       const res = await fetch("/api/press-feeds/sync");
-      const data = (await res.json()) as { success?: boolean; items?: SspPressReleaseItem[] };
-      if (data?.success && Array.isArray(data.items)) {
-        setLivePressReleases(data.items);
-        if (data.items.length > 0 && !selectedLiveFeed) {
-          setSelectedLiveFeed(data.items[0]);
+      const data = (await res.json()) as {
+        success?: boolean;
+        items?: SspPressReleaseItem[];
+        releases?: SspPressReleaseItem[];
+      };
+      const itemsList = data.items || data.releases || [];
+      if (data?.success && Array.isArray(itemsList)) {
+        setLivePressReleases(itemsList);
+        if (itemsList.length > 0 && !selectedLiveFeed) {
+          setSelectedLiveFeed(itemsList[0]);
         }
       }
     } catch (e) {

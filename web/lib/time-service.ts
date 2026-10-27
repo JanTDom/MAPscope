@@ -231,10 +231,10 @@ export function getKrsLastSyncDate(now: Date = getSystemNow()): string {
 }
 
 /**
- * Zwraca datę i czas ostatniej nocnej synchronizacji KRS (02:04 CET)
+ * Zwraca datę i czas ostatniej zarejestrowanej sesji synchronizacyjnej KRS
  */
 export function getKrsLastSyncDateTime(now: Date = getSystemNow()): string {
-  return `${now.toISOString().slice(0, 10)} 02:04 CET`;
+  return `${now.toISOString().slice(0, 10)} 02:00 CET (cykl nocny)`;
 }
 
 /**

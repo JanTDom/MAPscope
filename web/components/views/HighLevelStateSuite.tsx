@@ -117,7 +117,59 @@ export function HighLevelStateSuite({
     }, 6000);
   };
 
-  // Efekt symulujący postęp odtwarzania audio
+  // Prawdziwa obsługa syntezy mowy (Web Speech API) dla briefingu porannego
+  const toggleSpeechPlayback = () => {
+    if (typeof window === "undefined") return;
+
+    if (isPlaying) {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      setIsPlaying(false);
+      setPlaybackSeconds(0);
+      return;
+    }
+
+    if (!("speechSynthesis" in window)) {
+      setIsPlaying(true);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(MORNING_CABINET_BRIEFING.transcriptText);
+    utterance.lang = "pl-PL";
+    utterance.rate = playbackSpeed;
+
+    const voices = window.speechSynthesis.getVoices();
+    const plVoice = voices.find((v) => v.lang.startsWith("pl") || v.lang.includes("PL"));
+    if (plVoice) {
+      utterance.voice = plVoice;
+    }
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setPlaybackSeconds(0);
+    };
+
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      setPlaybackSeconds(0);
+    };
+
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  // Sprzątanie syntezy mowy przy opuszczeniu widoku
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Efekt śledzący czas trwania odtwarzania
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isPlaying) {
@@ -125,6 +177,9 @@ export function HighLevelStateSuite({
         setPlaybackSeconds((prev) => {
           if (prev >= MORNING_CABINET_BRIEFING.audioDurationSeconds) {
             setIsPlaying(false);
+            if (typeof window !== "undefined" && "speechSynthesis" in window) {
+              window.speechSynthesis.cancel();
+            }
             return 0;
           }
           return prev + 1;
@@ -1285,9 +1340,9 @@ Rekomendacja dla MAP: ${activeXbrlReport.covenant.ministerialRecommendation}`;
                 <div className="flex items-center gap-3 bg-[#111a21] p-2.5 rounded-xl border border-[rgba(159,186,199,0.16)] shrink-0">
                   <button
                     type="button"
-                    onClick={() => setIsPlaying(!isPlaying)}
+                    onClick={toggleSpeechPlayback}
                     className="w-10 h-10 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[#071015] flex items-center justify-center font-bold transition-all shadow-md"
-                    aria-label={isPlaying ? "Zatrzymaj audio" : "Odtwórz audio"}
+                    aria-label={isPlaying ? "Zatrzymaj audio" : "Odtwórz audio (Synteza mowy PL)"}
                   >
                     {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                   </button>

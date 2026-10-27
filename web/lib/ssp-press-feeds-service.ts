@@ -292,10 +292,80 @@ export function auditPressReleaseRisk(title: string, summary: string): {
 }
 
 /**
+ * Pobiera i parsuje pojedynczy feed RSS/Atom biura prasowego SSP.
+ */
+export async function fetchSingleRssFeed(feed: SspPressFeedConfig): Promise<SspPressReleaseItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(feed.feedUrl, {
+      signal: controller.signal,
+      headers: {
+        Accept: "application/rss+xml, application/xml, text/xml, */*",
+        "User-Agent": "MAPscope-PressRadar/1.0 (+https://mapscope.gov.pl)",
+      },
+      next: { revalidate: 300 },
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const items: SspPressReleaseItem[] = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+    let match: RegExpExecArray | null;
+    let count = 0;
+    while ((match = itemRegex.exec(xml)) !== null && count < 3) {
+      const block = match[1];
+      const title = (block.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || "")
+        .replace(/<!\[CDATA\[(.*?)\]\]>/gi, "$1")
+        .trim();
+      const link = (block.match(/<link>([\s\S]*?)<\/link>/i)?.[1] || feed.websiteUrl)
+        .replace(/<!\[CDATA\[(.*?)\]\]>/gi, "$1")
+        .trim();
+      const desc = (block.match(/<description>([\s\S]*?)<\/description>/i)?.[1] || "")
+        .replace(/<!\[CDATA\[(.*?)\]\]>/gi, "$1")
+        .replace(/<[^>]+>/g, " ")
+        .trim();
+      const pubDate = (block.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1] || new Date().toISOString()).trim();
+
+      if (title) {
+        count++;
+        const audit = auditPressReleaseRisk(title, desc);
+        items.push({
+          id: `feed-${(feed.ticker || feed.entityId).toLowerCase()}-${count}-${Date.now()}`,
+          entityId: feed.entityId,
+          entityName: feed.entityName,
+          ticker: feed.ticker,
+          title,
+          summary: desc.slice(0, 300),
+          publishedAt: new Date(pubDate).toISOString(),
+          link,
+          riskFlag: audit.flag,
+          detectedTriggers: audit.triggers,
+        });
+      }
+    }
+    return items;
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Zwraca autentyczny zestaw komunikatów biur prasowych z audytem ryzyka dla MAP.
+ * Łączy live odpytanie feedów RSS z oficjalnymi zweryfikowanymi komunikatami giełdowymi/rejestrowymi.
  */
 export async function fetchLiveSspPressReleases(limit: number = 10): Promise<SspPressReleaseItem[]> {
-  // Autentyczne oficjalne oświadczenia prasowe spółek
+  // Próba odpytania 4 czołowych feedów na żywo
+  const topFeeds = SSP_PRESS_FEED_CATALOG.slice(0, 4);
+  const liveResults = await Promise.allSettled(topFeeds.map((f) => fetchSingleRssFeed(f)));
+  const liveDiscovered: SspPressReleaseItem[] = [];
+  for (const r of liveResults) {
+    if (r.status === "fulfilled" && Array.isArray(r.value)) {
+      liveDiscovered.push(...r.value);
+    }
+  }
+
+  // Autentyczne oficjalne oświadczenia prasowe i giełdowe spółek Skarbu Państwa
   const baselineReleases: Array<{
     entityId: string;
     entityName: string;
@@ -415,7 +485,7 @@ export async function fetchLiveSspPressReleases(limit: number = 10): Promise<Ssp
     },
   ];
 
-  return baselineReleases.slice(0, limit).map((rel, index) => {
+  const baselineProcessed: SspPressReleaseItem[] = baselineReleases.map((rel, index) => {
     const audit = auditPressReleaseRisk(rel.title, rel.summary);
     return {
       id: `rel-${rel.ticker.toLowerCase()}-${index + 1}`,
@@ -430,4 +500,17 @@ export async function fetchLiveSspPressReleases(limit: number = 10): Promise<Ssp
       detectedTriggers: audit.triggers,
     };
   });
+
+  const allItems = [...liveDiscovered, ...baselineProcessed];
+  const seen = new Set<string>();
+  const deduplicated: SspPressReleaseItem[] = [];
+  for (const it of allItems) {
+    const key = it.title.toLowerCase().replace(/[^a-ząćęłńóśźż0-9]/g, "").slice(0, 40);
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduplicated.push(it);
+    }
+  }
+
+  return deduplicated.slice(0, limit);
 }

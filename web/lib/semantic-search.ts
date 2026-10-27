@@ -1,6 +1,6 @@
 /**
- * Silnik Wyszukiwania Semantycznego i Analizy Intencji MAPscope
- * Zapewnia precyzyjne odnajdywanie spraw, spółek i precedensów w języku naturalnym.
+ * Silnik Analizy Intencji Domenowych i Wyszukiwania Wieloaspektowego MAPscope
+ * Zapewnia precyzyjne odnajdywanie spraw, spółek i precedensów w oparciu o reguły prawa gospodarczego i nadzoru.
  */
 
 import { ALL_ENTITIES_REGISTRY } from "./all-ssp-registry.ts";

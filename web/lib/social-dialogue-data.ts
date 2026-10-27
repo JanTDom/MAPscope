@@ -31,7 +31,7 @@ export const LABOR_DISPUTES_DATABASE: LaborDisputeRecord[] = [
     legalStage: "PROTOKOL_ROZBIEZNOSCI",
     threatLevel: "KRYTYCZNY",
     isZuzpThreatened: true,
-    mediatorAssigned: "Wyznaczony z listy ministerialnej MRPiPS (radca Jan Kowalski)",
+    mediatorAssigned: "Wyznaczony z oficjalnej listy mediatorów MRPiPS (Wojewódzka Rada Dialogu Społecznego)",
     nextDeadlineDate: "2026-10-28",
     nextDeadlineDescription: "Posiedzenie Wojewódzkiej Rady Dialogu Społecznego w Katowicach z udziałem Zarządu",
     ministerialNegotiationLine:
@@ -69,7 +69,7 @@ export const LABOR_DISPUTES_DATABASE: LaborDisputeRecord[] = [
     legalStage: "MEDIACJA_MRPIPS",
     threatLevel: "WYSOKI",
     isZuzpThreatened: false,
-    mediatorAssigned: "Ministerialny mediator pracy (dr hab. Marek Zieliński)",
+    mediatorAssigned: "Postępowanie mediacyjne z listy mediatorów MRPiPS",
     nextDeadlineDate: "2026-10-31",
     nextDeadlineDescription: "Koniec terminu mediacji przed sporządzeniem protokołu rozbieżności z mediatorem",
     ministerialNegotiationLine:

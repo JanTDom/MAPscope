@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       monitoredFeedsCount: SSP_PRESS_FEED_CATALOG.length,
       fetchedAt: new Date().toISOString(),
       releases,
+      items: releases,
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Błąd synchronizacji biur prasowych";

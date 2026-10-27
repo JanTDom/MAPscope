@@ -150,34 +150,34 @@ export const MAP_LEADERSHIP: MapLeadershipMemberRecord[] = [
 export const MAP_DIRECT_CRISES: MapDirectCrisisRecord[] = [
   {
     id: "cris-map-krucza-protest",
-    title: "Przebieg i realizacja ustaleń po demonstracji związkowej przed gmachem MAP (ul. Krucza 36)",
+    title: "Zgłoszona pikieta ostrzegawcza związków zawodowych przed gmachem MAP przy ul. Kruczej 36",
     severity: "KRYTYCZNE",
     category: "PROTESTY_SPOŁECZNE",
     dateIso: "2026-10-23",
     temporalStatus: "ODBYŁO_SIĘ",
-    incidentDate: "2026-10-23 (odbyła się 3 dni temu — petycja przyjęta)",
+    incidentDate: "2026-10-23 (pikieta ostrzegawcza przed gmachem MAP przy ul. Kruczej 36)",
     affectedLeadership: ["Wojciech Balczun (Minister)", "Grzegorz Wrona (Wiceminister)"],
     summary:
-      "Zgromadzenie publiczne 2 500 pracowników PKP CARGO oraz Poczty Polskiej odbyło się w piątek 23.10 przed gmachem MAP przy ul. Kruczej 36. Wydarzenie przebiegło bez incydentów naruszenia bezpieczeństwa; petycja strony społecznej została formalnie odebrana.",
+      "Zgłoszona pikieta ostrzegawcza reprezentantów organizacji związkowych przed gmachem Ministerstwa Aktywów Państwowych przy ul. Kruczej 36 w związku z procesem sanacji w PKP CARGO oraz planami restrukturyzacji w Poczcie Polskiej.",
     oppositionAttackVector:
-      "Politycy opozycji podnosili w mediach żądania wyjścia kierownictwa resortu do protestujących oraz zarzuty 'likwidacji polskiej kolei przez b. prezesa PKP Cargo'.",
+      "Podnoszenie w debacie publicznej kwestii tempa restrukturyzacji i zabezpieczenia socjalnego załogi w procesie sanacji PKP CARGO.",
     ministerialCounterNarrative:
-      "Minister Wojciech Balczun, który z sukcesem zrestrukturyzował PKP Cargo w latach 2008-2013, doskonale zna wyzwania branży: MAP wyznaczyło zespół kierowniczy na czele z wiceministrem Grzegorzem Wroną, który przyjął delegację związkową w sali konferencyjnej resortu. Sanacja ratuje spółkę przed twardą upadłością likwidacyjną, a 12 innych spółek kolejowych zagwarantowało już zatrudnienie ponad 1 800 odchodzącym pracownikom.",
+      "MAP pod kierownictwem Wojciecha Balczuna konsekwentnie wdraża mechanizmy osłonowe: postępowanie sanacyjne zabezpiecza płynność spółki i chroni kluczowe aktywa taborowe przed likwidacją, a programy outplacementowe objęły już ponad 1 800 pracowników przechodzących do innych przewoźników kolejowych.",
     streetProtestThreat: true,
     isLiveProtestToday: false,
     postCrisisResolution:
-      "Zgromadzenie zakończone. Petycja zarejestrowana w Biurze Ministra; Departament Spółek Strategicznych wdrożył cotygodniowy monitoring realizacji transferów pracowniczych do Polregio, PKP Intercity i Wars.",
+      "Delegacja związkowców została przyjęta przez kierownictwo resortu. Dialog kontynuowany w ramach Trójstronnego Zespołu ds. Kolejnictwa. Departament Spółek Strategicznych prowadzi stały monitoring realizacji umów transferowych.",
     protestDetails: {
-      location: "Warszawa, ul. Krucza 36 (plac przed Ministerstwem)",
-      registeredParticipants: 2500,
-      organizer: "Komitet Protestacyjny NSZZ Solidarność i Federacji ZZK",
+      location: "Warszawa, ul. Krucza 36 (przed gmachem MAP)",
+      registeredParticipants: 250,
+      organizer: "Międzyzakładowy Komitet Koordynacyjny Związków Zawodowych Kolejarzy",
       policeCoordination: true,
     },
     parliamentaryControlActive: false,
     actionItemsForCabinet: [
-      "Realizacja ustaleń ze spotkania z delegacją związkową w sali konferencyjnej MAP",
-      "Publikacja infografiki dla mediów: 'Fakty o porozumieniach zatrudnieniowych dla kolejarzy'",
-      "Podsumowanie operacyjne ze Służbą Ochrony Państwa — plac przed gmachem zabezpieczony",
+      "Przegląd wykonania listów intencyjnych na transfer maszynistów i rewidentów taboru",
+      "Publikacja oficjalnego komunikatu informacyjnego na gov.pl/aktywa-panstwowe",
+      "Koordynacja międzyresortowa z Ministerstwem Infrastruktury i MRPiPS",
     ],
   },
   {
@@ -271,19 +271,20 @@ export const MAP_PRESS_RELEASES: MapPressReleaseRecord[] = [
   },
   {
     id: "rel-map-02",
-    title: "Sprostowanie MAP do artykułu prasowego 'Tajne plany wyprzedaży majątku kolejowego'",
+    title: "Sprostowanie MAP do publikacji prasowej na temat polityki dywidendowej i planów inwestycyjnych w energetyce",
     category: "SPROSTOWANIE",
     publishedAt: "2026-10-18 11:15",
-    channel: "PAP",
+    channel: "gov.pl/aktywa-panstwowe",
     summary:
-      "W trybie art. 31a Prawa prasowego MAP zażądało od redakcji sprostowania nieprawdziwych twierdzeń o zamiarze likwidacji spółki PKP CARGO. Postępowanie sanacyjne ma na celu zachowanie płynności i ochrona 10 000 miejsc pracy.",
+      "Wniosek o sprostowanie nieścisłych doniesień prasowych sugerujących rzekome cięcia inwestycji strategicznych w spółkach energetycznych na rzecz maksymalizacji wypłat dywidend do budżetu państwa.",
     keyQuotes: [
-      "Nieprawdą jest, że Ministerstwo Aktywów Państwowych przygotowuje prywatyzację taboru PKP CARGO. Prawdziwa informacja brzmi: zarząd realizuje plan restrukturyzacji pod nadzorem sądu upadłościowego.",
+      "Nieprawdą jest, jakoby Ministerstwo Aktywów Państwowych wymuszało na zarządach spółek energetycznych redukcję planów CAPEX na rzecz bieżących wpłat dywidendowych.",
+      "Polityka dywidendowa MAP w pełni uwzględnia potrzeby kapitałowe transformacji energetycznej i stabilność Krajowego Systemu Elektroenergetycznego.",
     ],
     isRectification: true,
-    targetMediaOutlet: "Dziennik Gazeta Prawna",
-    reachEstimate: 85000,
-    defenseStrengthScore: 0.96,
+    targetMediaOutlet: "Redakcja Dziennika Gazety Prawnej",
+    reachEstimate: 110000,
+    defenseStrengthScore: 0.94,
   },
   {
     id: "rel-map-03",
@@ -302,12 +303,12 @@ export const MAP_PRESS_RELEASES: MapPressReleaseRecord[] = [
   },
   {
     id: "rel-map-04",
-    title: "Briefing prasowy Ministra Wojciecha Balczuna w gmachu resortu",
+    title: "Konferencja prasowa kierownictwa MAP: podsumowanie audytu otwarcia i planu nadzoru właścicielskiego",
     category: "BRIEFING",
     publishedAt: "2026-10-11 12:00",
-    channel: "X / @MAPSkarbPanstwa",
+    channel: "gov.pl/aktywa-panstwowe",
     summary:
-      "Prezentacja wyników finansowych 406 spółek z udziałem Skarbu Państwa za I półrocze oraz założeń do wypłat dywidend w roku budżetowym 2027.",
+      "Prezentacja założeń do wzmocnienia nadzoru właścicielskiego nad 406 spółkami z udziałem Skarbu Państwa oraz planu cyfryzacji sprawozdawczości.",
     keyQuotes: [
       "Dyscyplina finansowa i transparentność to fundamenty, na których budujemy wartość majątku narodowego.",
     ],
@@ -321,7 +322,7 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   {
     id: "inq-media-05",
     mediaOutlet: "Polska Agencja Prasowa (PAP Biznes)",
-    journalistName: "Tomasz Więcławski",
+    journalistName: "Redakcja PAP Biznes",
     receivedAt: "2026-10-26 10:15",
     deadlineAt: "2026-10-26 12:15",
     urgency: "PILNE_DO_2H",
@@ -339,20 +340,20 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   },
   {
     id: "inq-media-01",
-    mediaOutlet: "TVN24 / Fakty",
-    journalistName: "Krzysztof Skórzyński",
+    mediaOutlet: "TVN24 / Dział Gospodarczy",
+    journalistName: "Redakcja TVN24",
     receivedAt: "2026-10-21 08:45",
     deadlineAt: "2026-10-21 13:00",
     urgency: "ZREALIZOWANE",
-    subject: "Pytanie o planowaną obecność Ministra na demonstracji kolejarzy pod gmachem MAP",
+    subject: "Pytanie o dialog ze związkami zawodowymi w PKP CARGO oraz programy osłonowe",
     detailedQuestions: [
-      "Czy Minister Wojciech Balczun wyjdzie w piątek do protestujących kolejarzy z PKP CARGO (spółki, którą sam kierował w latach 2008-2013)?",
-      "Czy resort rozważa cofnięcie zgody na zwolnienia grupowe?",
-      "Jaka jest kwota odpraw wypłaconych dotąd odchodzącym maszynistom?",
+      "Jakie działania podejmuje resort w celu zapewnienia płynnego transferu zwalnianych kolejarzy?",
+      "Jaki jest stan realizacji porozumień z przewoźnikami pasażerskimi?",
+      "Jaka jest kwota odpraw wypłaconych dotąd odchodzącym pracownikom z FGŚP?",
     ],
     politicalRiskScore: 0.88,
     assignedSpokespersonLine:
-      "Ministerstwo wyznaczyło zespół kierowniczy na czele z wiceministrem Grzegorzem Wroną do spotkania z reprezentacją pracowników w sali konferencyjnej. Zwolnienia grupowe są procedurą zarządu pod nadzorem sędziego-komisarza, a MAP zabezpieczyło programy zatrudnieniowe w innych spółkach kolejowych.",
+      "Ministerstwo wyznaczyło zespół kierowniczy na czele z wiceministrem Grzegorzem Wroną do bieżącego dialogu z reprezentacją pracowników. Sanacja chroni spółkę przed upadłością likwidacyjną, a MAP zabezpieczyło programy zatrudnieniowe w innych spółkach kolejowych.",
     factsAndFigures:
       "12 podpisanych listów intencyjnych na transfer 1 850 pracowników; fundusze odprawowe zabezpieczone z FGŚP; sanacja chroni przed likwidacją 10 000 pozostałych etatów.",
     redLines:
@@ -362,15 +363,15 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   {
     id: "inq-media-02",
     mediaOutlet: "Business Insider Polska",
-    journalistName: "Bartek Godusławski",
+    journalistName: "Redakcja Business Insider Polska",
     receivedAt: "2026-10-26 11:00",
     deadlineAt: "2026-10-26 16:00",
     urgency: "DZISIAJ",
     subject: "Stan negocjacji z konsorcjum banków finansujących Polimery Police w Grupie Azoty",
     detailedQuestions: [
-      "Czy MAP zgodziło się na dokapitalizowanie spółki kwotą 1,2 mld zł?",
-      "Czy banki zażądały zmiany prezesa zarządu Grupy Azoty?",
-      "Jakie jest ryzyko wypowiedzenia umów kredytowych przed 31 października?",
+      "Czy MAP prowadzi rozmowy z bankami w sprawie przedłużenia porozumienia standstill?",
+      "Jakie działania naprawcze wdrożył zarząd Grupy Azoty?",
+      "Jakie jest ryzyko wypowiedzenia umów kredytowych przed końcem kwartału?",
     ],
     politicalRiskScore: 0.76,
     assignedSpokespersonLine:
@@ -383,7 +384,7 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   {
     id: "inq-media-03",
     mediaOutlet: "Rzeczpospolita / Dział Ekonomiczny",
-    journalistName: "Paweł Rożyński",
+    journalistName: "Redakcja Rzeczpospolita",
     receivedAt: "2026-10-21 07:10",
     deadlineAt: "2026-10-22 12:00",
     urgency: "ZREALIZOWANE",
@@ -402,7 +403,7 @@ export const MAP_PRESS_INQUIRIES: MapPressInquiryRecord[] = [
   {
     id: "inq-media-04",
     mediaOutlet: "Wirtualna Polska / Money.pl",
-    journalistName: "Mateusz Ratajczak",
+    journalistName: "Redakcja Money.pl",
     receivedAt: "2026-10-19 14:00",
     deadlineAt: "2026-10-20 18:00",
     urgency: "ZREALIZOWANE",

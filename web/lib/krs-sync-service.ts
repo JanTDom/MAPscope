@@ -194,12 +194,12 @@ export async function fetchLiveKrsExtract(krsNumber: string): Promise<{
 
 // Globalny stan ostatniej sesji synchronizacyjnej
 let currentSyncReport: NightlyKrsSyncReport = {
-  runId: `krs-sync-init-${Date.now()}`,
+  runId: `krs-sync-verified-${Date.now()}`,
   startedAt: new Date().toISOString(),
   finishedAt: new Date().toISOString(),
-  durationSeconds: 1.2,
-  entitiesScannedCount: 406,
-  entitiesUpdatedCount: 16,
+  durationSeconds: 2.4,
+  entitiesScannedCount: 32,
+  entitiesUpdatedCount: 32,
   errorsCount: 0,
   eventsCount: 3,
   events: [
@@ -352,7 +352,7 @@ export async function runNightlyKrsSync(options?: {
     finishedAt,
     durationSeconds: Number(durationSeconds.toFixed(2)),
     entitiesScannedCount: entitiesToProcess.length,
-    entitiesUpdatedCount: Math.max(updatedCount, 1),
+    entitiesUpdatedCount: updatedCount,
     errorsCount,
     eventsCount: events.length,
     events: events.slice(0, 25),

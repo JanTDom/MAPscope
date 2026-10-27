@@ -353,33 +353,44 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                     </span>
                   ) : null}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {d?.managementBoard.map((member, i) => (
-                    <div
-                      key={i}
-                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <span className="text-xs font-bold text-white block">{member.name}</span>
-                          <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                {d?.managementBoard && d.managementBoard.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {d.managementBoard.map((member, i) => (
+                      <div
+                        key={i}
+                        className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-xs font-bold text-white block">{member.name}</span>
+                            <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
+                            od {member.appointedAt}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
-                          od {member.appointedAt}
-                        </span>
-                      </div>
 
-                      <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
-                        <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 1"}>
-                          Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 1"}</strong>
-                        </span>
-                        <span className="font-mono text-[#57e0c5] shrink-0">
-                          {member.verifiedAt || getKrsLastSyncDate()}
-                        </span>
+                        <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
+                          <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 1"}>
+                            Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 1"}</strong>
+                          </span>
+                          <span className="font-mono text-[#57e0c5] shrink-0">
+                            {member.verifiedAt || getKrsLastSyncDate()}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] text-center py-5">
+                    <p className="text-xs text-[#8e9da7]">
+                      Dane organów zarządzających oczekują na pobranie odpisu z Centralnej Informacji KRS.
+                    </p>
+                    <p className="text-[10px] text-[#5d6b74] mt-1 font-mono">
+                      Status weryfikacji: brak zarejestrowanych osób w pamięci podręcznej; wymagane zapytanie do API MS.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Rada Nadzorcza */}
@@ -387,33 +398,41 @@ export function DossierModal({ entity, onClose, internalData }: DossierModalProp
                 <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-2">
                   Rada Nadzorcza ({d?.supervisoryBoard.length || 0})
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {d?.supervisoryBoard.map((member, i) => (
-                    <div
-                      key={i}
-                      className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <span className="text-xs font-bold text-white block">{member.name}</span>
-                          <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                {d?.supervisoryBoard && d.supervisoryBoard.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {d.supervisoryBoard.map((member, i) => (
+                      <div
+                        key={i}
+                        className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-xs font-bold text-white block">{member.name}</span>
+                            <span className="text-[11px] text-[#8e9da7]">{member.role}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
+                            od {member.appointedAt}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-mono text-[#5d6b74] shrink-0">
-                          od {member.appointedAt}
-                        </span>
-                      </div>
 
-                      <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
-                        <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 2"}>
-                          Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 2"}</strong>
-                        </span>
-                        <span className="font-mono text-[#57e0c5] shrink-0">
-                          {member.verifiedAt || getKrsLastSyncDate()}
-                        </span>
+                        <div className="pt-2 border-t border-[rgba(159,186,199,0.08)] flex items-center justify-between text-[10px] text-[#5d6b74]">
+                          <span className="truncate max-w-[200px]" title={member.sourceReference || "KRS Dział 2 Rubryka 2"}>
+                            Źródło: <strong className="text-[#8e9da7] font-normal">{member.sourceReference || "KRS Dz. 2 Rub. 2"}</strong>
+                          </span>
+                          <span className="font-mono text-[#57e0c5] shrink-0">
+                            {member.verifiedAt || getKrsLastSyncDate()}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-[#111a21] border border-[rgba(159,186,199,0.1)] text-center py-4">
+                    <p className="text-xs text-[#8e9da7]">
+                      Skład rady nadzorczej dostępny po synchronizacji z Działem 2 Rubryka 2 odpisu KRS.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Filar Struktury Grupy Kapitałowej: Spółki zależne II i III szczebla */}
