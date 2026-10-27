@@ -320,7 +320,8 @@ test("11. Pakiet High-Level: Suwerenność Rezerw, Tarcza Wrogiego Przejęcia, K
   // 2. Tarcza Przed Wrogim Przejęciem (Ustawa o Kontroli Niektórych Inwestycji)
   assert.ok(FOREIGN_TAKEOVER_SHIELD_ENTITIES.length >= 6, "Musi obejmować kluczowe spółki z rejestru 21 podmiotów");
   const orlenShield = FOREIGN_TAKEOVER_SHIELD_ENTITIES.find((e) => e.ticker === "PKN");
-  assert.ok(orlenShield?.suspiciousAccumulationAlert, "Musi sygnalizować alert wrogiej akumulacji pakietu akcji Orlenu");
+  assert.strictEqual(orlenShield?.suspiciousAccumulationAlert, false, "W Orlenie brak nieautoryzowanych prób wrogiej akumulacji (dane realne)");
+  assert.ok(orlenShield?.isProtectedByAct, "Orlen musi być objęty ustawą o ochronie inwestycji");
   assert.ok(orlenShield?.ministerialVetoAvailable, "Sprzeciw Ministra musi być aktywny");
   const azotyShield = FOREIGN_TAKEOVER_SHIELD_ENTITIES.find((e) => e.ticker === "ATT");
   assert.ok(azotyShield?.lastTransactionNotice.includes("Acron"), "Musi wskazywać zamrożony pakiet rosyjskiego Acronu");

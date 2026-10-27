@@ -475,39 +475,60 @@ Rekomendacja dla MAP: ${activeXbrlReport.covenant.ministerialRecommendation}`;
               </div>
             </div>
 
-            {/* Alert Krytyczny dla Spółki Akumulowanej */}
-            {FOREIGN_TAKEOVER_SHIELD_ENTITIES.some((e) => e.suspiciousAccumulationAlert) && (
-              <div className="p-4 rounded-xl bg-[#1c0c11] border border-rose-500/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0">
-                    <ShieldAlert className="w-5 h-5 text-rose-400" />
+            {/* Status Tarczy / Ewentualny Alert Wrogiej Akumulacji */}
+            {FOREIGN_TAKEOVER_SHIELD_ENTITIES.some((e) => e.suspiciousAccumulationAlert) ? (
+              FOREIGN_TAKEOVER_SHIELD_ENTITIES.filter((e) => e.suspiciousAccumulationAlert).map((ent) => (
+                <div
+                  key={ent.id}
+                  className="p-4 rounded-xl bg-[#1c0c11] border border-rose-500/40 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0">
+                      <ShieldAlert className="w-5 h-5 text-rose-400" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-rose-300 uppercase tracking-wider">
+                          Wykryto skoordynowaną próbę wrogiej akumulacji na GPW
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-200 border border-rose-800">
+                          {ent.entityName} ({ent.ticker})
+                        </span>
+                      </div>
+                      <p className="text-xs text-rose-100/90 mt-1">
+                        {ent.lastTransactionNotice}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenVeto(ent)}
+                    className="px-4 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Wydaj Sprzeciw Ministra</span>
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="p-3.5 rounded-xl bg-[#0e1818] border border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-rose-300 uppercase tracking-wider">
-                        Wykryto skoordynowaną próbę wrogiej akumulacji na GPW
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-200 border border-rose-800">
-                        ORLEN S.A. (PKN)
-                      </span>
-                    </div>
-                    <p className="text-xs text-rose-100/90 mt-1">
-                      Fundusze powiązane kapitałowo z cypryjskim wehikułem inwestycyjnym skupiły w blokach pozasesyjnych 4,8% akcji bez zgłoszenia. Wymagany natychmiastowy wniosek do ABW i KNF oraz ministerialny sprzeciw.
+                    <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider block">
+                      Stan ochrony: Brak aktywnych naruszeń i prób wrogiej akumulacji na GPW
+                    </span>
+                    <p className="text-xs text-[#8e9da7] mt-0.5">
+                      Wszystkie spółki strategiczne objęte ustawą o kontroli niektórych inwestycji są w stanie bezpiecznym. Wolumen obrotu na GPW w normie, brak przekroczeń progów zawiadomień do KNF i ABW.
                     </p>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const orlen = FOREIGN_TAKEOVER_SHIELD_ENTITIES.find((e) => e.ticker === "PKN");
-                    if (orlen) handleOpenVeto(orlen);
-                  }}
-                  className="px-4 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Wydaj Sprzeciw Ministra</span>
-                </button>
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-emerald-950/50 text-emerald-300 border border-emerald-800/50 shrink-0 self-start md:self-center">
+                  MONITORING KNF / ABW: CZYSTY
+                </span>
               </div>
             )}
 

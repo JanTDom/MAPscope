@@ -81,7 +81,7 @@ Dla kierownictwa resortu MAP i Prezesa Rady Ministrów kluczowa jest synteza str
 ### Decyzja
 Wdrożono cztery zintegrowane moduły wykonawcze:
 1. **Radar Suwerenności Gospodarczej i Rezerw Strategicznych RP:** Ciągły monitoring rezerw paliwowych PERN (rezerwy interwencyjne w kawernach i bazach), napełnienia podziemnych magazynów gazu (PMG Gaz-System), zapasów węgla przy blokach systemowych oraz mocy wytwórczych nawozów azotowych Grupy Azoty.
-2. **Tarcza Przed Wrogim Przejęciem (Ustawa z dn. 24 lipca 2015 r. o kontroli niektórych inwestycji):** Ciągły monitoring 21 podmiotów podlegających ochronie, detekcja nieautoryzowanej akumulacji akcji na GPW (np. pakiety funduszy cypryjskich na akcjach Orlenu) oraz automatyczny generator decyzji administracyjnej o sprzeciwie Ministra na podstawie art. 4 ust. 1 ustawy.
+2. **Tarcza Przed Wrogim Przejęciem (Ustawa z dn. 24 lipca 2015 r. o kontroli niektórych inwestycji):** Ciągły monitoring 21 podmiotów podlegających ochronie, monitorowanie nieautoryzowanej akumulacji akcji na GPW i transakcji pakietowych oraz automatyczny generator decyzji administracyjnej o sprzeciwie Ministra na podstawie art. 4 ust. 1 ustawy.
 3. **Komitet Stabilności Finansowej i Kowenantów Bankowych SSP:** Śledzenie długu netto (70,9 mld PLN), relacji Dług/EBITDA w odniesieniu do limitów umownych (3.5x) dla spółek w kryzysie (Grupa Azoty, PKP Cargo) oraz harmonogramu spłat najbliższych transz dłużnych.
 4. **Gabinetowy Audio-Brief (Odprawa Poranna w 90 sekund):** Format audio dla Ministra w drodze do KPRM z 1 kluczową liczbą majątku państwowego, 1 pilną dyspozycją do podpisu przed godz. 10:00 oraz 3 faktami do debaty rządowej.
 

@@ -2577,8 +2577,8 @@ export const FOREIGN_TAKEOVER_SHIELD_ENTITIES: ForeignTakeoverShieldEntity[] = [
     freeFloatPercent: 50.1,
     foreignCapitalSharePercent: 28.4,
     isProtectedByAct: true,
-    suspiciousAccumulationAlert: true,
-    lastTransactionNotice: "Podwyższona zmienność wolumenu transakcji na sesjach GPW podlegająca rutynowemu monitoringowi KNF w reżimie tarczy ustawy o kontroli niektórych inwestycji. Każde nabycie znacznego pakietu udziałów (>20%) wymaga uprzedniej zgody organu kontrolnego pod rygorem bezwzględnej nieważności.",
+    suspiciousAccumulationAlert: false,
+    lastTransactionNotice: "Podmiot strategiczny objęty pełną ochroną na mocy rozporządzenia RM. Statutowe ograniczenie prawa głosu pozostałych akcjonariuszy do 10% oraz 49,9% udziału Skarbu Państwa zabezpiecza spółkę przed próbami wrogiej akumulacji. Brak nieautoryzowanych transakcji pakietowych na GPW.",
     ministerialVetoAvailable: true,
   },
   {
